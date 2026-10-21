@@ -1,32 +1,21 @@
 const SPRITES = ['img/butterfly-a-sm.webp', 'img/butterfly-b-sm.webp'];
 const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 
-// Small butterflies that flutter on CSS keyframes alone: no JS runs per frame.
-// At most 8 on phones and 14 on larger screens; the ones in scenes off screen pause.
+// Small butterflies that flutter on CSS keyframes alone: no JS runs per frame. 6 on phones, 10 on larger screens.
 export function flock() {
-  let left = matchMedia('(min-width: 768px)').matches ? 14 : 8;
-  const flocks = [...document.querySelectorAll('.flock')];
-  for (const el of flocks) {
-    const n = Math.min(left, +el.dataset.count);
-    left -= n;
-    for (let i = 0; i < n; i++) el.append(butterfly(i));
-  }
-  const io = new IntersectionObserver(entries => {
-    for (const e of entries) e.target.querySelector('.flock').classList.toggle('idle', !e.isIntersecting);
-  });
-  flocks.forEach(el => io.observe(el.closest('.scene')));
-  return () => {
-    io.disconnect();
-    flocks.forEach(el => el.replaceChildren());
-  };
+  const el = document.querySelector('.flock');
+  const n = matchMedia('(min-width: 768px)').matches ? 10 : +el.dataset.count;
+  for (let i = 0; i < n; i++) el.append(butterfly(i));
+  return () => el.replaceChildren();
 }
 
 function butterfly(i) {
   const el = document.createElement('div');
   el.className = 'bf';
+  // --y keeps them in the band below the headline
   const vars = {
     '--img': `url(${new URL(SPRITES[i % SPRITES.length], location.href)})`, // absolute: a relative url() in a custom property resolves against the stylesheet
-    '--x': `${rand(6, 80)}%`, '--y': `${rand(8, 58)}%`, '--s': `${rand(38, 64)}px`,
+    '--x': `${rand(6, 80)}%`, '--y': `${rand(38, 60)}%`, '--s': `${rand(38, 64)}px`,
     '--dx': `${rand(-18, 18)}vw`, '--dy': `${rand(-10, 6)}svh`,
     '--r0': `${rand(-20, 0)}deg`, '--r1': `${rand(0, 20)}deg`,
     '--d': `${rand(3.5, 6.5)}s`, '--dl': `${rand(-6, 0)}s`, '--f': `${rand(0.18, 0.3)}s`,

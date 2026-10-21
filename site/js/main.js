@@ -1,6 +1,8 @@
-import { scenes } from './scenes.js';
+import { film } from './scenes.js';
 import { flock } from './butterflies.js';
 import { invite } from './invite.js';
+
+const root = document.documentElement;
 
 // ?to=Ravi%20Uncle%20%26%20family → "Dear Ravi Uncle & family," (textContent only, so a name is never HTML)
 const name = new URLSearchParams(location.search).get('to')?.trim().slice(0, 40);
@@ -11,26 +13,24 @@ if (name) {
 }
 invite(name);
 
-// The peak's art starts loading once scene 2 is on screen
-new IntersectionObserver(([entry], io) => {
-  if (!entry.isIntersecting) return;
-  document.querySelectorAll('.s3 img[loading=lazy]').forEach(img => (img.loading = 'eager'));
-  io.disconnect();
-}).observe(document.querySelector('.s2'));
+// The rest of the film's art loads once the first screen has (or as soon as the guest starts scrolling)
+const loadRest = () => root.classList.add('loaded');
+addEventListener('load', loadRest, { once: true });
+addEventListener('scroll', loadRest, { once: true, passive: true });
 
 const { gsap, ScrollTrigger } = window;
-if (gsap && ScrollTrigger) {
+if (!gsap || !ScrollTrigger) root.classList.remove('anim');
+else {
   gsap.registerPlugin(ScrollTrigger);
-  ScrollTrigger.config({ ignoreMobileResize: true });
   // Everything that moves exists only while motion is allowed; matchMedia reverts it all if that changes.
   gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
-    document.documentElement.classList.add('anim');
+    root.classList.add('anim');
     ScrollTrigger.refresh();
-    scenes();
+    film();
     const stopFlock = flock();
     return () => {
       stopFlock();
-      document.documentElement.classList.remove('anim');
+      root.classList.remove('anim');
     };
   });
 }

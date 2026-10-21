@@ -1,5 +1,5 @@
 // Browser checks for the site (dev only). Serve it first: python3 -m http.server -d site 8000
-//   node tools/check.mjs shots   [url]  6 positions per scene at 3 sizes + reduced motion → shots/*.png
+//   node tools/check.mjs shots   [url]  24 evenly spaced scroll positions at 3 sizes + reduced motion → shots/*.png
 //   node tools/check.mjs flicker [url]  slow scroll recorded with GPU memory cut to 48 MB; fails on blank-frame flashes
 //   node tools/check.mjs tasks   [url]  slow scroll at phone size with the CPU slowed 4×; fails on main-thread tasks over 50 ms
 // Uses the installed Chrome (playwright-core, no browser download) and Homebrew ffmpeg.
@@ -16,11 +16,6 @@ const SIZES = {
 const OUT = 'shots';
 mkdirSync(OUT, { recursive: true });
 
-// Scroll offsets that put each scene at 0, 20 … 100% of its pinned stretch
-const stops = page => page.evaluate(() => [...document.querySelectorAll('.scene')].map(s => {
-  const pin = Math.max(0, s.offsetHeight - innerHeight);
-  return [0, 0.2, 0.4, 0.6, 0.8, 1].map(p => Math.round(s.offsetTop + p * pin));
-}));
 
 // Wheel through the whole page in small steps, like a slow thumb
 async function slowScroll(page) {
@@ -38,17 +33,15 @@ async function shots() {
   for (const [name, size] of Object.entries(SIZES)) {
     const page = await browser.newPage(size);
     await page.goto(url, { waitUntil: 'networkidle' });
-    const all = await stops(page);
-    for (const [s, ys] of all.entries()) {
-      for (const [i, y] of ys.entries()) {
-        await page.evaluate(y => scrollTo(0, y), y);
-        await page.waitForTimeout(700); // scrub: 0.4 needs a moment to catch up
-        await page.screenshot({ path: `${OUT}/${name}-s${s + 1}-${i}.png` });
-      }
-      // one row per scene: six positions side by side
-      execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-i', `${OUT}/${name}-s${s + 1}-%d.png`, '-vf', 'scale=360:-1,tile=6x1:padding=8:color=white', `${OUT}/${name}-s${s + 1}.png`]);
-      for (let i = 0; i < 6; i++) rmSync(`${OUT}/${name}-s${s + 1}-${i}.png`);
+    const max = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+    for (let i = 0; i < 24; i++) {
+      await page.evaluate(y => scrollTo(0, y), Math.round((i / 23) * max));
+      await page.waitForTimeout(900); // the film trails the scroll by 0.5 s
+      await page.screenshot({ path: `${OUT}/${name}-${i}.png` });
     }
+    // one sheet per size, read left to right, top to bottom
+    execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-i', `${OUT}/${name}-%d.png`, '-vf', 'scale=300:-1,tile=6x4:padding=8:color=white', `${OUT}/${name}.png`]);
+    for (let i = 0; i < 24; i++) rmSync(`${OUT}/${name}-${i}.png`);
     await page.close();
   }
   const page = await browser.newPage({ ...SIZES.iphone, reducedMotion: 'reduce' });
@@ -59,10 +52,13 @@ async function shots() {
 }
 
 async function flicker() {
-  // headed, so the GPU compositor is real; 48 MB is a busy browser or a cheap phone
-  const browser = await chromium.launch({ channel: 'chrome', headless: false, args: ['--force-gpu-mem-available-mb=48'] });
+  // Headed, so the GPU compositor is real. 48 MB on a phone screen (390×664 at 3×) is a busy browser or a cheap
+  // phone: about four full screens of layers. The laptop (1440×900 at 2×) gets the same four screens, scaled by its pixels.
   let failed = false;
   for (const name of ['iphone', 'laptop']) {
+    const { viewport: v, deviceScaleFactor: d } = SIZES[name];
+    const mb = Math.round((48 * v.width * v.height * d * d) / (390 * 664 * 9));
+    const browser = await chromium.launch({ channel: 'chrome', headless: false, args: [`--force-gpu-mem-available-mb=${mb}`] });
     const dir = `${OUT}/video-${name}`;
     rmSync(dir, { recursive: true, force: true });
     const { viewport } = SIZES[name];
@@ -72,6 +68,7 @@ async function flicker() {
     await page.waitForTimeout(1000);
     await slowScroll(page);
     await ctx.close();
+    await browser.close();
     // A flash is a blink: the picture jumps away at frame i and is back within 4 frames.
     // (A fast scroll past a dark/light scene edge also changes a lot, but it doesn't come back, so it doesn't count.)
     const w = 64, h = Math.round((w * viewport.height) / viewport.width / 2) * 2;
@@ -84,10 +81,22 @@ async function flicker() {
       const back = [1, 2, 3, 4].find(k => frames[i + k] && diff(frames[i - 1], frames[i + k]) < 20);
       if (back) { flashes.push(i); i += back; }
     }
-    console.log(`${name}: ${frames.length} frames, flashes ${flashes.length ? `at frames ${flashes.join(', ')}` : 'none'}`);
+    // A stop is the scroll moving while the picture doesn't: the longest run of frames with almost no change.
+    let still = 0, stillEnd = 0, run = 0;
+    for (let i = 26; i < frames.length - 30; i++) { // ignore the last second (end of page)
+      run = diff(frames[i - 1], frames[i]) < 0.3 ? run + 1 : 0;
+      if (run > still) [still, stillEnd] = [run, i];
+    }
+    // A hit is the picture going from moving to nearly frozen within a few frames while the scroll keeps going,
+    // like a stage that pins as it arrives. Speeds are smoothed over 3 frames.
+    const speed = frames.map((f, i) => (i ? diff(frames[i - 1], f) : 0));
+    const avg = i => (speed[i] + speed[i - 1] + speed[i - 2]) / 3;
+    const hits = [];
+    for (let i = 30; i < frames.length - 30; i++) if (avg(i - 4) > 3 && avg(i) < 0.3 * avg(i - 4) && !hits.some(h => i - h < 10)) hits.push(i);
+    console.log(`${name} (${mb} MB): ${frames.length} frames, flashes ${flashes.length ? `at frames ${flashes.join(', ')}` : 'none'}, ` +
+      `hits ${hits.length ? `${hits.length} (at ${hits.map(h => (h / 25).toFixed(1) + ' s').join(', ')})` : 'none'}, longest still stretch ${(still / 25).toFixed(1)} s${still ? ` (ending ${(stillEnd / 25).toFixed(1)} s)` : ''}`);
     failed ||= flashes.length > 0;
   }
-  await browser.close();
   process.exitCode = failed ? 1 : 0;
 }
 

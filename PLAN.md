@@ -24,7 +24,7 @@ Status: **milestone 2, rough build** (plan approved 2026-10-21; style test appro
 | Budget | $0, pay only if the result truly needs it | User, 2026-10-21 |
 | Stack | Plain HTML, CSS and JS modules. GSAP and ScrollTrigger kept in the repo. No framework, no build step | User asked for no frameworks. Last year's React re-rendered the whole page on every scroll frame |
 | Smooth scrolling | **No Lenis** | Lenis leaves touch scrolling alone by default (`syncTouch` off). GSAP's own smooth-scroll plugin skips touch screens on purpose. Guests are on phones. `scrub: 0.4` already smooths mouse wheels |
-| Pinning | CSS `position: sticky` stages. ScrollTrigger only reads progress | ScrollTrigger's `pin` jumps when the phone's address bar moves |
+| Scroll structure | **One stage for the whole page, scroll plays one continuous film** (scroll-craft's "worldflight"). Nothing pins or unpins | Your iPhone test, 2026-10-21: pinned scenes made the scroll stop and start at every boundary ("three different screens"). scroll-craft: "Acts cut the page into pinned blocks… the wrong shape for one continuous camera move" |
 | Art style | Layered paper-cut, like a shadow box | Every element is a flat layer, so depth comes naturally. Paper is rigid, so code-driven motion looks right |
 | Story | Caterpillar, then chrysalis, then butterfly. The peak is the wings unfolding | One clear high point |
 | Peak technique | Paper wings unfolding in CSS 3D, driven by GSAP. **No video** | $0, sharp at any size, tiny download. Scrubbed video freezes on iPhones in Low Power Mode |
@@ -38,15 +38,15 @@ Status: **milestone 2, rough build** (plan approved 2026-10-21; style test appro
 
 ## What a guest sees (phone, portrait)
 
-About 10 screens of scrolling, roughly a minute. Each scene is a tall section with a sticky full-screen stage inside it. Scroll progress drives one GSAP timeline per scene. "Pinned" is how many screens of scrolling the stage holds still while its timeline plays.
+About 10 screens of scrolling, roughly a minute. The whole page is one sticky stage; the five parts sit on top of each other inside it and scroll plays them as one continuous film, handing over through half-screen seams (the camera keeps moving while one part dissolves into the next). "Film time" is measured in screens of scroll.
 
-| # | Scene | Pinned (screens) | What scrolling does | Feeling |
+| # | Part | Film time (screens) | What scrolling does | Feeling |
 |---|---|---|---|---|
-| 1 | **Dawn garden** (opening) | 0.6 | Paints immediately. There is no loading screen. Four paper layers (hills, wisteria, meadow, foreground blossoms) separate at different speeds as the camera pushes in. "Taneira is turning two" sits between the meadow and the blossoms. 3 to 5 butterflies flutter. The `?to=` greeting shows above the title | Delight |
-| 2 | **Year one** | 1.2 | A paper caterpillar (head plus 5 segments) crawls along a stem, passing four paper vignettes of her, each one cut in her paper-cut likeness: the no-teeth smile, the blank stare, the confident babbled stories, the finger-heart "love you" | Warmth |
-| 3 | **Chrysalis to wings** (quiet, then the peak) | 2.7 (0.5 quiet + 2.2 peak), the longest | One stage, one chrysalis (merged 2026-10-21 so it never appears twice). Dusk. One chrysalis hangs from a twig and glows warmer and trembles a little as you scroll. Deliberately calm before the peak Then: The chrysalis halves fall away. Each wing is a sheet of folded paper that opens fold by fold, then the whole butterfly lifts. The camera pulls back to show her paper-cut portrait with paper wings beside a large "2". On first arrival, about 30 butterflies burst out across the screen
-| 4 | **You're invited** | 0.4 | Cards for date, time, venue and dress code (a strip of all five palette colours), each with a butterfly landing on it. Buttons: Add to calendar, Directions. A countdown such as "38 days to go" | Clarity |
-| 5 | **We've saved a spot for you** (close) | 0 | Dusk garden. A "Tell us you're coming 🦋" button with the line "So we know how much cake to make 🍰". Tapping it sends a butterfly flying off the screen carrying the guest's name while WhatsApp opens. The page holds here and does not fade out | Belonging |
+| 1 | **Dawn garden** (opening) | 0 – 1.2, seam to 1.8 | Paints immediately. There is no loading screen. Four paper layers (hills, wisteria, meadow, foreground blossoms) separate at different speeds as the camera pushes in. "Taneira is turning two" sits between the meadow and the blossoms. 3 to 5 butterflies flutter. The `?to=` greeting shows above the title | Delight |
+| 2 | **Year one** | 1.8 – 4.0, seam to 4.6 | A paper caterpillar (head plus 5 segments) crawls along a stem, passing four paper vignettes of her, each one cut in her paper-cut likeness: the no-teeth smile, the blank stare, the confident babbled stories, the finger-heart "love you" | Warmth |
+| 3 | **Chrysalis to wings** (quiet, then the peak) | 4.6 – 7.5 (0.6 quiet, then the 2.3-screen peak), seam to 8.1 | One stage, one chrysalis (merged 2026-10-21 so it never appears twice). Dusk. One chrysalis hangs from a twig and glows warmer and trembles a little as you scroll. Deliberately calm before the peak Then: The chrysalis halves fall away. Each wing is a sheet of folded paper that opens fold by fold, then the whole butterfly lifts. The camera pulls back to show her paper-cut portrait with paper wings beside a large "2". On first arrival, about 30 butterflies burst out across the screen
+| 4 | **You're invited** | 8.1 – 9.0, seam to 9.6 | Cards for date, time, venue and dress code (a strip of all five palette colours), each with a butterfly landing on it. Buttons: Add to calendar, Directions. A countdown such as "38 days to go" | Clarity |
+| 5 | **We've saved a spot for you** (close) | 9.6 – 10.2, where the page ends | Dusk garden. A "Tell us you're coming 🦋" button with the line "So we know how much cake to make 🍰". Tapping it sends a butterfly flying off the screen carrying the guest's name while WhatsApp opens. The page holds here and does not fade out | Belonging |
 
 Scene 3's peak is the only peak. It gets the most scroll room, the richest art, and the chrysalis's quiet right before it, on the same stage.
 
@@ -97,16 +97,18 @@ event.json
 
 ### Scroll mechanics
 
-- Each scene is `<section class="scene" style="--len:1.2">` with height `calc((var(--len) + 1) * 100svh)`. Inside it, a `.stage` with `position: sticky; top: 0; height: 100lvh`. Pinned layout only applies under the `.anim` class, which an inline script in `<head>` sets before first paint when motion is allowed (no layout shift); without it, scenes are plain stacked screens.
-- Portrait art sits in a 2:3 `.frame` (covers a phone; a centred column on a laptop until the landscape art exists). Layers are cropped to their artwork and placed with `--top`, a % of the frame.
-- Anything GSAP moves is positioned with top/left/margins, never a CSS transform, because GSAP owns the transform.
+- `<main class="world" style="--T:10.2">` holds one `.stage` (`position: sticky; top: 0; height: 100lvh`) and the world is `(T + 1)` screens tall. The five `.seg` parts sit stacked inside the stage. All of this only under the `.anim` class, which an inline script in `<head>` sets before first paint when motion is allowed (no layout shift; it falls back to the plain page if GSAP hasn't arrived after 4 s). Without it, the parts are plain stacked screens.
+- One GSAP timeline, time in screens of scroll, scrubbed over the whole world with `scrub: 0.5` (the smoothing scroll-craft uses so uneven wheel and trackpad input doesn't read as stutter). Every screen of scroll moves something; a hard flick plays the film fast, as one motion.
+- Seams: the outgoing part's pieces keep moving and fade while the next part dissolves in (`autoAlpha`, so hidden parts are `visibility: hidden` and cost no graphics memory). Text of one part clears before the next part's text arrives.
+- Parts after the first are `display: none` until the page has loaded (or the guest starts scrolling), so their images don't compete with the first screen.
+- Portrait art sits in a 2:3 `.frame` (covers a phone; a centred column on a laptop until the landscape art exists), centred with a negative margin. Layers are cropped to their artwork and placed with `--top`, a % of the frame.
+- Anything GSAP moves is positioned with top/left/margins, never a CSS transform, because GSAP owns the transform. Only small pieces are promoted (`will-change`); never a full-screen box.
 - Backgrounds fill `lvh`. Text and buttons stay inside `svh` plus the safe-area insets, so the address bar never covers them.
-- `ScrollTrigger.create({ trigger: scene, start: 'top top', end: 'bottom bottom', scrub: 0.4, animation: tl })`, with `ignoreMobileResize: true`.
 - Everything is set up inside `gsap.matchMedia()`. The animated build exists only under `(prefers-reduced-motion: no-preference)`. Phone and desktop get different travel distances.
 
 ### Butterflies
 
-- **Ambient:** each butterfly is two half-width elements showing the left and right halves of one small sprite (`background-size: 200%`), so no cutting step is needed. The flap is a CSS `rotateY` keyframe and the drift is a CSS transform keyframe, so both run on the compositor and cost no JS per frame. Capped at 8 on phones and 14 on desktop. An IntersectionObserver pauses off-screen ones.
+- **Ambient:** each butterfly is two half-width elements showing the left and right halves of one small sprite (`background-size: 200%`), so no cutting step is needed. The flap is a CSS `rotateY` keyframe and the drift is a CSS transform keyframe, so both run on the compositor and cost no JS per frame. Capped at 8 on phones and 14 on desktop. An IntersectionObserver pauses off-screen ones. One flock of 6 (10 on larger screens) lives in the garden band below the headline; it leaves with the garden and comes back over the dusk meadow at the end, so butterflies never fly over words being read.
 - **Peak burst:** one canvas. About 30 sprites, wings flapped with `setTransform` x-scale. It runs for 2.5 s, pixel density is capped at 2, and the canvas is removed afterwards. It fires once, when the peak timeline passes 0.85 going forward.
 - **Unfolding wings (peak), as built:** two wings hinged at the body (`--h`), each with one outer panel hinged on a slanted crease (`--f`, `rotate3d`). The panel's back is `butterfly-a-back.webp`, a plain paper silhouette that fades in while the panel faces away. The wrapper `.peak` fades, never `.bfly`, because opacity below 1 flattens 3D.
 - **Original design:** one image per wing. Fold panels are made from that same image with `clip-path` polygons, so no extra art is needed. Each outer panel hinges on its crease with `rotateY`/`rotateX`, and the back of the paper is a plain colour face. Folds go **one level deep only**: `clip-path` flattens 3D for an element's children, so panels never nest. Prototyped first thing in milestone 2 on a real iPhone, since this is the main technical risk.
@@ -199,7 +201,7 @@ Tools: Chrome DevTools (CPU slowdown, Performance panel), Lighthouse, `tools/che
 Every visual change is checked against:
 - Screenshot sheet at 390×844, 360×800 and 1440×900, plus reduced motion. Read by eye, not just generated.
 - No console errors. Byte budgets measured.
-- Flicker test (`npm run flicker`): headed Chrome with `--force-gpu-mem-available-mb=48` records a slow scroll through the whole page at phone and laptop size. A flash is a blink: the picture jumps away and is back within 4 frames (a fast scroll past a dark/light scene edge changes a lot too, but doesn't come back). Validated on the flickering style-test preview (5 blinks found) and its fix (none).
+- Flicker and stop test (`npm run flicker`): headed Chrome records a slow scroll through the whole page at phone and laptop size, with graphics memory cut to 48 MB on the phone screen and the same four screens' worth on the laptop (107 MB). Flash: the picture jumps away and is back within 4 frames (validated on the flickering style-test preview and its fix). Hit: the picture goes from moving to nearly frozen within a few frames while the scroll keeps going. Also reports the longest still stretch. Baseline with pinned scenes: 6 hits on the phone; one film: 2, one of them a dissolve the detector over-reads, the other the folded butterfly that the wing upgrade replaces.
 
 Real-phone checklist, before launch:
 - [ ] Scrolling all six scenes stays smooth on Android and iPhone.
