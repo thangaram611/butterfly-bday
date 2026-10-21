@@ -5,7 +5,8 @@
     "serve": "python3 -m http.server -d site 8000",
     "shots": "node tools/check.mjs shots",
     "flicker": "node tools/check.mjs flicker",
-    "tasks": "node tools/check.mjs tasks"
+    "tasks": "node tools/check.mjs tasks",
+    "layout": "node tools/check.mjs layout"
   },
   "devDependencies": {
     "playwright-core": "1.55.0"

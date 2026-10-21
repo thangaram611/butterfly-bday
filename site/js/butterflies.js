@@ -2,21 +2,31 @@ const SPRITES = ['img/butterfly-a-sm.webp', 'img/butterfly-b-sm.webp'];
 const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 
 // Small butterflies that flutter on CSS keyframes alone: no JS runs per frame. 6 on phones, 10 on larger screens.
+// They live in the band between the headline and the meadow, measured once the fonts have set the headline's size,
+// and only drift downwards, so they can't reach the headline.
 export function flock() {
   const el = document.querySelector('.flock');
   const n = matchMedia('(min-width: 768px)').matches ? 10 : +el.dataset.count;
-  for (let i = 0; i < n; i++) el.append(butterfly(i));
-  return () => el.replaceChildren();
+  let live = true;
+  document.fonts.ready.then(() => {
+    if (!live) return;
+    const band = el.getBoundingClientRect();
+    const top = Math.min(55, ((document.querySelector('.s1 h1').getBoundingClientRect().bottom - band.top) / band.height) * 100 + 2);
+    for (let i = 0; i < n; i++) el.append(butterfly(i, top));
+  });
+  return () => {
+    live = false;
+    el.replaceChildren();
+  };
 }
 
-function butterfly(i) {
+function butterfly(i, top) {
   const el = document.createElement('div');
   el.className = 'bf';
-  // --y keeps them in the band below the headline
   const vars = {
     '--img': `url(${new URL(SPRITES[i % SPRITES.length], location.href)})`, // absolute: a relative url() in a custom property resolves against the stylesheet
-    '--x': `${rand(6, 80)}%`, '--y': `${rand(38, 60)}%`, '--s': `${rand(38, 64)}px`,
-    '--dx': `${rand(-18, 18)}vw`, '--dy': `${rand(-10, 6)}svh`,
+    '--x': `${rand(6, 80)}%`, '--y': `${rand(top, 56)}%`, '--s': `${rand(38, 64)}px`,
+    '--dx': `${rand(-18, 18)}vw`, '--dy': `${rand(0, 4)}svh`,
     '--r0': `${rand(-20, 0)}deg`, '--r1': `${rand(0, 20)}deg`,
     '--d': `${rand(3.5, 6.5)}s`, '--dl': `${rand(-6, 0)}s`, '--f': `${rand(0.18, 0.3)}s`,
   };

@@ -38,7 +38,7 @@ h2 { font-size: clamp(32px, 9vw, 56px); }
 .frame > img { position: absolute; left: 0; top: calc(var(--top, 0) * 1%); width: 100%; height: auto; }
 .frame > .sky { top: 0; height: 100%; }
 .frame > .wisteria { transform-origin: 50% 0; }
-.frame > .meadow, .frame > .blossoms { transform-origin: 50% 100%; }
+.frame > .meadow, .frame > .blossoms, .s5 .frame { transform-origin: 50% 100%; }
 /* promote the moving pieces, never a full-screen box: each one costs a whole screen of graphics memory */
 .anim .frame > img, .anim .seg > .copy > * { will-change: transform; }
 
@@ -82,7 +82,8 @@ h2 { font-size: clamp(32px, 9vw, 56px); }
 /* the quiet line sits low on the screen under the chrysalis, then fades before the peak */
 .anim .s3 .hush { position: absolute; left: var(--pad-l); right: var(--pad-r); bottom: calc(var(--pad-b) + 12svh); }
 .portrait { position: absolute; left: 0; right: 0; margin: 0 auto; bottom: calc(var(--pad-b) + 2svh); height: min(68svh, 130vw); width: auto; }
-.two { position: absolute; right: max(4vw, calc(50% - 300px)); top: 15svh; font-size: clamp(110px, 30vw, 190px); line-height: 1; color: var(--gold); -webkit-text-stroke: 5px var(--indigo); paint-order: stroke fill; text-shadow: 5px 7px 0 rgb(0 0 0 / .3); }
+/* below the headline even when it wraps to two lines */
+.two { position: absolute; right: max(4vw, calc(50% - 300px)); top: calc(var(--pad-t) + 3svh + 2.2 * clamp(32px, 9vw, 56px)); font-size: clamp(110px, 30vw, 190px); line-height: 1; color: var(--gold); -webkit-text-stroke: 5px var(--indigo); paint-order: stroke fill; text-shadow: 5px 7px 0 rgb(0 0 0 / .3); }
 
 /* the paper butterfly that unfolds: each wing hinges at the body (--h); its outer panel hinges on a
    slanted crease (--f). One fold level only: clip-path flattens 3D for an element's children. */
@@ -118,6 +119,14 @@ h2 { font-size: clamp(32px, 9vw, 56px); }
 .btn { display: inline-block; padding: 14px 24px; border-radius: 999px; background: var(--violet); color: #fff; font-size: 20px; text-decoration: none; border: 3px solid var(--gold); box-shadow: 0 4px 0 var(--indigo); }
 .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--indigo); }
 .btn.gold { background: var(--gold); color: var(--indigo); border-color: var(--indigo); font-size: 22px; }
+/* short phones (an SE shows about 550 px): the invitation has to fit one screen with room to slide in and out */
+@media (max-height: 640px) {
+  .s4 .copy { gap: 10px; }
+  .s4 h2 { font-size: 28px; }
+  .cards { gap: 8px; }
+  .cards li { padding: 8px 14px; line-height: 1.35; }
+  .countdown { font-size: 19px; }
+}
 
 /* 5 · close */
 .s5 { background: var(--night); color: #fff; }
@@ -140,3 +149,5 @@ h2 { font-size: clamp(32px, 9vw, 56px); }
 
 /* reduced motion and no JS: the peak shows its final picture, not the unfolding */
 :root:not(.anim) .peak, :root:not(.anim) .pod, :root:not(.anim) .rail, :root:not(.anim) .cat { display: none; }
+/* there the quiet line sits above the headline, so the 2 moves down to stay clear of it */
+:root:not(.anim) .two { top: 34svh; }

@@ -2,8 +2,12 @@
 //   node tools/check.mjs shots   [url]  24 evenly spaced scroll positions at 3 sizes + reduced motion → shots/*.png
 //   node tools/check.mjs flicker [url]  slow scroll recorded with GPU memory cut to 48 MB; fails on blank-frame flashes
 //   node tools/check.mjs tasks   [url]  slow scroll at phone size with the CPU slowed 4×; fails on main-thread tasks over 50 ms
+//   node tools/check.mjs layout  [url]  steps through the whole film (1001 points, ~7 px of scroll apart) on 5 screens in Chrome
+//                                       and Safari's engine (WebKit), plus the reduced-motion page;
+//                                       fails on anything covering readable text, text off screen, scenery gaps, broken
+//                                       images, sideways scrolling, small tap targets, console errors or failed requests
 // Uses the installed Chrome (playwright-core, no browser download) and Homebrew ffmpeg.
-import { chromium, devices } from 'playwright-core';
+import { chromium, webkit, devices } from 'playwright-core';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readdirSync, rmSync } from 'node:fs';
 
@@ -117,4 +121,97 @@ async function tasks() {
   process.exitCode = long.length ? 1 : 0;
 }
 
-await { shots, flicker, tasks }[mode]();
+// Runs inside the page. Steps the film to each point (scroll there, then set the timeline to match, so the 0.5 s
+// smoothing doesn't blur the sample), measures, and returns what's wrong as { rule, what, at } with film time `at`.
+async function audit(steps) {
+  const TEXT = '.seg h1, .seg h2, .seg p:not([aria-hidden]), .seg .btn'; // read by guests: measured tight around the glyphs
+  const CARDS = '.seg li, .seg .btn';                                     // opaque cards and buttons: measured as boxes
+  const DECOR = '.rail, .cat, .portrait, .pod, .peak, .two, .bf';         // art that must not sit on text
+  const W = innerWidth, H = innerHeight;
+  const opacity = el => { let o = 1; for (let e = el; e; e = e.parentElement) o *= +getComputedStyle(e).opacity; return o; };
+  const shown = el => getComputedStyle(el).visibility === 'visible' && el.getClientRects().length > 0 && opacity(el) >= 0.1;
+  const glyphs = el => { const r = document.createRange(); r.selectNodeContents(el); return r.getBoundingClientRect(); };
+  const hit = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 2;
+  const name = el => `${el.tagName.toLowerCase()}.${[...el.classList].join('.')} "${el.textContent.trim().replace(/\s+/g, ' ').slice(0, 28)}"`;
+  const found = [];
+
+  function measure(at, film) {
+    const text = [...document.querySelectorAll(TEXT)].filter(el => el.textContent.trim() && shown(el)).map(el => ({ el, r: glyphs(el), o: opacity(el) }));
+    const others = [...document.querySelectorAll(`${CARDS}, ${DECOR}`)].filter(shown).map(el => ({ el, r: el.getBoundingClientRect() }));
+    for (const a of text) {
+      for (const b of [...text, ...others]) {
+        if (a.el === b.el || a.el.contains(b.el) || b.el.contains(a.el)) continue;
+        if (text.includes(b) && a.el.compareDocumentPosition(b.el) & Node.DOCUMENT_POSITION_PRECEDING) continue; // each text pair once
+        if (hit(a.r, b.r)) found.push({ rule: 'covers text', what: `${name(b.el)} over ${name(a.el)}`, at });
+      }
+      if (film && a.o >= 0.9 && (a.r.left < -1 || a.r.right > W + 1 || a.r.top < -1 || a.r.bottom > H + 1))
+        found.push({ rule: 'text off screen', what: name(a.el), at });
+    }
+    if (film) for (const f of document.querySelectorAll('.seg .frame')) {
+      if (!shown(f)) continue;
+      const rs = [...f.querySelectorAll('img')].filter(shown).map(e => e.getBoundingClientRect());
+      const gap = H - Math.max(...rs.map(r => r.bottom));
+      if (gap > 1) found.push({ rule: 'scenery gap', what: `${f.parentElement.className}: ends ${Math.round(gap)}px above the bottom`, at });
+      if (W / H <= 2 / 3 && (Math.min(...rs.map(r => r.left)) > 1 || Math.max(...rs.map(r => r.right)) < W - 1))
+        found.push({ rule: 'scenery gap', what: `${f.parentElement.className}: doesn't reach both sides`, at });
+    }
+    for (const img of document.querySelectorAll('.seg img')) if (shown(img) && !img.naturalWidth) found.push({ rule: 'broken image', what: img.src, at });
+    if (document.documentElement.scrollWidth > W + 1) found.push({ rule: 'sideways scroll', what: `page is ${document.documentElement.scrollWidth}px wide`, at });
+  }
+
+  for (const btn of document.querySelectorAll('.btn')) if (btn.getBoundingClientRect().height < 44) found.push({ rule: 'small tap target', what: name(btn), at: '-' });
+  const world = document.querySelector('.world');
+  if (!document.documentElement.classList.contains('anim')) { measure('page', false); return found; }
+  const T = parseFloat(getComputedStyle(world).getPropertyValue('--T'));
+  const tl = ScrollTrigger.getAll().find(t => t.trigger === world).animation;
+  const max = document.documentElement.scrollHeight - H;
+  for (let i = 0; i <= steps; i++) {
+    scrollTo(0, (i / steps) * max);
+    tl.progress(i / steps);
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    measure(((i / steps) * T).toFixed(2), true);
+  }
+  return found;
+}
+
+const LAYOUT = [
+  ['iphone 13, safari engine', webkit, devices['iPhone 13']],
+  ['iphone 13, chrome', chromium, SIZES.iphone],
+  ['small phone (se), safari engine', webkit, { viewport: { width: 375, height: 548 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }],
+  ['large android', chromium, { viewport: { width: 412, height: 839 }, deviceScaleFactor: 2.6, isMobile: true, hasTouch: true }],
+  ['android 360', chromium, SIZES.android],
+  ['laptop', chromium, SIZES.laptop],
+  ['iphone 13, reduced motion', webkit, { ...devices['iPhone 13'], reducedMotion: 'reduce' }],
+];
+
+async function layout() {
+  let total = 0;
+  for (const [name, engine, size] of LAYOUT) {
+    const browser = await engine.launch(engine === chromium ? { channel: 'chrome' } : {});
+    const page = await browser.newPage(size);
+    const errors = [];
+    page.on('console', m => m.type() === 'error' && errors.push(m.text()));
+    page.on('pageerror', e => errors.push(String(e)));
+    page.on('response', r => r.status() >= 400 && errors.push(`${r.status()} ${r.url()}`));
+    await page.goto(url, { waitUntil: 'networkidle' });
+    if (size.reducedMotion) { // the plain page: scroll it once so lazy images load before they're judged
+      await page.evaluate(async () => {
+        for (let y = 0; y < document.documentElement.scrollHeight; y += innerHeight) { scrollTo(0, y); await new Promise(r => setTimeout(r, 150)); }
+        scrollTo(0, 0);
+      });
+      await page.waitForLoadState('networkidle');
+    }
+    const found = await page.evaluate(audit, 1000);
+    for (const e of errors) found.push({ rule: 'console or network error', what: e, at: '-' });
+    // one line per problem, with the film times where it shows
+    const grouped = new Map();
+    for (const f of found) grouped.set(`${f.rule}: ${f.what}`, [...(grouped.get(`${f.rule}: ${f.what}`) || []), f.at]);
+    console.log(`${name}: ${grouped.size ? `${grouped.size} problem(s)` : 'ok'}`);
+    for (const [k, ats] of grouped) console.log(`  ${k}  (film ${ats[0]}${ats.length > 1 ? ` – ${ats.at(-1)}, ${ats.length} points` : ''})`);
+    total += grouped.size;
+    await browser.close();
+  }
+  process.exitCode = total ? 1 : 0;
+}
+
+await { shots, flicker, tasks, layout }[mode]();
