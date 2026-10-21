@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server -d site 8000",
+    "shots": "node tools/check.mjs shots",
+    "flicker": "node tools/check.mjs flicker",
+    "tasks": "node tools/check.mjs tasks"
+  },
+  "devDependencies": {
+    "playwright-core": "1.55.0"
+  }
+}

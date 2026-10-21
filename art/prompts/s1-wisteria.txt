@@ -1,0 +1,7 @@
+Use: one layer of a layered scroll-parallax scene on a phone website; the layers are stacked in code and move at different speeds. Image 1 is the approved full scene. Image 2 is the style reference sheet.
+
+Format: the same tall portrait 2:3 frame as image 1.
+
+Task: recreate only the hanging wisteria and its indigo vines from image 1, along the top edge, with the same shapes, colours, position and scale. Complete any parts hidden in image 1. Remove everything else.
+
+Transparent background: real alpha, fully transparent everywhere outside the described element. No checkerboard pattern, no white or coloured backdrop.

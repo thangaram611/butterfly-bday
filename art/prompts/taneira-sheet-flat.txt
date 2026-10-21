@@ -1,0 +1,13 @@
+Use: a character reference sheet for a picture-book style birthday website. Every later illustration of this girl is drawn from this sheet, so her likeness must be recognisable and identical in every view.
+
+Input images: images 1 to 4 are photos of the same two-year-old girl. Image 1 is the main reference for her face; image 2 shows her smile; image 3 is her profile; image 4 is her full body. Image 5 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Her likeness: warm deep-brown skin, very large round dark-brown eyes, full round cheeks, a small rounded nose, small lips, tiny gold stud earrings, and a small black dot (pottu) in the centre of her forehead. Wavy black hair in two short bunches high on each side of her head, with soft loose curls around her face and neck. Build her entirely from flat cut-paper shapes, exactly like the objects on the reference sheet: flat warm-brown cardstock for skin, her cheeks a slightly lighter paper layer, eyes as stacked paper circles with a small white highlight dot, hair as layered near-black paper locks. No painted, airbrushed or photographic shading anywhere; depth comes only from stacked layers and their short drop shadows. Keep her real face shape, eye spacing, skin tone and hairline so her family would recognise her at a glance.
+
+Outfit: a twirly violet and amethyst party dress with layered paper ruffles, lilac paper bows on both bunches, small lilac shoes.
+
+Format: landscape 3:2, on a flat, evenly lit off-white paper background (#FBF7FD).
+
+Layout: on the left, three full-body standing poses side by side: front view, three-quarter view, side view. On the right, a column of three head-and-shoulders close-ups with different expressions: a big happy smile, a wide-eyed serious stare, and mouth open mid-chatter. Same girl, same proportions throughout. Nothing touches the image edges.
+
+Palette exception: her skin is warm brown cardstock and her hair is near-black cardstock. Everything else stays within the palette.

@@ -1,0 +1,7 @@
+Use: a sprite for a website. Code splits it vertically into left and right halves that fall away when the butterfly emerges. Image 1 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Format: tall portrait 2:3.
+
+Subject: one paper-cut chrysalis hanging straight down from a short indigo twig. The twig runs across the top, about 60% of the image width. The chrysalis is a smooth teardrop built from layered amethyst and violet cardstock with fine lilac ridges, a thin gold band near the top and a few tiny gold dots. Mirror-symmetric left to right, centred, filling about 70% of the image height.
+
+Transparent background: real alpha, fully transparent outside the subject. No checkerboard pattern, no backdrop, no cast shadow outside the subject.

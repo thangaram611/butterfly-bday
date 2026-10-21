@@ -1,0 +1,7 @@
+Use: one layer of a layered scroll-parallax scene on a phone website; the layers are stacked in code and move at different speeds. Image 1 is the approved full scene. Image 2 is the style reference sheet.
+
+Format: the same tall portrait 2:3 frame as image 1.
+
+Task: recreate only the meadow from image 1, with its small paper flowers and grass blades, with the same shapes, colours, position and scale. Complete the parts hidden behind the foreground blossoms, and continue the meadow down to the bottom edge of the frame. Remove the sky, sun, wisteria and the large foreground blossoms. Do not include the far hills, trees or bushes behind the meadow: they are a separate layer. Above the meadow's own rolling top edge, everything is transparent.
+
+Transparent background: real alpha, fully transparent everywhere outside the described element. No checkerboard pattern, no white or coloured backdrop.

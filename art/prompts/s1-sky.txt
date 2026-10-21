@@ -1,0 +1,5 @@
+Use: one layer of a layered scroll-parallax scene on a phone website; the layers are stacked in code and move at different speeds. Image 1 is the approved full scene. Image 2 is the style reference sheet.
+
+Format: the same tall portrait 2:3 frame as image 1.
+
+Task: recreate only the sky from image 1 as a full-frame background plate: the paper sky gradient and the gold paper sun, in the same place and size. Remove the hills, wisteria, meadow and flowers, and continue the sky where they were, all the way down to the bottom edge. Fully opaque, no transparency.

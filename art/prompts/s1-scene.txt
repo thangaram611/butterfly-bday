@@ -1,0 +1,12 @@
+Use: the opening scene of a children's birthday invitation website, shown full screen on a phone held upright. It will later be split into separate layers for a scroll parallax, so keep the depth planes clearly separate. Image 1 is the style reference sheet: match its paper, cut edges, shadows and palette exactly.
+
+Format: tall portrait 2:3.
+
+Scene: a garden at dawn made of paper, seen straight on, like a deep shadow box. From back to front:
+1. Sky: a soft paper gradient from off-white at the top to pale lilac near the horizon, with a pale gold paper sun low on the left.
+2. Far hills: three overlapping rolling hills in pale lavender and amethyst, across the middle of the frame.
+3. Wisteria: drooping clusters of lilac and amethyst wisteria hanging from indigo vines along the top edge, framing the top-left and top-right corners and leaving the top centre open.
+4. Meadow: a rolling violet meadow across the lower third, dotted with small off-white and lilac paper flowers with gold centres and a few tall violet grass blades.
+5. Foreground blossoms: large indigo and violet paper flowers and leaves very close to the viewer in the bottom-left and bottom-right corners, softly out of focus.
+
+Leave a calm, open area in the middle of the frame, above the meadow, for a headline added later in code. No butterflies and no people; they are added separately.

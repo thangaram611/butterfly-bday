@@ -34,3 +34,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# art sources: her photos and raw generations never go in git
+# (no trailing slash, so the symlinks in worktrees are ignored too)
+art/private
+art/raw
+
+# dev tools
+.venv
+shots

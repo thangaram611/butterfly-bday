@@ -1,0 +1,11 @@
+Use: a style reference sheet for a children's birthday invitation website. Every later image in the set will be matched to this one, so it must show the paper, the cut edges, the shadows and the palette very clearly.
+
+Format: landscape 3:2.
+
+Layout: four separate paper-cut objects in a tidy two-by-two grid on a flat, evenly lit off-white paper background (#FBF7FD), with generous empty space around each. No object touches another object or the image edge.
+1. Top left: a butterfly seen from directly above, wings fully open and perfectly symmetric, built from three stacked layers of cardstock (violet base, amethyst middle, lilac top), an indigo body, and a few small gold dots near the wing tips.
+2. Top right: a single leaf in violet with a thin indigo vein layer on top.
+3. Bottom left: a five-petal flower, lilac petals over lavender petals, with a gold centre.
+4. Bottom right: a short slice of rolling hills, three stacked hill layers, palest lavender at the back to deep indigo at the front.
+
+Each object clearly shows its layers lifted slightly apart, with soft short drop shadows between them.

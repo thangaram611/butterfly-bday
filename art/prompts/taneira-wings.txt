@@ -1,0 +1,7 @@
+Use: the hero portrait of a birthday website, revealed after a paper butterfly unfolds. Image 1 is her approved character sheet: draw exactly this girl, with the same face, hair, bunches with lilac bows, earrings, pottu, skin tone and violet dress. Image 2 is the style reference sheet.
+
+Format: tall portrait 2:3.
+
+Subject: the girl standing and facing the viewer, full body, arms slightly out to her sides with open hands as if about to twirl, a big joyful smile. Large paper-cut butterfly wings spread wide behind her back, wider than her shoulders, in lilac, amethyst and violet layers with small gold dots, matching the butterfly on image 2. Centred, feet near the bottom; her head and the wings fully inside the frame.
+
+Transparent background: real alpha, fully transparent outside the subject. No checkerboard pattern, no backdrop, no cast shadow outside the subject.

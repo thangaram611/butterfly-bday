@@ -1,0 +1,7 @@
+Use: a butterfly sprite for a website. Code splits it down the body line into left and right wings and animates them. Image 1 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Format: square 1:1.
+
+Subject: one paper-cut butterfly seen from directly above, wings fully open and flat, perfectly mirror-symmetric left to right, its body a straight vertical line exactly in the centre of the image. Forewings in lilac and lavender layers with violet edges and one round gold spot each; hindwings in amethyst with small off-white dots; an indigo body with two curled antennae. The butterfly fills about 90% of the image width and touches no edge.
+
+Transparent background: real alpha, fully transparent outside the subject. No checkerboard pattern, no backdrop, no cast shadow outside the subject.

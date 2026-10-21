@@ -1,0 +1,137 @@
+@font-face { font-family: Fredoka; src: url(../fonts/fredoka.woff2) format("woff2"); font-weight: 300 700; font-display: swap; }
+@font-face { font-family: Nunito; src: url(../fonts/nunito.woff2) format("woff2"); font-weight: 200 1000; font-display: swap; }
+
+:root {
+  --lilac: #C8A2C8; --lavender: #967BB6; --amethyst: #9966CC; --violet: #6F2DA8; --indigo: #4B0082;
+  --paper: #FBF7FD; --gold: #F4C95D; --night: #1E0840;
+  --pad-t: max(16px, env(safe-area-inset-top)); --pad-b: max(16px, env(safe-area-inset-bottom));
+  --pad-l: max(16px, env(safe-area-inset-left)); --pad-r: max(16px, env(safe-area-inset-right));
+}
+* { box-sizing: border-box; margin: 0; }
+html { background: var(--night); }
+body { background: var(--paper); color: var(--indigo); font: 400 18px/1.5 Nunito, system-ui, sans-serif; overflow-x: clip; -webkit-font-smoothing: antialiased; }
+img { display: block; height: auto; }
+h1, h2, .btn, .two, .k { font-family: Fredoka, system-ui, sans-serif; font-weight: 700; line-height: 1.05; }
+h1 { font-size: clamp(44px, 12.5vw, 76px); }
+h2 { font-size: clamp(32px, 9vw, 56px); }
+.lead { font: 700 clamp(22px, 6vw, 32px)/1.25 Fredoka, system-ui, sans-serif; }
+
+/* Scenes are plain stacked screens by default (no JS, reduced motion).
+   With .anim each stage pins for --len screens of scroll while its timeline plays. */
+.scene { position: relative; }
+.stage { position: relative; min-height: 100svh; overflow: hidden; }
+.anim .scene { height: calc((var(--len) + 1) * 100svh); }
+.anim .stage { position: sticky; top: 0; height: 100lvh; }
+.copy {
+  position: relative; min-height: 100svh; padding: var(--pad-t) var(--pad-r) var(--pad-b) var(--pad-l);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center;
+}
+
+/* Portrait art lives in a 2:3 frame: it covers a phone and sits as a centred column on a laptop.
+   Layers are cropped to their artwork and placed by --top (% of the frame), so none is a full-screen box. */
+.frame { position: absolute; top: 0; left: 50%; height: 100lvh; aspect-ratio: 2 / 3; transform: translateX(-50%); }
+.frame > img { position: absolute; left: 0; top: calc(var(--top, 0) * 1%); width: 100%; height: auto; }
+.frame > .sky { top: 0; height: 100%; }
+.frame > .wisteria { transform-origin: 50% 0; }
+.frame > .meadow, .frame > .blossoms { transform-origin: 50% 100%; }
+.anim .s1 .frame > img:not(.sky), .anim .s1 .copy { will-change: transform; }
+
+/* 1 · dawn garden */
+.s1 .stage { background: #EEE3F6; }
+.s1 .copy { justify-content: flex-start; padding-top: calc(var(--pad-t) + 17svh); gap: 8px; }
+.s1 h1 { max-width: 9em; text-shadow: 0 2px 0 var(--paper), 0 4px 12px rgb(75 0 130 / .25); }
+.greet { font-weight: 800; font-size: 19px; text-shadow: 0 0 6px var(--paper), 0 0 3px var(--paper), 0 0 1px var(--paper); }
+.hint { position: absolute; left: 0; right: 0; bottom: var(--pad-b); text-align: center; color: #fff; font-weight: 800; text-shadow: 0 1px 4px rgb(75 0 130 / .9); }
+.anim .hint { animation: nudge 1.6s ease-in-out infinite; }
+@keyframes nudge { 50% { transform: translateY(6px); } }
+
+/* 2 · year one (placeholder art: CSS caterpillar, emoji vignettes) */
+.s2 .stage { background: linear-gradient(var(--paper), #E9DAF3); }
+.s2 .copy { justify-content: flex-start; padding-top: calc(var(--pad-t) + 6svh); }
+.moments { list-style: none; padding: 0; display: grid; gap: 12px; width: min(100%, 360px); }
+.moments li { background: #fff; border-radius: 20px; padding: 18px; font-size: 20px; font-weight: 700; box-shadow: 0 3px 0 rgb(75 0 130 / .1), 0 10px 24px rgb(75 0 130 / .12); }
+.ph { display: block; font-size: 64px; line-height: 1.2; }
+.anim .s2 .moments { position: relative; height: 15em; }
+.anim .s2 .moments li { position: absolute; inset: 0 0 auto; will-change: transform, opacity; }
+.rail { position: absolute; left: -5%; right: -5%; bottom: 16svh; height: 14px; border-radius: 7px; background: var(--violet); box-shadow: 0 4px 0 rgb(75 0 130 / .25); }
+.cat { position: absolute; left: 0; bottom: calc(16svh + 12px); display: flex; align-items: flex-end; will-change: transform; }
+.cat i, .cat b { border-radius: 50%; box-shadow: inset -5px -5px 0 rgb(75 0 130 / .25), 0 3px 0 rgb(75 0 130 / .3); }
+.cat i { width: 34px; height: 34px; margin-right: -8px; background: var(--amethyst); }
+.cat i:nth-child(odd) { background: var(--lavender); }
+.cat b { width: 46px; height: 46px; background: radial-gradient(circle at 62% 38%, #fff 0 4px, var(--indigo) 5px 8px, transparent 9px), var(--violet); }
+.anim .cat i { animation: inch .9s ease-in-out calc(var(--i) * -.15s) infinite; }
+@keyframes inch { 50% { transform: translateY(-9px); } }
+
+/* 3 · chrysalis, 4 · wings: dusk to night */
+.s3 .stage { background: linear-gradient(#3A1670, var(--violet) 75%, var(--amethyst)); color: #fff; }
+.s4 .stage { background: linear-gradient(var(--night), var(--indigo) 60%, var(--violet)); color: #fff; }
+.glow { position: absolute; left: 50%; top: 38%; width: 90vmin; aspect-ratio: 1; margin: -45vmin 0 0 -45vmin; border-radius: 50%; background: radial-gradient(closest-side, rgb(244 201 93 / .5), rgb(244 201 93 / 0)); opacity: .6; }
+.s3 .copy { justify-content: flex-end; padding-bottom: calc(var(--pad-b) + 12svh); }
+.chrysalis, .pod { position: absolute; left: 50%; top: 4svh; width: min(52vw, 34svh); margin-left: max(-26vw, -17svh); transform-origin: 50% 0; }
+.pod { aspect-ratio: 983 / 1392; opacity: 0; }
+.pod .half { position: absolute; inset: 0; width: 100%; }
+.pod .l { clip-path: inset(0 50% 0 0); }
+.pod .r { clip-path: inset(0 0 0 50%); }
+.anim .s3 .chrysalis, .anim .s3 .glow, .anim .s4 .stage > * { will-change: transform, opacity; }
+
+.s4 .copy { justify-content: flex-start; padding-top: calc(var(--pad-t) + 3svh); }
+.s4 h2 { text-shadow: 0 3px 0 var(--indigo); }
+.portrait { position: absolute; left: 0; right: 0; margin: 0 auto; bottom: calc(var(--pad-b) + 2svh); height: min(68svh, 130vw); width: auto; }
+.two { position: absolute; right: max(4vw, calc(50% - 300px)); top: 15svh; font-size: clamp(110px, 30vw, 190px); line-height: 1; color: var(--gold); -webkit-text-stroke: 5px var(--indigo); paint-order: stroke fill; text-shadow: 5px 7px 0 rgb(0 0 0 / .3); }
+
+/* the paper butterfly that unfolds: each wing hinges at the body (--h); its outer panel hinges on a
+   slanted crease (--f). One fold level only: clip-path flattens 3D for an element's children. */
+/* placed with top/margins, not transforms: GSAP owns .peak's transform */
+.peak { position: absolute; left: 50%; top: calc(44svh - min(88vw, 56svh) * .3804); width: min(88vw, 56svh); margin-left: max(-44vw, -28svh); aspect-ratio: 1024 / 779; perspective: 1400px; opacity: 0; }
+/* fade .peak, never .bfly: opacity below 1 flattens a preserve-3d element */
+.bfly { position: absolute; inset: 0; transform-style: preserve-3d; }
+.wing { position: absolute; inset: 0; transform-style: preserve-3d; }
+.wing.l { transform-origin: 46% 50%; transform: rotateY(var(--h, 0deg)); }
+.wing.r { transform-origin: 54% 50%; transform: rotateY(calc(-1 * var(--h, 0deg))); }
+.pane, .body { position: absolute; inset: 0; }
+.pane img, .body img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pane .back { opacity: 0; }
+.l .in { clip-path: polygon(32% 0, 38% 0, 38% 14%, 46% 22%, 46% 100%, 14% 100%); }
+.l .out { clip-path: polygon(0 0, 32% 0, 14% 100%, 0 100%); transform-origin: 23% 50%; transform: rotate3d(-.236, 1, 0, var(--f, 0deg)); }
+.r .in { clip-path: polygon(62% 0, 68% 0, 86% 100%, 54% 100%, 54% 22%, 62% 14%); }
+.r .out { clip-path: polygon(68% 0, 100% 0, 100% 100%, 86% 100%); transform-origin: 77% 50%; transform: rotate3d(.236, 1, 0, calc(-1 * var(--f, 0deg))); }
+.body { clip-path: polygon(38% 0, 62% 0, 62% 14%, 54% 22%, 54% 100%, 46% 100%, 46% 22%, 38% 14%); transform: translateZ(2px); }
+
+/* 5 · invitation */
+.s5 .stage { background: var(--paper); }
+.cards { list-style: none; padding: 0; display: grid; gap: 10px; width: min(100%, 420px); text-align: left; }
+.cards li { background: #fff; border-radius: 18px; padding: 12px 16px; font-weight: 700; box-shadow: 0 3px 0 rgb(75 0 130 / .1), 0 8px 20px rgb(75 0 130 / .1); }
+.k { display: block; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--violet); }
+.swatches { display: flex; gap: 6px; margin-top: 8px; }
+.swatches i { width: 28px; height: 14px; border-radius: 7px; }
+.swatches i:nth-child(1) { background: var(--lilac); } .swatches i:nth-child(2) { background: var(--lavender); }
+.swatches i:nth-child(3) { background: var(--amethyst); } .swatches i:nth-child(4) { background: var(--violet); }
+.swatches i:nth-child(5) { background: var(--indigo); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.countdown { font: 700 22px Fredoka, system-ui, sans-serif; color: var(--violet); }
+.btn { display: inline-block; padding: 14px 24px; border-radius: 999px; background: var(--violet); color: #fff; font-size: 20px; text-decoration: none; border: 3px solid var(--gold); box-shadow: 0 4px 0 var(--indigo); }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--indigo); }
+.btn.gold { background: var(--gold); color: var(--indigo); border-color: var(--indigo); font-size: 22px; }
+
+/* 6 · close */
+.s6 .stage { background: var(--night); color: #fff; }
+.dusk { position: absolute; inset: 0; background: linear-gradient(rgb(30 8 64 / .85), rgb(75 0 130 / .55) 55%, rgb(75 0 130 / .2)); }
+.s6 .copy { justify-content: flex-start; padding-top: calc(var(--pad-t) + 14svh); }
+.s6 h2 { text-shadow: 0 3px 0 var(--indigo); }
+.s6 p { font-weight: 800; text-shadow: 0 1px 4px var(--indigo); }
+.sign { margin-top: auto; font-size: 15px; opacity: .9; }
+
+/* small fluttering butterflies: two half-images flapping in CSS 3D, drifting on CSS keyframes (compositor only) */
+.flock { position: absolute; inset: 0; pointer-events: none; }
+.bf { position: absolute; left: var(--x); top: var(--y); width: var(--s); aspect-ratio: 1024 / 779; perspective: 300px; animation: drift var(--d) ease-in-out var(--dl) infinite alternate; }
+.bf i { position: absolute; top: 0; width: 50%; height: 100%; background: var(--img) no-repeat; background-size: 200% 100%; }
+.bf .l { left: 0; transform-origin: 100% 50%; animation: flap-l var(--f) ease-in-out infinite alternate; }
+.bf .r { right: 0; background-position: 100% 0; transform-origin: 0 50%; animation: flap-r var(--f) ease-in-out infinite alternate; }
+.idle .bf, .idle .bf i { animation-play-state: paused; }
+@keyframes flap-l { from { transform: rotateY(5deg); } to { transform: rotateY(68deg); } }
+@keyframes flap-r { from { transform: rotateY(-5deg); } to { transform: rotateY(-68deg); } }
+@keyframes drift { from { transform: translate(0, 0) rotate(var(--r0)); } to { transform: translate(var(--dx), var(--dy)) rotate(var(--r1)); } }
+.burst { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* reduced motion and no JS: the peak shows its final picture, not the unfolding */
+:root:not(.anim) .peak, :root:not(.anim) .pod, :root:not(.anim) .rail, :root:not(.anim) .cat { display: none; }
