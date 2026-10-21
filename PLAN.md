@@ -2,7 +2,7 @@
 
 A one-page invitation website for Taneira's second birthday. It's built for phones, because the link goes out on WhatsApp. The story: a caterpillar a year ago, wings this year.
 
-Status: **milestone 2, rough build** (plan approved 2026-10-21; style test approved the same day).
+Status: **milestone 2, rough build, revised** (plan and style test approved 2026-10-21). This file is the design; `PROGRESS.md` tracks what is done and what comes next.
 
 ## Event facts (single source: `event.json`)
 
