@@ -62,20 +62,19 @@ h2 { font-size: clamp(32px, 9vw, 56px); }
 .anim .cat i { animation: inch .9s ease-in-out calc(var(--i) * -.15s) infinite; }
 @keyframes inch { 50% { transform: translateY(-9px); } }
 
-/* 3 · chrysalis, 4 · wings: dusk to night */
-.s3 .stage { background: linear-gradient(#3A1670, var(--violet) 75%, var(--amethyst)); color: #fff; }
-.s4 .stage { background: linear-gradient(var(--night), var(--indigo) 60%, var(--violet)); color: #fff; }
+/* 3 · chrysalis to wings */
+.s3 .stage { background: linear-gradient(var(--night), var(--indigo) 60%, var(--violet)); color: #fff; }
 .glow { position: absolute; left: 50%; top: 38%; width: 90vmin; aspect-ratio: 1; margin: -45vmin 0 0 -45vmin; border-radius: 50%; background: radial-gradient(closest-side, rgb(244 201 93 / .5), rgb(244 201 93 / 0)); opacity: .6; }
-.s3 .copy { justify-content: flex-end; padding-bottom: calc(var(--pad-b) + 12svh); }
-.chrysalis, .pod { position: absolute; left: 50%; top: 4svh; width: min(52vw, 34svh); margin-left: max(-26vw, -17svh); transform-origin: 50% 0; }
-.pod { aspect-ratio: 983 / 1392; opacity: 0; }
+.pod { position: absolute; left: 50%; top: 4svh; width: min(52vw, 34svh); margin-left: max(-26vw, -17svh); aspect-ratio: 983 / 1392; transform-origin: 50% 0; opacity: 0; }
 .pod .half { position: absolute; inset: 0; width: 100%; }
 .pod .l { clip-path: inset(0 50% 0 0); }
 .pod .r { clip-path: inset(0 0 0 50%); }
-.anim .s3 .chrysalis, .anim .s3 .glow, .anim .s4 .stage > * { will-change: transform, opacity; }
+.anim .s3 .stage > :not(.copy), .anim .s3 .copy > * { will-change: transform, opacity; }
 
-.s4 .copy { justify-content: flex-start; padding-top: calc(var(--pad-t) + 3svh); }
-.s4 h2 { text-shadow: 0 3px 0 var(--indigo); }
+.s3 .copy { justify-content: flex-start; padding-top: calc(var(--pad-t) + 3svh); }
+.s3 h2 { text-shadow: 0 3px 0 var(--indigo); }
+/* the quiet line sits low on the screen under the chrysalis, then fades before the peak */
+.anim .s3 .hush { position: absolute; left: var(--pad-l); right: var(--pad-r); bottom: calc(var(--pad-b) + 12svh); }
 .portrait { position: absolute; left: 0; right: 0; margin: 0 auto; bottom: calc(var(--pad-b) + 2svh); height: min(68svh, 130vw); width: auto; }
 .two { position: absolute; right: max(4vw, calc(50% - 300px)); top: 15svh; font-size: clamp(110px, 30vw, 190px); line-height: 1; color: var(--gold); -webkit-text-stroke: 5px var(--indigo); paint-order: stroke fill; text-shadow: 5px 7px 0 rgb(0 0 0 / .3); }
 
@@ -97,8 +96,8 @@ h2 { font-size: clamp(32px, 9vw, 56px); }
 .r .out { clip-path: polygon(68% 0, 100% 0, 100% 100%, 86% 100%); transform-origin: 77% 50%; transform: rotate3d(.236, 1, 0, calc(-1 * var(--f, 0deg))); }
 .body { clip-path: polygon(38% 0, 62% 0, 62% 14%, 54% 22%, 54% 100%, 46% 100%, 46% 22%, 38% 14%); transform: translateZ(2px); }
 
-/* 5 · invitation */
-.s5 .stage { background: var(--paper); }
+/* 4 · invitation */
+.s4 .stage { background: var(--paper); }
 .cards { list-style: none; padding: 0; display: grid; gap: 10px; width: min(100%, 420px); text-align: left; }
 .cards li { background: #fff; border-radius: 18px; padding: 12px 16px; font-weight: 700; box-shadow: 0 3px 0 rgb(75 0 130 / .1), 0 8px 20px rgb(75 0 130 / .1); }
 .k { display: block; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--violet); }
@@ -113,12 +112,12 @@ h2 { font-size: clamp(32px, 9vw, 56px); }
 .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--indigo); }
 .btn.gold { background: var(--gold); color: var(--indigo); border-color: var(--indigo); font-size: 22px; }
 
-/* 6 · close */
-.s6 .stage { background: var(--night); color: #fff; }
+/* 5 · close */
+.s5 .stage { background: var(--night); color: #fff; }
 .dusk { position: absolute; inset: 0; background: linear-gradient(rgb(30 8 64 / .85), rgb(75 0 130 / .55) 55%, rgb(75 0 130 / .2)); }
-.s6 .copy { justify-content: flex-start; padding-top: calc(var(--pad-t) + 14svh); }
-.s6 h2 { text-shadow: 0 3px 0 var(--indigo); }
-.s6 p { font-weight: 800; text-shadow: 0 1px 4px var(--indigo); }
+.s5 .copy { justify-content: flex-start; padding-top: calc(var(--pad-t) + 14svh); }
+.s5 h2 { text-shadow: 0 3px 0 var(--indigo); }
+.s5 p { font-weight: 800; text-shadow: 0 1px 4px var(--indigo); }
 .sign { margin-top: auto; font-size: 15px; opacity: .9; }
 
 /* small fluttering butterflies: two half-images flapping in CSS 3D, drifting on CSS keyframes (compositor only) */

@@ -44,12 +44,11 @@ About 10 screens of scrolling, roughly a minute. Each scene is a tall section wi
 |---|---|---|---|---|
 | 1 | **Dawn garden** (opening) | 0.6 | Paints immediately. There is no loading screen. Four paper layers (hills, wisteria, meadow, foreground blossoms) separate at different speeds as the camera pushes in. "Taneira is turning two" sits between the meadow and the blossoms. 3 to 5 butterflies flutter. The `?to=` greeting shows above the title | Delight |
 | 2 | **Year one** | 1.2 | A paper caterpillar (head plus 5 segments) crawls along a stem, passing four paper vignettes of her, each one cut in her paper-cut likeness: the no-teeth smile, the blank stare, the confident babbled stories, the finger-heart "love you" | Warmth |
-| 3 | **Chrysalis** (quiet) | 0.5 | Dusk. One chrysalis hangs from a twig and glows warmer and trembles a little as you scroll. Deliberately calm before the peak | Anticipation |
-| 4 | **She's got her wings** (peak) | 2.2, the longest | The chrysalis halves fall away. Each wing is a sheet of folded paper that opens fold by fold, then the whole butterfly lifts. The camera pulls back to show her paper-cut portrait with paper wings beside a large "2". On first arrival, about 30 butterflies burst out across the screen | Wonder |
-| 5 | **You're invited** | 0.4 | Cards for date, time, venue and dress code (a strip of all five palette colours), each with a butterfly landing on it. Buttons: Add to calendar, Directions. A countdown such as "38 days to go" | Clarity |
-| 6 | **We've saved a spot for you** (close) | 0 | Dusk garden. A "Tell us you're coming 🦋" button with the line "So we know how much cake to make 🍰". Tapping it sends a butterfly flying off the screen carrying the guest's name while WhatsApp opens. The page holds here and does not fade out | Belonging |
+| 3 | **Chrysalis to wings** (quiet, then the peak) | 2.7 (0.5 quiet + 2.2 peak), the longest | One stage, one chrysalis (merged 2026-10-21 so it never appears twice). Dusk. One chrysalis hangs from a twig and glows warmer and trembles a little as you scroll. Deliberately calm before the peak Then: The chrysalis halves fall away. Each wing is a sheet of folded paper that opens fold by fold, then the whole butterfly lifts. The camera pulls back to show her paper-cut portrait with paper wings beside a large "2". On first arrival, about 30 butterflies burst out across the screen
+| 4 | **You're invited** | 0.4 | Cards for date, time, venue and dress code (a strip of all five palette colours), each with a butterfly landing on it. Buttons: Add to calendar, Directions. A countdown such as "38 days to go" | Clarity |
+| 5 | **We've saved a spot for you** (close) | 0 | Dusk garden. A "Tell us you're coming 🦋" button with the line "So we know how much cake to make 🍰". Tapping it sends a butterfly flying off the screen carrying the guest's name while WhatsApp opens. The page holds here and does not fade out | Belonging |
 
-Scene 4 is the only peak. It gets the most scroll room, the richest art, and scene 3's quiet right before it.
+Scene 3's peak is the only peak. It gets the most scroll room, the richest art, and the chrysalis's quiet right before it, on the same stage.
 
 **Reduced motion** (`prefers-reduced-motion`): the same scenes as still compositions, nothing pinned, all text and buttons visible.
 **No JS**: the HTML stays readable as an invitation, with every detail and link present.
@@ -160,10 +159,9 @@ event.json
 | Shared | paper texture tile (512 px, seamless) · 4 butterflies → 8 wings · reference sheet |
 | 1 Dawn garden | far hills · wisteria · meadow · foreground blossoms (blur drawn in) · sun disc (or CSS). Portrait and landscape of each |
 | 2 Year one | stem/leaf rail · caterpillar head and segment · her character sheet · 4 vignettes: no-teeth smile, blank stare, babbled stories (paper speech bubbles), finger heart |
-| 3 Chrysalis | dusk sky layer · twig · chrysalis halves · glow |
-| 4 Peak | 4 wing sheets (2 forewings, 2 hindwings) · body · her portrait with wings · paper "2" |
-| 5 Invitation | card paper texture (or CSS) · small flowers for card corners |
-| 6 Close | dusk garden layers (variations on scene 1 to save generations) |
+| 3 Chrysalis to wings | chrysalis halves · glow · 4 wing sheets (2 forewings, 2 hindwings) · body · her portrait with wings · paper "2" |
+| 4 Invitation | card paper texture (or CSS) · small flowers for card corners |
+| 5 Close | dusk garden layers (variations on scene 1 to save generations) |
 | Share | `og.jpg` 1200×630 under 300 KB with the subject centred (WhatsApp sometimes crops to a square) · icons 180, 192, 512, maskable 512 · favicon 32 plus a small SVG |
 
 ## Invitation features

@@ -11,10 +11,10 @@ if (name) {
 }
 invite(name);
 
-// Scene 4's art starts loading once scene 2 is on screen
+// The peak's art starts loading once scene 2 is on screen
 new IntersectionObserver(([entry], io) => {
   if (!entry.isIntersecting) return;
-  document.querySelectorAll('.s4 img[loading=lazy]').forEach(img => (img.loading = 'eager'));
+  document.querySelectorAll('.s3 img[loading=lazy]').forEach(img => (img.loading = 'eager'));
   io.disconnect();
 }).observe(document.querySelector('.s2'));
 
