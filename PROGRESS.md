@@ -23,7 +23,8 @@ Last updated 2026-10-22.
 | `bd672de` | One film: one stage and one timeline for the whole page, no pinned scenes (scroll-craft's "worldflight") | Merged: "really better than before" |
 | `827898f` | Layout audit (`npm run layout`) and the 9 overlaps and gaps it found (incl. your two: moment cards over "A year ago…", the gap under the closing garden) | Merged |
 | (branch `feat/vertical-motion`, deleted, was `8b28da9`) | Vertical motion: everything drifting up inside the fixed stage at depth speeds | Rejected: "really bad". Cause: it faked normal scrolling through a timeline that trails the thumb, and moved art several screens (scroll-craft caps parallax near 200 px) |
-| `feat/scroll-craft` | Diagnosis against scroll-craft, engine lab, Codex video test, `BRIEF.md` | Brief awaiting approval |
+| `feat/scroll-craft` | Diagnosis against scroll-craft, engine lab, Codex video test, `BRIEF.md` | Brief approved; skeleton (five acts) rejected: "still feels like scenes stitched together" |
+| `852714d` (branch `feat/one-story`) | One story: the caterpillar's journey on one pinned picture, with stand-in art | "So far satisfied… just as I expected" (2026-10-22). Not merged yet: carry on from next step 2 on this branch or a new one off it |
 
 ## Decisions made with you (don't reopen without asking)
 
@@ -40,7 +41,7 @@ Last updated 2026-10-22.
 
 Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
-1. **The story with stand-in art** (built on `feat/one-story`, awaiting your phone test): judge the feel, especially the stop at the twig and that it reads as one story.
+1. **The story with stand-in art** (built on `feat/one-story`): you're satisfied with it (2026-10-22). Merge only when you say so.
 2. **The change, done properly:** Codex in-between drawings of the caterpillar curling into the chrysalis and the butterfly's crumpled wings opening, rendered as one frame sequence; retire the CSS fold and the `-back` images.
 3. **Signature butterflies:** the first scroll touch releases one, taps add more; they follow the caterpillar, gather at the twig, and settle around "Tell us you're coming".
 4. **Year-one art:** first a baby drawing sheet from `b1`–`b6` for you to approve, then the four memory pictures on the vine's leaves (no-teeth smile `b2`, serious stare `b1`/`b3`, babbled stories `b4`, finger heart).
