@@ -12,7 +12,7 @@ refs=()
 for f in "$@"; do refs+=(-i "$(realpath "$f")"); done
 
 mkdir -p art/raw
-command codex exec -C art/raw -s workspace-write --skip-git-repo-check \
+command codex exec -C "$(realpath art/raw)" -s workspace-write --skip-git-repo-check \
   -c model_reasoning_effort=low \
   "Use the image generation tool (\$imagegen) exactly once. Pass it this prompt verbatim:
 

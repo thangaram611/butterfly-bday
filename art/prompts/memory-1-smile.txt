@@ -1,0 +1,7 @@
+Use: a small round picture hanging on a leaf of a paper vine on a website, about 150 px wide on a phone, so it must read at a glance: her face large and clear. Image 1 is her approved baby character sheet: draw exactly this baby, with the same face, hair, skin tone, pottu and earrings. Image 2 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Subject: a round paper-cut medallion. The baby's head and shoulders, filling most of it, on a soft lilac paper disc, framed by a scalloped violet cardstock rim with a few tiny gold dots. She beams a big gummy smile with no teeth at all, her eyes crinkled with joy.
+
+Format: square 1:1. The medallion is centred and fills about 92% of the image width, touching no edge.
+
+Transparent background: real alpha, fully transparent outside the medallion. No checkerboard pattern, no backdrop, no cast shadow outside the subject.

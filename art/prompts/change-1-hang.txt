@@ -1,0 +1,9 @@
+Use: one frame of a stop-motion paper-cut animation on a website, where a caterpillar turns into a chrysalis. Image 1 is the previous frame's scene: a chrysalis hanging from a short twig. Image 2 is the caterpillar character. Image 3 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Keep the twig exactly as in image 1: the same twig, leaves and small hanging paper tab, at the same size and in the same place in the frame. Only the thing hanging from the tab changes.
+
+Change: there is no chrysalis yet. Instead the caterpillar from image 2, exactly the same character (the same round segments in lilac, lavender and amethyst with tiny gold dots, indigo feet, the round violet head with big friendly eyes, rosy cheeks and gold-tipped antennae), hangs upside down from the tab by its tail. Its body hangs straight down and then curls up at the bottom into a gentle J, so its head at the bottom turns up and faces the viewer with a sleepy, contented smile, eyes half closed. Its segments are the same size as in image 2. It hangs in the space where the chrysalis was in image 1.
+
+Format: tall portrait 2:3, the same framing as image 1.
+
+Transparent background: real alpha, fully transparent outside the twig and the caterpillar. No checkerboard pattern, no backdrop, no cast shadow outside the subject.

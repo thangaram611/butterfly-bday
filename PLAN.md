@@ -84,7 +84,7 @@ site/                       deployed as-is to Cloudflare Pages
 tools/                      dev only, never deployed
   gen.sh                    one image via Codex: prepends the style paragraph, attaches references, saves to art/raw/
   event-sync.mjs            event.json → date/venue text in index.html, OG description, .ics, Google Calendar and Maps links
-  art.py                    art/raw PNG → site/img WebP: crops layers to their artwork (prints --top), centres butterflies, makes paper-back silhouettes
+  art.py                    art/raw PNG → site/img WebP: crops layers to their artwork (prints --top), centres butterflies, lines up the change's frames on the twig
   check.mjs                 screenshot sheet (6 positions per scene × 3 sizes + reduced motion), flicker test, long-task test
 package.json                dev only: playwright-core and the npm scripts serve / shots / flicker / tasks
 art/
@@ -150,7 +150,7 @@ event.json
 1. **Reference sheet first:** one image showing a paper butterfly, a leaf, a flower and a hill slice in the style. It's attached (`-i`) to every later generation so 40 images look like one set.
 2. **Scene first, then layers:** each scene is generated whole, then every layer is recreated from it (scene and reference sheet attached), each with a transparent background. This keeps shapes and positions lined up across layers. Portrait (phones) and landscape (desktop) are separate compositions, not crops.
 3. **Edge check:** every cut-out is inspected on both a dark and a light background for halos and soft alpha, and checked for stray elements from neighbouring layers. Codex returned real transparency in the style test, so the fallbacks (flat `#00FF00` key-out, or local `rembg`) haven't been needed.
-4. **Butterflies:** 4 designs, top-down, wings open, symmetric. `tools/art.py butterfly` centres the body line at exactly 50% and writes the full-size art, a 256 px sprite and the paper-back silhouette.
+4. **Butterflies:** 4 designs, top-down, wings open, symmetric. `tools/art.py butterfly` centres the body line at exactly 50% and writes the full-size art and a 256 px sprite.
 5. **Her likeness:** the reference photos are `art/private/t2.1.jpg` (front face, the main reference), `t3.jpg` (smile), `t2.jpg` (profile) and `t1.jpg` (full body). Her look: twin pigtails with pale-blue bows and big round eyes. First a paper-cut **character sheet** of her is made from those photos and approved. That sheet, not the photos, then drives the portrait (paper wings, transparent background) and the four year-one vignettes, so she looks the same in all five. The photos are git-ignored and never deployed. They do get uploaded to OpenAI through Codex.
 6. **Export:** `cwebp -q 82 -alpha_q 90`. Portrait layers at 768 and 1024 wide; landscape at 1152 and 1536 wide (more if Codex returns larger).
 

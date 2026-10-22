@@ -2,10 +2,13 @@
 """Turn Codex PNGs from art/raw/ into the site's WebPs (site/img/).
 
   tools/art.py layer     <raw.png> <name>   crop to the artwork's rows; prints its --top (% of the frame) for index.html
-  tools/art.py sprite    <raw.png> <name>   crop to the artwork's box
+  tools/art.py sprite    <raw.png> <name> [width]   crop to the artwork's box (1024 px wide unless given)
   tools/art.py butterfly <raw.png> <name>   centre the body line at exactly 50%; also writes <name>-sm (256 px, for the
-                                             small flying ones) and <name>-back, the plain paper silhouette shown
-                                             when a wing panel faces away
+                                             small flying ones)
+  tools/art.py frames    <name> <raw.png…>  the change's stop-motion frames: lay each one's twig exactly over the chrysalis
+                                             drawing's, cut the twig off (the page draws one twig under them all), crop
+                                             them to one shared box and write site/img/<name>/<n>.webp; prints the box
+                                             in widths of the chrysalis sprite, for js/story.js
 
 Setup: python3 -m venv .venv && .venv/bin/pip install pillow numpy   (and cwebp from Homebrew)
 """
@@ -16,7 +19,9 @@ import tempfile
 import numpy as np
 from PIL import Image
 
-LILAC = np.array([200, 162, 200])
+CHRYSALIS = "art/raw/chrysalis.png"  # the frame the twig sprite was cut from: its box is (21, 25) + 983 wide
+TWIG = (25, 300)   # its rows that hold only the twig and its leaves, to register by
+CUT = (322, 338)   # the twig sprite ends at 338; each frame fades in over these rows, below the knot
 
 
 def opaque(im):
@@ -39,8 +44,8 @@ def layer(im, name):
     export(im.crop((0, y0, im.width, y1)), name)
 
 
-def sprite(im, name):
-    export(im.crop(Image.fromarray(opaque(im)).getbbox()), name)
+def sprite(im, name, width=1024):
+    export(im.crop(Image.fromarray(opaque(im)).getbbox()), name, width)
 
 
 def butterfly(im, name):
@@ -51,12 +56,61 @@ def butterfly(im, name):
     art = im.crop((round(mid - half), rows[0], round(mid + half), rows[-1] + 1))
     export(art, name)
     export(art, f"{name}-sm", 256)
-    px = np.asarray(art).astype(float)
-    lum = px[..., :3].mean(axis=2, keepdims=True) / 255
-    back = np.dstack([LILAC * (0.9 + 0.1 * lum), px[..., 3:]]).clip(0, 255).astype(np.uint8)
-    export(Image.fromarray(back, "RGBA"), f"{name}-back")
+
+
+def scaled(im, s, dx, dy, resample=Image.BICUBIC):
+    """im scaled by s about its top centre, then moved by (dx, dy)."""
+    cx = im.width / 2
+    return im.transform(im.size, Image.AFFINE, (1 / s, 0, cx - (cx + dx) / s, 0, 1 / s, -dy / s), resample)
+
+
+def register(ref, im):
+    """The scale and shift that lay im's twig over ref's: the best overlap of their twig rows, searched coarsely at
+    quarter size, then finely around that."""
+    def iou(m, t, rows):
+        band = m[rows[0]:rows[1]]
+        return (band & t).sum() / max(1, (band | t).sum())
+    q, rows = 4, (TWIG[0] // 4, TWIG[1] // 4)
+    small = lambda a: Image.fromarray(a.astype(np.uint8) * 255).resize((a.shape[1] // q, a.shape[0] // q), Image.BILINEAR)
+    target, f = np.asarray(small(opaque(ref)))[rows[0]:rows[1]] > 127, small(opaque(im))
+    best = (0, 1, 0, 0)
+    for s in np.arange(0.8, 1.201, 0.01):
+        m = np.asarray(scaled(f, s, 0, 0, Image.BILINEAR)) > 127
+        best = max([best] + [(iou(np.roll(m, (dy, dx), (0, 1)), target, rows), s, dx * q, dy * q)
+                             for dy in range(-20, 21) for dx in range(-20, 21)])
+    _, s0, dx0, dy0 = best
+    target = opaque(ref)[TWIG[0]:TWIG[1]]
+    for s in np.arange(s0 - 0.01, s0 + 0.0101, 0.0025):
+        m = opaque(scaled(im, s, 0, 0, Image.BILINEAR))
+        best = max([best] + [(iou(np.roll(m, (dy, dx), (0, 1)), target, TWIG), s, dx, dy)
+                             for dy in range(dy0 - 4, dy0 + 5) for dx in range(dx0 - 4, dx0 + 5)])
+    return best
+
+
+def frames(name, srcs):
+    ref = Image.open(CHRYSALIS).convert("RGBA")
+    out = []
+    for src in srcs:
+        im = Image.open(src).convert("RGBA").resize(ref.size, Image.LANCZOS)
+        fit, s, dx, dy = register(ref, im)
+        print(f"{src}: twig overlap {fit:.3f}, scale {s:.4f}, shift {dx},{dy}")
+        px = np.asarray(scaled(im, s, dx, dy)).copy()
+        fade = np.clip((np.arange(ref.height) - CUT[0]) / (CUT[1] - CUT[0]), 0, 1)
+        px[..., 3] = (px[..., 3] * fade[:, None]).astype(np.uint8)
+        out.append(Image.fromarray(px, "RGBA"))
+    boxes = [Image.fromarray(opaque(im)).getbbox() for im in out]
+    box = (min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes))
+    subprocess.run(["mkdir", "-p", f"site/img/{name}"], check=True)
+    for i, im in enumerate(out, 1):
+        export(im.crop(box), f"{name}/{i}", 768)
+    print(f"box: {{ left: {(box[0] - 21) / 983:.4f}, top: {(box[1] - 25) / 983:.4f}, width: {(box[2] - box[0]) / 983:.4f}, "
+          f"ratio: {(box[3] - box[1]) / (box[2] - box[0]):.4f} }}")
 
 
 if __name__ == "__main__":
-    mode, src, name = sys.argv[1:4]
-    {"layer": layer, "sprite": sprite, "butterfly": butterfly}[mode](Image.open(src).convert("RGBA"), name)
+    mode = sys.argv[1]
+    if mode == "frames":
+        frames(sys.argv[2], sys.argv[3:])
+    else:
+        src, name, *size = sys.argv[2:]
+        {"layer": layer, "sprite": sprite, "butterfly": butterfly}[mode](Image.open(src).convert("RGBA"), name, *map(int, size))

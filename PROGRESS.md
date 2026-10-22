@@ -5,10 +5,10 @@ Last updated 2026-10-22.
 
 ## Where things stand
 
-- `main` is the approved baseline. It holds the whole invite as **one continuous film**: one sticky stage, five parts (garden → year one → chrysalis to wings → invitation → close), one GSAP timeline scrubbed over the page.
-- **Rebuild under way (2026-10-22)** on branch `feat/one-story` (built on `feat/scroll-craft`, which is superseded and not to be merged on its own): one continuous story on one pinned picture, the paper caterpillar going down a vine past her first year, becoming a chrysalis, a butterfly, then her wings; then the details and the close over the evening garden. `BRIEF.md` is the plan. Awaiting your phone test.
-- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is built and revised from your phone tests. Still open from milestone 2: the iPhone check and the wing-unfold upgrade (next steps 6 and 2).
-- Placeholders still in: year-one moments are emoji cards with a CSS caterpillar; the laptop shows the phone composition as a centred column; her winged portrait is version A of two.
+- `main` is the baseline (2026-10-22): one continuous story on one pinned picture (`BRIEF.md` is the plan). The paper caterpillar goes down a vine past her first year (four baby pictures on its leaves), curls up into a chrysalis, comes out as a butterfly and becomes her wings; then the details and the close over the evening garden. The previous baseline, the "one film", is `767dd74`.
+- Awaiting your phone check of the new art: her baby likeness (the four pictures, and the sheet they come from, `art/raw/baby-sheet-a.png`), and whether the change's frame-by-frame steps feel smooth. Anything to redo goes on a new branch.
+- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is rebuilt as the one story. Still open from milestone 2: the iPhone check (next step 3).
+- Placeholders still in: the laptop shows the phone composition as a centred column; her winged portrait is version A of two; the evening garden is the dawn layers under a dusk wash.
 - Party: Saturday 28 November 2026, 6–8 PM IST, Party Hall, Ramaniyam Magnum, Perungudi. Plan launch Nov 12–14.
 
 ## Done, in order
@@ -24,15 +24,16 @@ Last updated 2026-10-22.
 | `827898f` | Layout audit (`npm run layout`) and the 9 overlaps and gaps it found (incl. your two: moment cards over "A year ago…", the gap under the closing garden) | Merged |
 | (branch `feat/vertical-motion`, deleted, was `8b28da9`) | Vertical motion: everything drifting up inside the fixed stage at depth speeds | Rejected: "really bad". Cause: it faked normal scrolling through a timeline that trails the thumb, and moved art several screens (scroll-craft caps parallax near 200 px) |
 | `feat/scroll-craft` | Diagnosis against scroll-craft, engine lab, Codex video test, `BRIEF.md` | Brief approved; skeleton (five acts) rejected: "still feels like scenes stitched together" |
-| `852714d` (branch `feat/one-story`) | One story: the caterpillar's journey on one pinned picture, with stand-in art | "So far satisfied… just as I expected" (2026-10-22). Not merged yet: carry on from next step 2 on this branch or a new one off it |
+| `852714d` (branch `feat/one-story`) | One story: the caterpillar's journey on one pinned picture, with stand-in art | "So far satisfied… just as I expected" (2026-10-22) |
+| branch `feat/story-art` | The stand-ins replaced: the change as nine Codex drawings played frame by frame (the caterpillar grows on its thread to their size); a baby drawing sheet and four memory pictures from it; `tools/art.py frames` | "Complete the stand-ins and merge to main" (2026-10-22): merged; your phone check of the art is still to come |
 
 ## Decisions made with you (don't reopen without asking)
 
 - No Three.js. $0 unless something truly needs paying for. Phone first; desktop gets its own landscape art later.
 - Paper-cut style; drawing sheet **B** is her likeness; **gold** accent yes; her bows lilac.
-- Scroll (reopened 2026-10-22): scroll-craft's act mode, filmic one-shot. Real sections that move 1:1 with the thumb; short pins where a picture plays; nothing ever stops dead. Replaces the one-film fixed stage.
+- Scroll (2026-10-22): one continuous story on one pinned picture, moving 1:1 with the thumb, with one camera and one character (the caterpillar) from the garden to her portrait. It stops only once, when she has her wings; then the details and the close scroll up over the same garden at evening.
 - Mechanism (2026-10-22): scroll-craft's engine, never edited, plus GSAP 3.15.0 for our own moments.
-- Peak picture (2026-10-22): a $0 frame sequence rendered by Codex from our paper art. Codex has no video generator, and ChatGPT's Sora has shut down.
+- Peak picture (2026-10-22): $0 Codex drawings played frame by frame, like paper stop-motion. Codex has no video generator, and ChatGPT's Sora has shut down.
 - Year-one moments are drawn as her **a year younger**, from the baby photos (see "Her photos").
 - Workflow: every change on its own branch in its own worktree, shown to you on its own port, merged only when you say so. Checks must be airtight: run all of them before showing anything.
 - Never: the word "RSVP"; the host's phone number on the site; committing or deploying her photos; pushing to GitHub without asking.
@@ -41,16 +42,13 @@ Last updated 2026-10-22.
 
 Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
-1. **The story with stand-in art** (built on `feat/one-story`): you're satisfied with it (2026-10-22). Merge only when you say so.
-2. **The change, done properly:** Codex in-between drawings of the caterpillar curling into the chrysalis and the butterfly's crumpled wings opening, rendered as one frame sequence; retire the CSS fold and the `-back` images.
-3. **Signature butterflies:** the first scroll touch releases one, taps add more; they follow the caterpillar, gather at the twig, and settle around "Tell us you're coming".
-4. **Year-one art:** first a baby drawing sheet from `b1`–`b6` for you to approve, then the four memory pictures on the vine's leaves (no-teeth smile `b2`, serious stare `b1`/`b3`, babbled stories `b4`, finger heart).
-5. **Details and close polish.**
-6. **iPhone check.** Ask which iOS version.
-7. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
-8. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
-9. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
-10. **Milestone 6, launch** on Cloudflare Pages.
+1. **Signature butterflies:** the first scroll touch releases one, taps add more; they follow the caterpillar, gather at the twig, and settle around "Tell us you're coming".
+2. **Details and close polish.**
+3. **iPhone check.** Ask which iOS version.
+4. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
+5. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
+6. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
+7. **Milestone 6, launch** on Cloudflare Pages.
 
 ## How to work here
 
@@ -72,14 +70,15 @@ Each is its own branch, approved before merge. Details in `BRIEF.md`.
   |---|---|---|
   | `npm run layout` | Scrolls the page through 1001 points × 7 setups, including Safari's engine and an SE-sized screen | All ok |
   | `npm run craft -- --url <url> --out shots/craft-phone --width 390 --height 844` | scroll-craft's own harness (also `--width 1440 --height 900`, and `--reduced-motion`): dead scroll, words that never reach full strength, contrast on the real frame | No dead scroll; every line clears 4.5:1 |
-  | `npm run flicker` | Headed Chrome under memory pressure; reports flashes, hits and still stretches | No flashes. Hits only at known spots: the peak's pin arriving and letting go, and the bare year-one stretch until its art exists |
+  | `npm run flicker` | Headed Chrome under memory pressure; reports flashes, hits and still stretches | No flashes. Hits only at the story's known stops: her landing on the last frame of the story, and the evening coming in |
   | `npm run tasks` | CPU slowed 4× | No task over 50 ms |
   | `npm run shots` | Screenshot sheets | Read them by eye; the layout audit can't see colour contrast or the canvas burst |
 
 - **scroll-craft:** the reference repo isn't vendored. Clone it with `git clone --depth 50 https://github.com/nateherkai/scroll-craft` into a scratch folder to read `SKILL.md`, its references, or run `scripts/shoot.mjs` (run from this repo so `playwright-core` resolves). The engine files get copied into `site/` unedited.
 - **Art:**
   - `tools/gen.sh <prompt> <out> [reference images…]` runs Codex image generation on your ChatGPT plan, with no API key. Prompts live in `art/prompts/`, outputs go to `art/raw/` (git-ignored), and the style paragraph is prepended from `art/STYLE.md`.
-  - `tools/art.py layer|sprite|butterfly` exports WebPs into `site/img/`. It needs `.venv` with Pillow and numpy.
+  - `tools/art.py layer|sprite|butterfly|frames` exports WebPs into `site/img/`; `frames` lines the change's drawings up on the twig and prints their box for `js/story.js`. It needs `.venv` with Pillow and numpy.
+  - Codex's image tool takes at most 5 reference images.
 - **Her photos:**
   - The originals live only in `art/private/` (git-ignored, never deployed): `t1`–`t3` are recent, `t01`–`t06` are from before she turned one.
   - EXIF-stripped, downscaled copies are in `art/private/ref/`: `t*.jpg` and `b1`–`b6.jpg`. In `b1` and `b6` the parents' faces are cropped out.
@@ -88,9 +87,8 @@ Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
 ## Known issues
 
-- The peak's folded butterfly barely reads: the folded panels' plain backs hide the wings opening (next step 3).
 - The flicker test's "hits" count the dissolve into night as a stop (false alarm).
 - The canvas burst is invisible to the layout audit; it stays inside the peak's part by construction.
 - Laptop: the phone composition shows as a centred column with dark sides (milestone 3).
 - First screen is 538 KB against a 450 KB budget (milestone 3).
-- iPhone address-bar stutter: not re-tested since the film (next step 5).
+- iPhone address-bar stutter: not re-tested since the film (next step 3).

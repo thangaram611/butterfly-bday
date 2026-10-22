@@ -129,7 +129,7 @@ async function tasks() {
 async function audit(steps) {
   const TEXT = 'main h1, main h2, main p:not([aria-hidden]), main li, main dt, main dd, main figcaption, main .btn'; // read by guests: measured tight around the glyphs
   const BOXES = 'main .btn';                                                                        // buttons: measured as boxes
-  const DECOR = '.caterpillar, .memory .pic, .twig, .chrysalis, .flyer, .her img, .two, .bf';        // art that must not sit on text
+  const DECOR = '.caterpillar, .memory .pic, .twig, .change img, .flyer, .her img, .two, .bf';        // art that must not sit on text
   const W = innerWidth, H = innerHeight;
   // A line-by-line headline is forced to opacity 1 by the engine, which fades its line units instead (scroll-craft
   // verify.md): read it through them.

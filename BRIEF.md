@@ -42,7 +42,7 @@ Your direction (2026-10-22): *"The website should start with a garden, when scro
 
 So the page is one story on one pinned picture (`uniqueness.md` §2.4, continuous world), with one camera and one character from the first screen to her portrait, then two ordinary sections over the same garden. The earlier versions failed this in the same way: every scene was its own picture, so it felt stitched, whatever moved between them.
 
-- **No video legs.** scroll-craft's worldflight mode crossfades video clips; here the world is our layered paper art moved live, and the one transformation that needs frames (chrysalis to butterfly) is a Codex-rendered sequence. Its guidance for bespoke stages applies: the stage publishes what it draws in `data-sc-verify-state`, so the harness can check it.
+- **No video legs.** scroll-craft's worldflight mode crossfades video clips; here the world is our layered paper art moved live, and the transformation is played frame by frame from nine Codex drawings, like paper stop-motion. Its guidance for bespoke stages applies: the stage publishes what it draws in `data-sc-verify-state`, so the harness can check it.
 - **Navigation:** none (unchanged).
 - **The one place it stops:** when she has her wings. That's the end of the story, and you said a stop there is fine.
 
@@ -65,8 +65,8 @@ Timeline time is screens of scroll, and nothing smooths or delays it, so it move
 | Garden | Wonder | The dawn garden and her name; a little paper caterpillar sits on the flowers | first screen |
 | Into the garden | Curiosity | The camera sinks: sky and hills stay back, the meadow and flowers rise past, and the meadow fades into the dark ground under it. The vine comes up with the caterpillar on it | 0 – 1 |
 | Year one | Tenderness | The camera follows the caterpillar down the vine. "A year ago, she was our little caterpillar." Four memories hang on the leaves, each with its words on a paper tag: no-teeth smile, serious stares, babbled stories, finger heart | 1 – 3.1 |
-| The twig | Hush | The camera slows to a stop as the vine ends at a twig (it eases in at the speed it was going, so there's no jolt). The caterpillar lowers itself on a silk thread; night falls; "Lately, something has been changing…" | 3.1 – 4.0 |
-| The change | Awe (the peak) | It curls into a chrysalis; the chrysalis cracks and a paper butterfly unfolds, the camera leaning in | 4.0 – 6.7 |
+| The twig | Hush | The camera slows to a stop as the vine ends at a twig (it eases in at the speed it was going, so there's no jolt). The caterpillar, grown a little, lowers itself on a silk thread; night falls; "Lately, something has been changing…" | 3.1 – 4.0 |
+| The change | Awe (the peak) | It hangs in a J and curls up asleep, and paper petals close round it into the chrysalis; the chrysalis glows, opens, and a butterfly climbs out, crumpled, and spreads its wings, the camera leaning in | 4.0 – 6.7 |
 | Her | Joy | The camera follows the butterfly down; she rises into view; it flutters down behind her and becomes her wings. "She's got her wings!", the gold 2, a burst of butterflies from behind her. The story ends | 6.7 – 8.6 |
 | Details | Clarity | She steps away, and the same garden comes back at evening behind the date, venue and dress code | after the story |
 | Close | Warmth | "We've saved a spot for you." Tell us you're coming. A few butterflies come out once it has arrived | the last screen |
@@ -79,9 +79,9 @@ Timeline time is screens of scroll, and nothing smooths or delays it, so it move
 |---|---|
 | Dawn garden (5 layers) | Approved, reused |
 | Vine, near foliage, paper caterpillar | Drawn by Codex 2026-10-22 for this story; stem line traced so the caterpillar crawls exactly on it |
-| Twig | Cut from the chrysalis drawing, so it hands over to the frames without a jump |
-| Chrysalis to butterfly | Codex's lab render as a stand-in (frames 2–49, the moving part); to be redone properly |
-| The four memories | Placeholder paper discs; next: baby drawing sheet from `b1`–`b6` for your approval, then the four pictures |
+| Twig | Cut from the chrysalis drawing; the frames hang from its knot |
+| The change | Nine Codex drawings (2026-10-22), each drawn from the one before it: J, curling up, wrapped, chrysalis, glowing, crumpled wings, half open, open, the empty shell. `tools/art.py frames` lines each one up on the twig; the page dissolves from one to the next |
+| The four memories | Baby drawing sheet from `b1`, `b2`, `b4`, `b5` and her drawing sheet B (`art/raw/baby-sheet-a.png`), awaiting your approval; four paper medallions drawn from it: gummy smile, serious stare, a long story, finger heart |
 | Her portrait | Version A; the butterfly lands on its wings |
 | Evening garden | The dawn layers under a dusk wash |
 
@@ -107,9 +107,9 @@ As before: no scroll hint, no emoji icons, no identical cards, balanced headline
 Each step is its own branch, compared on your phone and merged only when you say so.
 
 1. **The story with stand-in art** (branch `feat/one-story`): judge the feel, especially the stop at the twig and that it reads as one story.
-2. **The change, done properly:** Codex in-between drawings of the caterpillar curling into the chrysalis, and of the butterfly's crumpled wings opening, rendered as one sequence.
+2. **The change, done properly:** done on `feat/story-art`, nine drawings played frame by frame.
 3. **The signature butterflies.**
-4. **Year one:** baby drawing sheet first, then the four memory pictures.
+4. **Year one:** done on `feat/story-art`, the baby drawing sheet and the four memory pictures.
 5. **Details and close polish,** then milestones 3 to 6 from `PROGRESS.md`.
 
 ## Revisions

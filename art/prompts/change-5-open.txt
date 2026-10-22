@@ -1,0 +1,7 @@
+Use: one frame of a stop-motion paper-cut animation on a website, where a chrysalis opens and a butterfly comes out. Image 1 is the previous frame. Image 2 is the butterfly. Image 3 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Redraw image 1 (same twig, same tab, same place and size), with only this change: the chrysalis's petals are parting open at the bottom, like a flower opening downwards. The butterfly from image 2 is climbing out head first below them: its indigo body, round head and gold-tipped curled antennae are out, and its wings are still small, soft and crumpled, folded down against its body. It holds on to the open petals with its legs.
+
+Format: tall portrait 2:3, the same framing as image 1.
+
+Transparent background: real alpha, fully transparent outside the subject. No checkerboard pattern, no backdrop, no cast shadow outside the subject.

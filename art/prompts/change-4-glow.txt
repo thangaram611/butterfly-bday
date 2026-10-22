@@ -1,0 +1,7 @@
+Use: one frame of a stop-motion paper-cut animation on a website, where a chrysalis opens and a butterfly comes out. Image 1 is the chrysalis, the previous frame. Image 2 is the butterfly that is inside it. Image 3 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Redraw image 1 exactly (same twig, same tab, same chrysalis shape, size and place in the frame), with only this change: the chrysalis is about to open. Its paper petals have turned pale and thin like vellum, and through them you can see the butterfly from image 2 folded up inside: its lilac and amethyst wing colours and gold dots show softly through. A warm soft gold glow comes from inside the chrysalis.
+
+Format: tall portrait 2:3, the same framing as image 1.
+
+Transparent background: real alpha, fully transparent outside the subject and its soft glow. No checkerboard pattern, no backdrop, no cast shadow outside the subject.

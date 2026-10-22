@@ -1,0 +1,7 @@
+Use: one frame of a stop-motion paper-cut animation on a website, where a caterpillar turns into a chrysalis. Image 1 is the previous frame. Image 2 is the chrysalis it will become. Image 3 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Redraw image 1 exactly (same twig, same tab, same caterpillar, same size and place in the frame), with only this change: the caterpillar has curled up tighter into a plump round coil hanging from the tab, eyes closed, fast asleep with a tiny smile. Two of the long ridged paper petals of the chrysalis in image 2 (amethyst and violet cardstock with lilac ridges) have grown down from the tab and begun to wrap around the top of the sleeping caterpillar, like a flower closing around it.
+
+Format: tall portrait 2:3, the same framing as image 1.
+
+Transparent background: real alpha, fully transparent outside the subject. No checkerboard pattern, no backdrop, no cast shadow outside the subject.

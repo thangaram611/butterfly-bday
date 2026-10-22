@@ -1,0 +1,7 @@
+Use: one frame of a stop-motion paper-cut animation on a website, where a butterfly has just come out of its chrysalis. Image 1 is the previous frame. Image 2 is the butterfly with its wings fully open, the look it must end with. Image 3 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Redraw image 1 (same twig, same tab, same empty chrysalis, same place and size), with only this change: the butterfly's wings are now fully open, flat and smooth, spread wide to both sides, exactly the butterfly of image 2, seen from the front, mirror-symmetric, its body a straight vertical line centred under the chrysalis. It is about to fly.
+
+Format: tall portrait 2:3, the same framing as image 1.
+
+Transparent background: real alpha, fully transparent outside the subject. No checkerboard pattern, no backdrop, no cast shadow outside the subject.
