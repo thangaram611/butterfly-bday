@@ -1,7 +1,7 @@
 # Brief: Taneira is turning two
 
 The scroll-craft brief for the rebuild, written before any act or asset exists. Everything downstream (`site/`, the art, the checks) reads from this file.
-Follows nateherkai/scroll-craft `SKILL.md` steps 0 to 2, `feel.md` and `uniqueness.md`. Written 2026-10-22.
+Follows nateherkai/scroll-craft `SKILL.md` steps 0 to 2, `feel.md` and `uniqueness.md`. Written 2026-10-22; revised the same day after a second-opinion review (Fable) and the first skeleton (see "Revisions" at the end).
 
 **How it was written:** from your answers across our sessions, quoted where you said it. Lines marked *authored* are my decisions where you delegated ("its your call ultimately") or never said; change any of them.
 
@@ -54,9 +54,9 @@ The grammar forbids visible sequence (no chapter numbers or progress readouts), 
 
 ### Signature move: butterflies come out of your finger
 
-Tap anywhere that isn't a button and two paper butterflies flutter out from under your fingertip and rise away; garden butterflies nearby dart off; scroll fast and they flap harder. The ones you release stay with you, a small flock (at most six) drifting at the screen's edge as you read on. At the end they settle around **Tell us you're coming**. That is a trace of the guest's own journey (`feel.md` §4), and it lives on this site alone.
+Most guests scroll and never tap, so it starts with the scroll: **the first touch that starts a scroll releases one paper butterfly from under your thumb**, and it follows you down the page. Taps anywhere that isn't a button release more (at most six); garden butterflies nearby dart off; scroll fast and they flap harder. During the hush they gather around the chrysalis; the butterfly born at the peak joins them; at the end they settle around **Tell us you're coming**. That ties the signature to the peak (`feel.md` §3) and leaves a trace of the guest's own journey (§4). It lives on this site alone.
 
-- Touch first: it works on phones, where every guest is; a mouse click does the same.
+- Touch first: it works on phones, where every guest is; a mouse click does the same. The flock layer is `position: fixed` outside every section, `pointer-events: none`, and a tap counts only on lift with little movement, so it never fights a scroll or a button.
 - Reduced motion: nothing flies; at the end a few still butterflies sit by the button.
 - Built in page code with GSAP (sprites moved by transform only; never more than eight on screen). The scroll-craft engine stays unedited.
 
@@ -72,7 +72,7 @@ Written before the acts. One line per act: the feeling, then what on screen caus
 
 | Act | Feeling | What causes it |
 |---|---|---|
-| 1 | **Wonder** | The dawn garden opens around her name in layers moving at different depths; the headline builds itself line by line |
+| 1 | **Wonder** | The dawn garden around her name; as it scrolls away its layers part by depth (sky slowest, flowers with the page) and the year-one sheet slides over it |
 | 2 | **Tenderness**, ending in a **hush** | A year ago: paper pictures of her as a baby (the no-teeth smile, the serious stare, the babbled stories, the finger heart) arrive one by one as you read. Then the light goes: the page darkens to dusk and one line, "Lately, something has been changing…" |
 | 3 | **Awe** (the peak) | Night. One chrysalis hangs still (authored silence), then cracks under your thumb; a paper butterfly climbs out with crumpled wings that smooth and open wide; gold light; she appears with her wings and a big gold 2 |
 | 4 | **Clarity** | When, where, what to wear, typeset plainly on the night sky: easy to read, easy to act on |
@@ -90,20 +90,20 @@ Adjacent acts never share a feeling. The peak has quiet in front of it (the hush
 
 | Act | Device | Span | Why this one |
 |---|---|---|---|
-| 1 Wonder | `pin` + `parallax` (5 planes) + `kinetic` headline, greeting on screen at first paint | ~1.8 screens | The garden's depth playing under the thumb is the strongest open we have without video. Every plane moves **up** at its own speed; adjacent planes differ by 10 to 30%, at most ~200 px of travel (`devices.md` §6) |
+| 1 Wonder | `flow` + `parallax` (5 planes), title on screen at first paint | 1 screen | Normal scroll: the title and nearest flowers move exactly with the thumb, farther planes trail by depth (sky about a quarter, meadow a twentieth), the copy-at-1x layered scene in `devices.md` §6. A pinned hero would hold the title still while the thumb moves, the "hit something" feeling. Driven by GSAP from the section's own height so nothing jumps when an iPhone's address bar collapses |
 | 2 Tenderness → hush | `flow` + `in` (normal scroll, exactly with your thumb), gentle `parallax` on the pictures, `drift` to dusk at the end | ~2.5 screens of content | Memories are read at reading pace, and text should move 1:1 with the thumb. This is where the apple.com feel lives |
-| 3 Awe | `scrub` of a frame sequence (Codex-rendered, $0) + `reveal` (iris) to her portrait + `kinetic` "She's got her wings!" + the gold burst | **~3.4 screens, the largest** | The peak gets the best asset, the quiet before it, and the most scroll. One act, so the chrysalis appears exactly once |
+| 3 Awe | `pin` + a scrubbed frame sequence (Codex-rendered, $0) + `reveal` (iris) to her portrait + `kinetic` "She's got her wings!" + the gold burst | **3.4 screens, the largest** | The peak gets the best asset, the quiet before it, and the most scroll. One act, so the chrysalis appears exactly once. **The only pin on the page**; a slow push-in keeps the picture moving through it |
 | 4 Clarity | `flow` + `in` | ~1.3 screens | Logistics are information, not experience: short, plain, fast (`feel.md` §5) |
-| 5 Warmth | `pin` + the signature flock settling | ~1.2 screens | The close resolves and holds: the last screen keeps its words and the button. Nothing fades out |
+| 5 Warmth | `flow`, last screen of the page + the signature flock settling | 1 screen | The close resolves and holds by being the end of the page: its words and the button never fade |
 
 Checks against scroll-craft's rules:
 
-- Device families: pin, parallax, kinetic, flow/in, drift, scrub, reveal: 7, at least 4 needed. No device twice in a row (the two `flow` acts are separated by the peak).
-- One `scrub` act (at most 2 allowed).
-- The peak has the largest span by a visible margin (3.4 against 1.8), and the act before it is quieter.
-- About 10 screens in total, inside the 8 to 14 guideline. No filler.
+- Device families: flow/in, parallax, pin with a scrubbed sequence, reveal, kinetic: 5, at least 4 needed. (The ground change into dusk is painted per section, not engine `drift`, which scroll-craft advises when acts overlap.)
+- Act shapes run flow, flow, pin, flow, flow. Adjacent flows differ in device (parallax garden, then reveals on a reading sheet; details reveal, then the still close), and the one pin is the peak.
+- The peak has the largest span by a wide margin (3.4 screens of pin against one-screen sections), and the act before it is quieter.
+- About 8 screens in total, inside the 8 to 14 guideline. No filler.
 - Copy anchors vary: centred title in act 1, left-aligned reading column in act 2, bottom-centre in act 3, left-aligned details in act 4, centred close.
-- At most one line-by-line headline per act.
+- One line-by-line headline on the page, at the peak ("She's got her wings!"). The title is static and readable at first paint; scroll-craft's cue contract says a hero must greet, not build.
 
 ### The peak's moving picture
 
@@ -119,12 +119,12 @@ The frames are made at $0:
 
 | Plane | Asset | Movement | Rule |
 |---|---|---|---|
-| Far | sky | barely moves | — |
-| Mid | hills | slow | — |
-| Framing | wisteria (top) | moves up faster than the hills | never covers the headline at rest |
-| Near | meadow | faster | solid below its outline, so nothing shows through |
-| Nearest | blossoms | fastest; rises past the meadow | the overtaking is the move |
-| Type | headline | rides the stage | readable from the first frame; the checks measure contrast on the real frame (today it drops to 1.32:1 over the wisteria) |
+| Far | sky | trails the page most (about a quarter) | — |
+| Mid | hills | trails by about a sixth | — |
+| Framing | wisteria (top) | trails by a tenth | never covers the headline at rest |
+| Near | meadow | trails by a twentieth | solid below its outline, so nothing shows through |
+| Nearest | blossoms | moves with the page; rises past every layer behind it | the overtaking is the move; then the year-one sheet, with a cut paper edge, slides over the whole garden |
+| Type | headline | moves exactly with the page | readable from the first frame: a soft paper glow sits behind it only (a scrim where the text is); the checks measure contrast on the real frame (the lab measured 1.32:1 over the wisteria without it) |
 
 ### Taste floor: what changes from `main`
 
@@ -135,8 +135,8 @@ The frames are made at $0:
 
 ## Mechanism
 
-- **scroll-craft's engine, unedited** (`site/js/scrollcraft.js`, `site/css/scrollcraft.css`), for pinning (native sticky, no JS pin), parallax, cues, line-by-line headlines, wipes, ground drift, reveals on entry and the frame sequence.
-- **GSAP 3.15.0** (the latest release, already vendored) for our own moments only: the peak's portrait and gold 2, the burst, and the signature butterflies. It is scrubbed by the same act the engine measures; the lab measured them agreeing to within 0.03%.
+- **scroll-craft's engine, unedited** (`site/js/scrollcraft.js`, `site/css/scrollcraft.css`), for the peak's pin (native sticky, no JS pin), cues, the line-by-line headline, the iris wipe, reveals on entry and the frame sequence.
+- **GSAP 3.15.0** (the latest release, already vendored) for our own moments only: the garden's layers, the peak's push-in and gold 2, the burst, and the signature butterflies. Peak timelines are driven by the engine's own progress for the act (`tl.progress(act.p)`), not by ScrollTrigger: on an iPhone the two measure a pin differently by about 5%, and this way there is one scroll listener and no lag. ScrollTrigger is no longer loaded.
 - The lab test (2026-10-22, 4× slower CPU, iPhone-sized): zero long tasks and zero slow frames for both engine + GSAP and GSAP only. The engine does more style work (about 107 ms against 24 ms over a whole scroll); to be confirmed on your phones.
 
 ## How it gets checked
@@ -150,9 +150,19 @@ The frames are made at $0:
 
 Each step is its own branch, compared on your phone and merged only when you say so.
 
-1. **The new skeleton with today's art:** engine plus GSAP, the five acts, the taste-floor fixes, real scrolling. You judge the scroll feel before any new art is made.
-2. **The peak:** Codex in-between drawings, the rendered frame sequence, the portrait reveal.
-3. **Year one:** baby drawing sheet from `b1`–`b6` first (for your approval), then the four pictures and a paper caterpillar.
-4. **The details on the night sky, and the evening close.**
-5. **The signature butterflies.**
+1. **The new skeleton with today's art:** engine plus GSAP, the five acts, the taste-floor fixes, real scrolling. The peak uses Codex's lab render as a stand-in sequence. Year one and the details have no art yet, so judge the scroll feel, not the emptiness.
+2. **The peak:** Codex in-between drawings, the rendered frame sequence (shell halves fall out of frame, a slow push-in, a little wing overshoot), her portrait reveal. 48 to 60 frames at about 540 px wide.
+3. **The signature butterflies.** The riskiest phone interaction, and the "it's the site where…" sentence, so it is tested early.
+4. **Year one:** baby drawing sheet from `b1`–`b6` first (for your approval), then the four pictures and a paper caterpillar.
+5. **The details on the night sky, and the evening close.**
 6. Then milestones 3 to 6 from `PROGRESS.md` (desktop art, weight budget, invitation features, PWA, launch).
+
+## Revisions
+
+- 2026-10-22, after the second-opinion review and the first skeleton:
+  - The garden and the close scroll normally; the peak is the only pin. A pin holds the words still under a moving thumb, which is the "hit something" feeling, and on an iPhone the engine's pin measurements shift when the address bar collapses.
+  - The title doesn't build line by line (a hero must greet); the line-by-line headline moved to the peak.
+  - GSAP is driven from the engine's progress, and ScrollTrigger is dropped.
+  - The signature move starts from the first scroll touch, not only taps, and gathers at the chrysalis.
+  - Build order: the signature moves before the year-one art.
+  - Suggested by the review, not decided: cut desktop landscape art, offline support and the countdown before launch.

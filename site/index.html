@@ -10,87 +10,80 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦋</text></svg>">
 <meta property="og:title" content="Taneira is turning two 🦋">
 <meta property="og:description" content="Saturday 28 November, 6 – 8 PM · Party Hall, Ramaniyam Magnum, Perungudi">
-<script>
-  // Set before first paint so the page never jumps between layouts. If GSAP hasn't arrived after 4 s, fall back to the plain page.
-  if (matchMedia('(prefers-reduced-motion: no-preference)').matches) document.documentElement.classList.add('anim');
-  setTimeout(() => window.gsap || document.documentElement.classList.remove('anim'), 4000);
-</script>
 <link rel="preload" href="fonts/fredoka.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/scrollcraft.css">
 <link rel="stylesheet" href="css/site.css">
+<!-- Without JS nothing would ever reveal the cued words, so show them as they are -->
+<noscript><style>[data-sc-cue], [data-sc-in], [data-sc-stagger] > * { opacity: 1; transform: none; }</style></noscript>
+<script>
+  // Same if the engine never arrives (a failed download): after 4 s, show the words as they are
+  setTimeout(() => document.documentElement.classList.contains('sc-ready') || document.documentElement.classList.add('no-sc'), 4000);
+</script>
 <script src="js/vendor/gsap.min.js" defer></script>
-<script src="js/vendor/ScrollTrigger.min.js" defer></script>
+<script src="js/scrollcraft.js" defer></script>
 <script src="js/main.js" type="module"></script>
 </head>
 <body>
-<!-- One stage for the whole story: scroll plays it as one continuous film (see scenes.js).
-     Without JS or with reduced motion, the segments are plain stacked screens. -->
-<main class="world" style="--T:10.2">
-<div class="stage">
+<!-- The page is scroll-craft acts (BRIEF.md, "Score"): real sections in normal scroll, with short pins where a
+     picture plays. The scroll-craft engine (js/scrollcraft.js, never edited) drives every data-sc-* attribute;
+     GSAP drives only our own moments (js/garden.js, js/peak.js) and the butterflies. -->
+<main>
 
-<section class="seg s1">
+<!-- 1 · Wonder: the dawn garden in normal scroll. The title and the nearest flowers move exactly with the thumb; the
+     farther layers trail behind by depth (data-lag: the sky by about a quarter of the scroll, the meadow by a
+     twentieth; js/garden.js) -->
+<section class="garden" data-sc-act="flow">
   <div class="frame">
-    <img class="sky" src="img/s1-sky.webp" width="1024" height="1536" alt="" fetchpriority="high">
-    <img class="hills" src="img/s1-hills.webp" width="1024" height="769" alt="" style="--top:49.93">
-    <img class="wisteria" src="img/s1-wisteria.webp" width="1024" height="731" alt="" style="--top:0">
-    <img class="meadow" src="img/s1-meadow.webp" width="1024" height="607" alt="" style="--top:60.48">
-    <img class="blossoms" src="img/s1-blossoms.webp" width="1024" height="602" alt="" style="--top:60.81">
+    <img class="sky" src="img/s1-sky.webp" width="1024" height="1536" alt="" fetchpriority="high" data-lag="0.24">
+    <img src="img/s1-hills.webp" width="1024" height="769" alt="" style="--top:49.93" data-lag="0.17">
+    <img src="img/s1-wisteria.webp" width="1024" height="731" alt="" style="--top:0" data-lag="0.1">
+    <img src="img/s1-meadow.webp" width="1024" height="607" alt="" style="--top:60.48" data-lag="0.05">
+    <img src="img/s1-blossoms.webp" width="1024" height="602" alt="" style="--top:60.81">
   </div>
-  <div class="copy">
+  <div class="flock" data-count="4" data-wide="6" data-after=".garden h1"></div>
+  <div class="scrim" aria-hidden="true"></div>
+  <div class="title">
     <p class="greet" hidden>Dear <span></span>,</p>
     <h1>Taneira is turning two</h1>
   </div>
-  <p class="hint" aria-hidden="true">Scroll ↓</p>
 </section>
 
-<section class="seg s2">
-  <div class="rail"></div>
+<!-- 2 · Tenderness, ending in a hush: read at reading pace, then the light goes -->
+<section class="year" data-sc-act="flow">
   <div class="cat" aria-hidden="true"><i style="--i:5"></i><i style="--i:4"></i><i style="--i:3"></i><i style="--i:2"></i><i style="--i:1"></i><b></b></div>
-  <div class="copy">
-    <p class="lead">A year ago, she was our little caterpillar.</p>
-    <ol class="moments">
-      <li><span class="ph" aria-hidden="true">😊</span>Smiles with no teeth.</li>
-      <li><span class="ph" aria-hidden="true">😐</span>Very serious blank stares.</li>
-      <li><span class="ph" aria-hidden="true">💬</span>Long, confident stories, in her own language.</li>
-      <li><span class="ph" aria-hidden="true">🫰</span>And “love you” with a tiny finger heart.</li>
-    </ol>
-  </div>
-</section>
-
-<section class="seg s3">
-  <div class="glow"></div>
-  <div class="pod" aria-hidden="true">
-    <img class="half l" src="img/chrysalis.webp" width="983" height="1392" alt="" loading="lazy">
-    <img class="half r" src="img/chrysalis.webp" width="983" height="1392" alt="" loading="lazy">
-  </div>
-  <img class="portrait" src="img/taneira-wings.webp" width="1007" height="1430" alt="Taneira with paper butterfly wings" loading="lazy">
-  <div class="peak" aria-hidden="true">
-    <div class="bfly">
-      <div class="wing l">
-        <div class="pane in"><img src="img/butterfly-a.webp" alt="" loading="lazy"></div>
-        <div class="pane out"><img src="img/butterfly-a.webp" alt="" loading="lazy"><img class="back" src="img/butterfly-a-back.webp" alt="" loading="lazy"></div>
-      </div>
-      <div class="wing r">
-        <div class="pane in"><img src="img/butterfly-a.webp" alt="" loading="lazy"></div>
-        <div class="pane out"><img src="img/butterfly-a.webp" alt="" loading="lazy"><img class="back" src="img/butterfly-a-back.webp" alt="" loading="lazy"></div>
-      </div>
-      <div class="body"><img src="img/butterfly-a.webp" alt="" loading="lazy"></div>
-    </div>
-  </div>
-  <p class="two" aria-hidden="true">2</p>
-  <div class="copy">
-    <p class="lead hush">Lately, something has been changing…</p>
-    <h2>She’s got her wings!</h2>
-  </div>
-</section>
-
-<section class="seg s4">
-  <div class="copy">
-    <h2>Come celebrate with us</h2>
-    <ul class="cards">
-      <li><span class="k">When</span>Saturday, 28 November · 6 – 8 PM</li>
-      <li><span class="k">Venue</span>Party Hall, Ramaniyam Magnum, Perungudi, Chennai</li>
-      <li><span class="k">Dress code</span>Wear any shade of purple 💜<span class="swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></li>
+  <div class="column">
+    <h2 data-sc-in>A year ago, she was our little caterpillar.</h2>
+    <ul class="moments" data-sc-in data-sc-stagger="80">
+      <li>Smiles with no teeth.</li>
+      <li>Very serious blank stares.</li>
+      <li>Long, confident stories, in her own language.</li>
+      <li>And “love you” with a tiny finger heart.</li>
     </ul>
+  </div>
+  <p class="hush" data-sc-in>Lately, something has been changing…</p>
+</section>
+
+<!-- 3 · Awe, the peak: one chrysalis, still at first; then it cracks under the thumb and the butterfly opens -->
+<section class="peak" id="peak" data-sc-act="pin" data-sc-span="3.4">
+  <div data-sc-stage>
+    <div class="film"><canvas data-sc-sequence="img/peak-v0/{ii}.webp:60:0" aria-hidden="true"></canvas></div>
+    <figure class="her" data-sc-reveal="iris" data-sc-reveal-at="0.64 0.84">
+      <img src="img/taneira-wings.webp" width="1007" height="1430" alt="Taneira with paper butterfly wings" loading="lazy">
+    </figure>
+    <p class="two" aria-hidden="true">2</p>
+    <h2 data-sc-cue="0.84 1 0.4 0" data-sc-kinetic="words">She’s got her wings!</h2>
+  </div>
+</section>
+
+<!-- 4 · Clarity: the details, plainly, on the night sky -->
+<section class="details" data-sc-act="flow">
+  <div class="column" data-sc-in data-sc-stagger="70">
+    <h2>Come celebrate with us</h2>
+    <dl>
+      <div><dt>When</dt><dd>Saturday, 28 November<br>6 – 8 PM</dd></div>
+      <div><dt>Where</dt><dd>Party Hall, Ramaniyam Magnum<br>Perungudi, Chennai</dd></div>
+      <div><dt>Wear</dt><dd>Any shade of purple<span class="swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></dd></div>
+    </dl>
     <p class="actions">
       <a class="btn" href="taneira-2nd-birthday.ics" download>Add to calendar</a>
       <a class="btn" href="https://www.google.com/maps/dir/?api=1&amp;destination=12.977811,80.245802">Directions</a>
@@ -99,23 +92,25 @@
   </div>
 </section>
 
-<section class="seg s5">
-  <div class="frame">
-    <img class="sky" src="img/s1-sky.webp" width="1024" height="1536" alt="" loading="lazy">
-    <img src="img/s1-hills.webp" width="1024" height="769" alt="" loading="lazy" style="--top:49.93">
-    <img src="img/s1-meadow.webp" width="1024" height="607" alt="" loading="lazy" style="--top:60.48">
-    <div class="dusk"></div>
-  </div>
-  <div class="copy">
-    <h2>We’ve saved a spot for you.</h2>
-    <a class="btn gold coming" href="https://wa.me/?text=Hi!%20We'll%20be%20there%20for%20Taneira's%202nd%20birthday%20%F0%9F%A6%8B">Tell us you’re coming 🦋</a>
-    <p>So we know how much cake to make 🍰</p>
+<!-- 5 · Warmth: evening in the garden. The last screen of the page, so it holds by itself -->
+<section class="close" data-sc-act="flow">
+  <div class="stage">
+    <div class="frame">
+      <img class="sky" src="img/s1-sky.webp" width="1024" height="1536" alt="" loading="lazy">
+      <img src="img/s1-hills.webp" width="1024" height="769" alt="" loading="lazy" style="--top:49.93">
+      <img src="img/s1-meadow.webp" width="1024" height="607" alt="" loading="lazy" style="--top:60.48">
+      <div class="dusk"></div>
+    </div>
+    <div class="flock" data-count="3" data-wide="4" data-band="56 78"></div>
+    <div class="words">
+      <h2>We’ve saved a spot for you.</h2>
+      <a class="btn gold coming" href="https://wa.me/?text=Hi!%20We'll%20be%20there%20for%20Taneira's%202nd%20birthday%20%F0%9F%A6%8B">Tell us you’re coming</a>
+      <p>So we know how much cake to make.</p>
+    </div>
     <p class="sign">Made with love by Taneira’s family</p>
   </div>
 </section>
 
-<div class="flock" data-count="6"></div>
-</div>
 </main>
 </body>
 </html>

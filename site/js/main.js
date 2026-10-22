@@ -1,8 +1,9 @@
-import { film } from './scenes.js';
 import { flock } from './butterflies.js';
+import { garden } from './garden.js';
 import { invite } from './invite.js';
+import { peak } from './peak.js';
 
-const root = document.documentElement;
+const { ScrollCraft, gsap } = window;
 
 // ?to=Ravi%20Uncle%20%26%20family → "Dear Ravi Uncle & family," (textContent only, so a name is never HTML)
 const name = new URLSearchParams(location.search).get('to')?.trim().slice(0, 40);
@@ -13,24 +14,20 @@ if (name) {
 }
 invite(name);
 
-// The rest of the film's art loads once the first screen has (or as soon as the guest starts scrolling)
-const loadRest = () => root.classList.add('loaded');
-addEventListener('load', loadRest, { once: true });
-addEventListener('scroll', loadRest, { once: true, passive: true });
+// The scroll-craft engine drives every data-sc-* attribute on the page: the peak's pin and frame sequence, its iris,
+// the cues and the reveals. Our own moments run on GSAP, read once per frame after the engine's own read (its scroll
+// listener was added first, so its frame callback runs first).
+const sc = ScrollCraft.mount(document.body);
+const moments = [garden(), peak(sc)];
+let queued = false;
+const update = () => {
+  queued = false;
+  for (const m of moments) m();
+};
+const schedule = () => queued || ((queued = true), requestAnimationFrame(update));
+addEventListener('scroll', schedule, { passive: true });
+addEventListener('resize', schedule, { passive: true });
+addEventListener('load', schedule, { once: true });
+update();
 
-const { gsap, ScrollTrigger } = window;
-if (!gsap || !ScrollTrigger) root.classList.remove('anim');
-else {
-  gsap.registerPlugin(ScrollTrigger);
-  // Everything that moves exists only while motion is allowed; matchMedia reverts it all if that changes.
-  gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
-    root.classList.add('anim');
-    ScrollTrigger.refresh();
-    film();
-    const stopFlock = flock();
-    return () => {
-      stopFlock();
-      root.classList.remove('anim');
-    };
-  });
-}
+gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => flock());

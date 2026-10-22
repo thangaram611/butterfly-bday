@@ -6,7 +6,8 @@
     "shots": "node tools/check.mjs shots",
     "flicker": "node tools/check.mjs flicker",
     "tasks": "node tools/check.mjs tasks",
-    "layout": "node tools/check.mjs layout"
+    "layout": "node tools/check.mjs layout",
+    "craft": "node tools/scrollcraft/shoot.mjs"
   },
   "devDependencies": {
     "playwright-core": "1.55.0"

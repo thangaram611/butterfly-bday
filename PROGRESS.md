@@ -41,11 +41,11 @@ Last updated 2026-10-22.
 Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
 1. **Approve `BRIEF.md`.**
-2. **The new skeleton with today's art:** scroll-craft engine plus GSAP, five acts (garden, year one into dusk, the peak, the details on the night sky, the evening close), the taste-floor fixes. You judge the scroll feel before new art is made. The layout audit is reworked to step through real scroll instead of a timeline.
+2. **The new skeleton with today's art** (built on `feat/scroll-craft`, awaiting your phone test): scroll-craft engine plus GSAP, five acts (garden, year one into dusk, the peak, the details on the night sky, the evening close), one pin (the peak), the taste-floor fixes, Codex's lab render as the stand-in peak. The layout audit steps through real scroll; scroll-craft's own harness runs as `npm run craft`.
 3. **The peak:** Codex in-between drawings (shell cracking, crumpled to open wings), a rendered frame sequence, her portrait revealed with an iris wipe. Retire the CSS fold and the `-back` images.
-4. **Year-one art:** first a baby drawing sheet from `b1`–`b6` for you to approve, then four paper pictures (no-teeth smile `b2`, serious stare `b1`/`b3`, babbled stories `b4`, finger heart) and a paper caterpillar.
-5. **The details on the night sky and the evening close.**
-6. **Signature butterflies:** tap and they fly out of your finger, follow you, and settle around "Tell us you're coming".
+4. **Signature butterflies:** the first scroll touch releases one, taps add more; they follow you, gather at the chrysalis, and settle around "Tell us you're coming".
+5. **Year-one art:** first a baby drawing sheet from `b1`–`b6` for you to approve, then four paper pictures (no-teeth smile `b2`, serious stare `b1`/`b3`, babbled stories `b4`, finger heart) and a paper caterpillar.
+6. **The details on the night sky and the evening close.**
 7. **iPhone check.** Ask which iOS version.
 8. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
 9. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
@@ -70,8 +70,9 @@ Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
   | Command | What it does | Must show |
   |---|---|---|
-  | `npm run layout` | 1001 points × 7 setups, including Safari's engine and an SE-sized screen | All ok |
-  | `npm run flicker` | Headed Chrome under memory pressure; reports flashes, hits and still stretches | No flashes. Hits only at known spots: the dissolve into night (detector over-reads it) and the folded butterfly |
+  | `npm run layout` | Scrolls the page through 1001 points × 7 setups, including Safari's engine and an SE-sized screen | All ok |
+  | `npm run craft -- --url <url> --out shots/craft-phone --width 390 --height 844` | scroll-craft's own harness (also `--width 1440 --height 900`, and `--reduced-motion`): dead scroll, words that never reach full strength, contrast on the real frame | No dead scroll; every line clears 4.5:1 |
+  | `npm run flicker` | Headed Chrome under memory pressure; reports flashes, hits and still stretches | No flashes. Hits only at known spots: the peak's pin arriving and letting go, and the bare year-one stretch until its art exists |
   | `npm run tasks` | CPU slowed 4× | No task over 50 ms |
   | `npm run shots` | Screenshot sheets | Read them by eye; the layout audit can't see colour contrast or the canvas burst |
 
