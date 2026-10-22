@@ -127,9 +127,9 @@ async function tasks() {
 // engine and GSAP have both drawn that position), measures, and returns what's wrong as { rule, what, at }, with `at`
 // the scroll position in screens.
 async function audit(steps) {
-  const TEXT = 'main h1, main h2, main p:not([aria-hidden]), main li, main dt, main dd, main .btn'; // read by guests: measured tight around the glyphs
+  const TEXT = 'main h1, main h2, main p:not([aria-hidden]), main li, main dt, main dd, main figcaption, main .btn'; // read by guests: measured tight around the glyphs
   const BOXES = 'main .btn';                                                                        // buttons: measured as boxes
-  const DECOR = '.cat, .her img, .two, .bf';                                                         // art that must not sit on text
+  const DECOR = '.caterpillar, .memory .pic, .twig, .chrysalis, .flyer, .her img, .two, .bf';        // art that must not sit on text
   const W = innerWidth, H = innerHeight;
   // A line-by-line headline is forced to opacity 1 by the engine, which fades its line units instead (scroll-craft
   // verify.md): read it through them.
@@ -143,20 +143,42 @@ async function audit(steps) {
   const glyphs = el => { const r = document.createRange(); r.selectNodeContents(el); return r.getBoundingClientRect(); };
   const hit = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 2;
   const name = el => `${el.tagName.toLowerCase()}.${[...el.classList].join('.')} "${el.textContent.trim().replace(/\s+/g, ' ').slice(0, 28)}"`;
-  // a stage is pinned while it sits at the top of the screen: what's on it must then be fully on screen
-  const pinned = el => { const st = el.closest('[data-sc-stage]'); return st && Math.abs(st.getBoundingClientRect().top) < 1; };
+  // a stage is pinned while it sits at the top of the screen: what stands on it must then be fully on screen (words
+  // that travel with the story's vine, .words, scroll through it like a page and are exempt)
+  const pinned = el => { const st = el.closest('.stage, [data-sc-stage]'); return st && !el.closest('.words') && Math.abs(st.getBoundingClientRect().top) < 1; };
+  const onScreen = r => r.bottom > 0 && r.top < H && r.right > 0 && r.left < W;
+  // Art may pass behind words only when the words sit on their own opaque paper (the vine's tags): words without it
+  // lose their legibility over art whichever way round they paint. On a tag, the art covers them only if it paints over
+  // the tag: compared where their ancestries part, the higher z-index wins, then the later in the page.
+  const onTag = el => {
+    for (let e = el; e && !e.matches('.stage, section, main'); e = e.parentElement) {
+      const m = getComputedStyle(e).backgroundColor.match(/[\d.]+/g);
+      if (m && (m.length < 4 || +m[3] >= 0.9) && !(m.length === 4 && +m[3] === 0)) return true;
+    }
+    return false;
+  };
+  const above = (b, a) => {
+    const chain = el => { const c = []; for (let e = el; e; e = e.parentElement) c.unshift(e); return c; };
+    const ca = chain(a), cb = chain(b);
+    let i = 0;
+    while (ca[i] && ca[i] === cb[i]) i++;
+    const x = ca[i], y = cb[i];
+    if (!x || !y) return true;
+    const z = e => parseInt(getComputedStyle(e).zIndex) || 0;
+    return z(y) !== z(x) ? z(y) > z(x) : !!(x.compareDocumentPosition(y) & Node.DOCUMENT_POSITION_FOLLOWING);
+  };
   // the iris clips her portrait: until it has opened, the portrait isn't really there
   const clipped = el => { const f = el.closest('[data-sc-reveal]'); return f && /circle\(0(\.0+)?%/.test(f.style.clipPath); };
   const found = [];
 
   function measure(at) {
-    const text = [...document.querySelectorAll(TEXT)].filter(el => el.textContent.trim() && shown(el)).map(el => ({ el, r: glyphs(el), o: opacity(el) }));
-    const others = [...document.querySelectorAll(`${BOXES}, ${DECOR}`)].filter(el => shown(el) && !clipped(el)).map(el => ({ el, r: el.getBoundingClientRect() }));
+    const text = [...document.querySelectorAll(TEXT)].filter(el => el.textContent.trim() && shown(el)).map(el => ({ el, r: glyphs(el), o: opacity(el) })).filter(t => onScreen(t.r));
+    const others = [...document.querySelectorAll(`${BOXES}, ${DECOR}`)].filter(el => shown(el) && !clipped(el)).map(el => ({ el, r: el.getBoundingClientRect() })).filter(o => onScreen(o.r));
     for (const a of text) {
       for (const b of [...text, ...others]) {
         if (a.el === b.el || a.el.contains(b.el) || b.el.contains(a.el)) continue;
         if (text.includes(b) && a.el.compareDocumentPosition(b.el) & Node.DOCUMENT_POSITION_PRECEDING) continue; // each text pair once
-        if (hit(a.r, b.r)) found.push({ rule: 'covers text', what: `${name(b.el)} over ${name(a.el)}`, at });
+        if (hit(a.r, b.r) && (text.includes(b) || !onTag(a.el) || above(b.el, a.el))) found.push({ rule: 'covers text', what: `${name(b.el)} over ${name(a.el)}`, at });
       }
       if (a.r.left < -1 || a.r.right > W + 1) found.push({ rule: 'text off the side', what: name(a.el), at });
       if (a.o >= 0.9 && pinned(a.el) && (a.r.top < -1 || a.r.bottom > H + 1)) found.push({ rule: 'text off a pinned screen', what: name(a.el), at });

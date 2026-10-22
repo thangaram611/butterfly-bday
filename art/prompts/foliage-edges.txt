@@ -1,0 +1,7 @@
+Use: the nearest layer of a layered scroll scene on a phone website: we are down inside a garden among the stems, and this layer frames the screen at its left and right edges while a vine runs down the middle. Code stacks copies of this image vertically and moves it a little faster than the page, so it reads as foliage passing close to the camera. Image 1 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Format: tall portrait 2:3.
+
+Subject: tall paper-cut grass blades, broad leaves and curling stems in deep violet, indigo and amethyst, with a few lilac flower buds, growing up along the left edge and the right edge of the image. Each side's foliage is about 22% of the image width deep and runs the full height, so its top continues its bottom. The middle 56% of the image is completely empty.
+
+Transparent background: real alpha, fully transparent in the middle and everywhere outside the foliage. No checkerboard pattern, no backdrop.

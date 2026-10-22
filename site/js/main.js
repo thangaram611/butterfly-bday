@@ -1,7 +1,6 @@
 import { flock } from './butterflies.js';
-import { garden } from './garden.js';
 import { invite } from './invite.js';
-import { peak } from './peak.js';
+import { story } from './story.js';
 
 const { ScrollCraft, gsap } = window;
 
@@ -14,15 +13,14 @@ if (name) {
 }
 invite(name);
 
-// The scroll-craft engine drives every data-sc-* attribute on the page: the peak's pin and frame sequence, its iris,
-// the cues and the reveals. Our own moments run on GSAP, read once per frame after the engine's own read (its scroll
-// listener was added first, so its frame callback runs first).
-const sc = ScrollCraft.mount(document.body);
-const moments = [garden(), peak(sc)];
+// The scroll-craft engine reveals the details and the close as they arrive (data-sc-in); the story is our own GSAP
+// timeline (js/story.js), played by the scroll once per frame.
+ScrollCraft.mount(document.body);
+const play = story();
 let queued = false;
 const update = () => {
   queued = false;
-  for (const m of moments) m();
+  play();
 };
 const schedule = () => queued || ((queued = true), requestAnimationFrame(update));
 addEventListener('scroll', schedule, { passive: true });

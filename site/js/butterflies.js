@@ -3,7 +3,8 @@ const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 
 // Small butterflies that flutter on CSS keyframes alone: no JS runs per frame. Each .flock gets data-count of them
 // (data-wide on screens 768 px and up), in a band of its height: data-band="top bottom" in %, or from just below the
-// element named by data-after down to 56%. Measured once the fonts have set the headline's size.
+// element named by data-after down to just above the one named by data-until. Measured once the fonts have set the
+// words' sizes.
 export function flock() {
   const wide = matchMedia('(min-width: 768px)').matches;
   const els = [...document.querySelectorAll('.flock')];
@@ -23,9 +24,10 @@ export function flock() {
 }
 
 function below(el) {
-  const box = el.getBoundingClientRect();
-  const after = document.querySelector(el.dataset.after).getBoundingClientRect();
-  return [Math.min(55, ((after.bottom - box.top) / box.height) * 100 + 2), 56];
+  const box = el.getBoundingClientRect(), pct = y => ((y - box.top) / box.height) * 100;
+  const top = pct(document.querySelector(el.dataset.after).getBoundingClientRect().bottom) + 2;
+  const bottom = pct(document.querySelector(el.dataset.until).getBoundingClientRect().top) - 12; // a butterfly is ~8% tall
+  return [top, Math.max(top, bottom)];
 }
 
 function butterfly(i, top, bottom) {
@@ -56,7 +58,7 @@ export function burst(stage) {
   const w = stage.clientWidth, h = stage.clientHeight - top;
   canvas.width = w * dpr;
   canvas.height = h * dpr;
-  stage.insertBefore(canvas, headline);
+  stage.insertBefore(canvas, stage.querySelector('.her') || headline);
   const ctx = canvas.getContext('2d');
   const imgs = SPRITES.map(src => Object.assign(new Image(), { src }));
   const flyers = Array.from({ length: 30 }, (_, i) => {

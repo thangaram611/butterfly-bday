@@ -6,8 +6,8 @@ Last updated 2026-10-22.
 ## Where things stand
 
 - `main` is the approved baseline. It holds the whole invite as **one continuous film**: one sticky stage, five parts (garden → year one → chrysalis to wings → invitation → close), one GSAP timeline scrubbed over the page.
-- **Rebuild under way (2026-10-22)** on branch `feat/scroll-craft`, following nateherkai/scroll-craft properly: its engine unedited plus GSAP, real sections that scroll like apple.com, art for every scene, a $0 Codex-rendered peak. `BRIEF.md` is the plan and is waiting for your approval.
-- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is built and revised from your phone tests. Still open from milestone 2: the iPhone check and the wing-unfold upgrade (next steps 7 and 3).
+- **Rebuild under way (2026-10-22)** on branch `feat/one-story` (built on `feat/scroll-craft`, which is superseded and not to be merged on its own): one continuous story on one pinned picture, the paper caterpillar going down a vine past her first year, becoming a chrysalis, a butterfly, then her wings; then the details and the close over the evening garden. `BRIEF.md` is the plan. Awaiting your phone test.
+- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is built and revised from your phone tests. Still open from milestone 2: the iPhone check and the wing-unfold upgrade (next steps 6 and 2).
 - Placeholders still in: year-one moments are emoji cards with a CSS caterpillar; the laptop shows the phone composition as a centred column; her winged portrait is version A of two.
 - Party: Saturday 28 November 2026, 6–8 PM IST, Party Hall, Ramaniyam Magnum, Perungudi. Plan launch Nov 12–14.
 
@@ -40,17 +40,16 @@ Last updated 2026-10-22.
 
 Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
-1. **Approve `BRIEF.md`.**
-2. **The new skeleton with today's art** (built on `feat/scroll-craft`, awaiting your phone test): scroll-craft engine plus GSAP, five acts (garden, year one into dusk, the peak, the details on the night sky, the evening close), one pin (the peak), the taste-floor fixes, Codex's lab render as the stand-in peak. The layout audit steps through real scroll; scroll-craft's own harness runs as `npm run craft`.
-3. **The peak:** Codex in-between drawings (shell cracking, crumpled to open wings), a rendered frame sequence, her portrait revealed with an iris wipe. Retire the CSS fold and the `-back` images.
-4. **Signature butterflies:** the first scroll touch releases one, taps add more; they follow you, gather at the chrysalis, and settle around "Tell us you're coming".
-5. **Year-one art:** first a baby drawing sheet from `b1`–`b6` for you to approve, then four paper pictures (no-teeth smile `b2`, serious stare `b1`/`b3`, babbled stories `b4`, finger heart) and a paper caterpillar.
-6. **The details on the night sky and the evening close.**
-7. **iPhone check.** Ask which iOS version.
-8. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
-9. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
-10. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
-11. **Milestone 6, launch** on Cloudflare Pages.
+1. **The story with stand-in art** (built on `feat/one-story`, awaiting your phone test): judge the feel, especially the stop at the twig and that it reads as one story.
+2. **The change, done properly:** Codex in-between drawings of the caterpillar curling into the chrysalis and the butterfly's crumpled wings opening, rendered as one frame sequence; retire the CSS fold and the `-back` images.
+3. **Signature butterflies:** the first scroll touch releases one, taps add more; they follow the caterpillar, gather at the twig, and settle around "Tell us you're coming".
+4. **Year-one art:** first a baby drawing sheet from `b1`–`b6` for you to approve, then the four memory pictures on the vine's leaves (no-teeth smile `b2`, serious stare `b1`/`b3`, babbled stories `b4`, finger heart).
+5. **Details and close polish.**
+6. **iPhone check.** Ask which iOS version.
+7. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
+8. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
+9. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
+10. **Milestone 6, launch** on Cloudflare Pages.
 
 ## How to work here
 

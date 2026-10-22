@@ -1,0 +1,7 @@
+Use: one layer of a layered scroll scene on a phone website. The camera travels down this vine while a paper caterpillar crawls down it, and four small pictures hang on its leaves. Code stacks copies of this image vertically, so the vine must enter at the exact centre of the top edge and leave at the exact centre of the bottom edge. Image 1 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Format: tall portrait 2:3.
+
+Subject: one long paper-cut vine stem in indigo and violet cardstock running from the top edge to the bottom edge, curving gently left and right around the vertical centre line but never more than 12% of the image width away from it. Along it, two large heart-shaped leaves in amethyst, lavender and lilac with fine cut veins, one on the left side about a third of the way down and one on the right side about two thirds of the way down, each about 34% of the image width, joined to the stem by a short leaf stalk. A few small curled tendrils and two tiny lilac buds. The outer 12% on each side stays empty.
+
+Transparent background: real alpha, fully transparent outside the vine and its leaves. No checkerboard pattern, no backdrop, no cast shadow outside the subject.

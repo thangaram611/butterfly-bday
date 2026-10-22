@@ -24,93 +24,88 @@
 <script src="js/main.js" type="module"></script>
 </head>
 <body>
-<!-- The page is scroll-craft acts (BRIEF.md, "Score"): real sections in normal scroll, with short pins where a
-     picture plays. The scroll-craft engine (js/scrollcraft.js, never edited) drives every data-sc-* attribute;
-     GSAP drives only our own moments (js/garden.js, js/peak.js) and the butterflies. -->
-<main>
+<!-- One story, one picture (BRIEF.md): the stage stays pinned for the whole page. Scrolling plays a single animation
+     on it: the camera sinks from the dawn garden down a vine with the caterpillar, past four memories, to a twig where
+     the caterpillar becomes a chrysalis, the chrysalis a butterfly, and the butterfly her wings (js/story.js). Then the
+     story ends, and the details and the close scroll up over the same garden turning to evening. -->
+<main class="story" data-sc-act="flow">
+  <div class="stage" data-sc-verify-state="">
+    <div class="world" aria-hidden="true">
+      <img class="sky" src="img/s1-sky.webp" width="1024" height="1536" alt="" fetchpriority="high">
+      <img class="hills" src="img/s1-hills.webp" width="1024" height="769" alt="">
+      <img class="wisteria" src="img/s1-wisteria.webp" width="1024" height="731" alt="">
+      <div class="ground"></div>
+      <img class="meadow" src="img/s1-meadow.webp" width="1024" height="607" alt="">
+      <div class="vine">
+        <img src="img/vine.webp" width="1024" height="1536" alt=""><img src="img/vine.webp" width="1024" height="1536" alt=""><img src="img/vine.webp" width="1024" height="1536" alt="">
+      </div>
+      <img class="blossoms" src="img/s1-blossoms.webp" width="1024" height="602" alt="">
+      <div class="foliage"></div>
+    </div>
 
-<!-- 1 · Wonder: the dawn garden in normal scroll. The title and the nearest flowers move exactly with the thumb; the
-     farther layers trail behind by depth (data-lag: the sky by about a quarter of the scroll, the meadow by a
-     twentieth; js/garden.js) -->
-<section class="garden" data-sc-act="flow">
-  <div class="frame">
-    <img class="sky" src="img/s1-sky.webp" width="1024" height="1536" alt="" fetchpriority="high" data-lag="0.24">
-    <img src="img/s1-hills.webp" width="1024" height="769" alt="" style="--top:49.93" data-lag="0.17">
-    <img src="img/s1-wisteria.webp" width="1024" height="731" alt="" style="--top:0" data-lag="0.1">
-    <img src="img/s1-meadow.webp" width="1024" height="607" alt="" style="--top:60.48" data-lag="0.05">
-    <img src="img/s1-blossoms.webp" width="1024" height="602" alt="" style="--top:60.81">
-  </div>
-  <div class="flock" data-count="4" data-wide="6" data-after=".garden h1"></div>
-  <div class="scrim" aria-hidden="true"></div>
-  <div class="title">
-    <p class="greet" hidden>Dear <span></span>,</p>
-    <h1>Taneira is turning two</h1>
-  </div>
-</section>
+    <!-- words that travel with the vine -->
+    <div class="words">
+      <div class="scrim" aria-hidden="true"></div>
+      <div class="title"><p class="greet" hidden>Dear <span></span>,</p><h1>Taneira is turning two</h1></div>
+      <p class="line intro">A year ago, she was our little caterpillar.</p>
+      <figure class="memory"><span class="pic" aria-hidden="true"></span><figcaption>Smiles with no teeth.</figcaption></figure>
+      <figure class="memory"><span class="pic" aria-hidden="true"></span><figcaption>Very serious blank stares.</figcaption></figure>
+      <figure class="memory"><span class="pic" aria-hidden="true"></span><figcaption>Long, confident stories, in her own language.</figcaption></figure>
+      <figure class="memory"><span class="pic" aria-hidden="true"></span><figcaption>And “love you” with a tiny finger heart.</figcaption></figure>
+    </div>
 
-<!-- 2 · Tenderness, ending in a hush: read at reading pace, then the light goes -->
-<section class="year" data-sc-act="flow">
-  <div class="cat" aria-hidden="true"><i style="--i:5"></i><i style="--i:4"></i><i style="--i:3"></i><i style="--i:2"></i><i style="--i:1"></i><b></b></div>
-  <div class="column">
-    <h2 data-sc-in>A year ago, she was our little caterpillar.</h2>
-    <ul class="moments" data-sc-in data-sc-stagger="80">
-      <li>Smiles with no teeth.</li>
-      <li>Very serious blank stares.</li>
-      <li>Long, confident stories, in her own language.</li>
-      <li>And “love you” with a tiny finger heart.</li>
-    </ul>
-  </div>
-  <p class="hush" data-sc-in>Lately, something has been changing…</p>
-</section>
-
-<!-- 3 · Awe, the peak: one chrysalis, still at first; then it cracks under the thumb and the butterfly opens -->
-<section class="peak" id="peak" data-sc-act="pin" data-sc-span="3.4">
-  <div data-sc-stage>
-    <div class="film"><canvas data-sc-sequence="img/peak-v0/{ii}.webp:60:0" aria-hidden="true"></canvas></div>
-    <figure class="her" data-sc-reveal="iris" data-sc-reveal-at="0.64 0.84">
-      <img src="img/taneira-wings.webp" width="1007" height="1430" alt="Taneira with paper butterfly wings" loading="lazy">
-    </figure>
+    <div class="night"></div>
+    <div class="silk"></div>
+    <img class="caterpillar" src="img/caterpillar.webp" width="1024" height="393" alt="">
+    <div class="film">
+      <img class="twig" src="img/twig.webp" width="983" height="313" alt="">
+      <img class="chrysalis" src="img/chrysalis.webp" width="983" height="1392" alt="">
+      <canvas aria-hidden="true"></canvas>
+      <div class="flyer"><img src="img/butterfly-a.webp" width="1024" height="779" alt=""></div>
+    </div>
+    <p class="line hush">Lately, something has been changing…</p>
+    <div class="her">
+      <div class="glow"></div>
+      <img src="img/taneira-wings.webp" width="1007" height="1430" alt="Taneira with paper butterfly wings">
+    </div>
     <p class="two" aria-hidden="true">2</p>
-    <h2 data-sc-cue="0.84 1 0.4 0" data-sc-kinetic="words">She’s got her wings!</h2>
-  </div>
-</section>
+    <h2 class="wings">She’s got her wings!</h2>
 
-<!-- 4 · Clarity: the details, plainly, on the night sky -->
-<section class="details" data-sc-act="flow">
-  <div class="column" data-sc-in data-sc-stagger="70">
-    <h2>Come celebrate with us</h2>
-    <dl>
-      <div><dt>When</dt><dd>Saturday, 28 November<br>6 – 8 PM</dd></div>
-      <div><dt>Where</dt><dd>Party Hall, Ramaniyam Magnum<br>Perungudi, Chennai</dd></div>
-      <div><dt>Wear</dt><dd>Any shade of purple<span class="swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></dd></div>
-    </dl>
-    <p class="actions">
-      <a class="btn" href="taneira-2nd-birthday.ics" download>Add to calendar</a>
-      <a class="btn" href="https://www.google.com/maps/dir/?api=1&amp;destination=12.977811,80.245802">Directions</a>
-    </p>
-    <p class="countdown" hidden></p>
-  </div>
-</section>
-
-<!-- 5 · Warmth: evening in the garden. The last screen of the page, so it holds by itself -->
-<section class="close" data-sc-act="flow">
-  <div class="stage">
-    <div class="frame">
+    <!-- after the story: the same garden at evening, behind the details and the close -->
+    <div class="evening" aria-hidden="true">
       <img class="sky" src="img/s1-sky.webp" width="1024" height="1536" alt="" loading="lazy">
-      <img src="img/s1-hills.webp" width="1024" height="769" alt="" loading="lazy" style="--top:49.93">
-      <img src="img/s1-meadow.webp" width="1024" height="607" alt="" loading="lazy" style="--top:60.48">
+      <img class="hills" src="img/s1-hills.webp" width="1024" height="769" alt="" loading="lazy">
+      <img class="meadow" src="img/s1-meadow.webp" width="1024" height="607" alt="" loading="lazy">
       <div class="dusk"></div>
     </div>
-    <div class="flock" data-count="3" data-wide="4" data-band="56 78"></div>
-    <div class="words">
+  </div>
+  <div class="track"></div>
+
+  <!-- the two sections after the story scroll up over it -->
+  <section class="details" data-sc-act="flow">
+    <div class="column" data-sc-in data-sc-stagger="70">
+      <h2>Come celebrate with us</h2>
+      <dl>
+        <div><dt>When</dt><dd>Saturday, 28 November<br>6 – 8 PM</dd></div>
+        <div><dt>Where</dt><dd>Party Hall, Ramaniyam Magnum<br>Perungudi, Chennai</dd></div>
+        <div><dt>Wear</dt><dd>Any shade of purple<span class="swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></dd></div>
+      </dl>
+      <p class="actions">
+        <a class="btn" href="taneira-2nd-birthday.ics" download>Add to calendar</a>
+        <a class="btn" href="https://www.google.com/maps/dir/?api=1&amp;destination=12.977811,80.245802">Directions</a>
+      </p>
+      <p class="countdown" hidden></p>
+    </div>
+  </section>
+  <section class="close" data-sc-act="flow">
+    <div class="flock" data-count="3" data-wide="4" data-after=".close .column" data-until=".close .sign"></div>
+    <div class="column" data-sc-in data-sc-stagger="70">
       <h2>We’ve saved a spot for you.</h2>
       <a class="btn gold coming" href="https://wa.me/?text=Hi!%20We'll%20be%20there%20for%20Taneira's%202nd%20birthday%20%F0%9F%A6%8B">Tell us you’re coming</a>
       <p>So we know how much cake to make.</p>
     </div>
     <p class="sign">Made with love by Taneira’s family</p>
-  </div>
-</section>
-
+  </section>
 </main>
 </body>
 </html>

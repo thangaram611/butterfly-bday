@@ -1,0 +1,7 @@
+Use: a character sprite on a website. Code makes it inch along a vine by squashing and stretching it, and later it turns into a chrysalis. Image 1 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Format: square 1:1.
+
+Subject: one cute paper-cut caterpillar for a two-year-old's picture book, seen from the side, its body a straight horizontal line, head on the right. Seven round body segments in alternating lilac, lavender and amethyst cardstock with tiny gold dots, a short indigo foot under each segment, and a slightly larger round violet head with big friendly eyes, soft rosy cheeks and a small smile, with two short curled antennae tipped in gold. It fills about 85% of the image width and touches no edge.
+
+Transparent background: real alpha, fully transparent outside the caterpillar. No checkerboard pattern, no backdrop, no cast shadow outside the subject.
