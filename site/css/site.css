@@ -25,9 +25,12 @@ h2 { font-size: clamp(30px, 8.5vw, 52px); }
 p { margin: 0; }
 .column { width: min(100%, 34rem); margin: 0 auto; padding: 0 var(--pad-r) 0 var(--pad-l); }
 
-/* One story on one pinned stage (js/story.js places and moves everything on it, in px). */
+/* One story on one pinned stage (js/story.js places and moves everything on it, in px). It's laid out in the small
+   viewport (svh, the phone browser's bars showing) but reaches down to the large one (lvh, bars hidden), so nothing
+   shows below it when they hide; the negative margin keeps the page as long as the small viewport makes it. */
 .story { position: relative; }
-.stage { position: sticky; top: 0; height: 100svh; overflow: clip; background: var(--dawn); }
+.stage { position: sticky; top: 0; height: 100lvh; margin-bottom: calc(100svh - 100lvh); overflow: clip; background: var(--dawn); }
+.svh { position: absolute; height: 100svh; } /* js/story.js measures the small viewport with it */
 .stage > *, .world > * { position: absolute; }
 .world, .words { inset: 0 auto auto 0; z-index: 0; }
 .words { z-index: 5; } /* in front of the caterpillar: it crawls behind the paper tags */
@@ -38,15 +41,16 @@ p { margin: 0; }
 .world .ground { background: linear-gradient(#2C0968, var(--dusk)); }
 .world .meadow { -webkit-mask: linear-gradient(#000 55%, #0000); mask: linear-gradient(#000 55%, #0000); }
 .world .blossoms { -webkit-mask: linear-gradient(#000 70%, #0000); mask: linear-gradient(#000 70%, #0000); }
-.world .foliage { background: url(../img/foliage.webp) top / 100% auto repeat-y; }
+.world .foliage { background: url(../img/foliage.webp) top / 100% auto repeat-y; } /* repeats without a seam (art.py tile) */
+.world .foliage::before { content: ""; position: absolute; left: 0; bottom: 100%; width: 100%; aspect-ratio: 2 / 3; background: url(../img/foliage-top.webp) top / 100% auto no-repeat; } /* the first tile: the foliage starts here */
 .night { inset: 0; z-index: 2; background: var(--dusk); opacity: 0; pointer-events: none; }
 .silk { z-index: 3; width: 2px; margin-left: -1px; background: rgb(200 162 200 / .8); }
 .caterpillar { z-index: 4; left: 0; top: 0; max-width: none; height: auto; }
 .film { z-index: 6; transform-origin: 50% 30%; }
 .film > * { position: absolute; max-width: none; height: auto; }
-.change img { position: absolute; inset: 0 auto auto 0; width: 100%; height: auto; visibility: hidden; }
-.film .flyer { visibility: hidden; }
-.film .flyer img { display: block; width: 100%; height: auto; }
+/* drawings wait hidden and fully transparent, so fading one out never shows it (js/story.js shows one at a time) */
+.change img { position: absolute; inset: 0 auto auto 0; width: 100%; height: auto; visibility: hidden; opacity: 0; }
+.film .flyer img { display: block; width: 100%; height: auto; visibility: hidden; opacity: 0; }
 
 /* words on the vine */
 .words .scrim { background: radial-gradient(60% 50% at 50% 50%, rgb(251 247 253 / .82), rgb(251 247 253 / 0)); pointer-events: none; }
@@ -60,7 +64,7 @@ p { margin: 0; }
 .memory .pic, .memory figcaption { position: absolute; }
 /* her baby pictures, a paper medallion on each leaf */
 .memory .pic { max-width: none; }
-.hush { z-index: 7; left: 20px; right: 20px; bottom: 12svh; text-align: center; }
+.hush { z-index: 7; left: 20px; right: 20px; bottom: calc(12svh + 100lvh - 100svh); text-align: center; }
 
 /* her, the 2, and the words */
 .her { z-index: 7; }
@@ -70,13 +74,13 @@ p { margin: 0; }
 .burst { z-index: 6; /* bursts out from behind her */ left: 0; width: 100%; pointer-events: none; -webkit-mask: linear-gradient(transparent, #000 18%); mask: linear-gradient(transparent, #000 18%); }
 .wings { z-index: 9; left: var(--pad-l); right: var(--pad-r); top: calc(var(--pad-t) + 4svh); text-align: center; color: #fff; text-shadow: 0 3px 0 var(--indigo); }
 
-/* after the story: the garden at evening, behind the details and the close */
-.evening { inset: 0; z-index: 10; }
-.evening .frame, .evening > img { position: absolute; }
-.evening > img { left: 50%; width: calc(100svh * 2 / 3); max-width: none; height: auto; translate: -50% 0; }
-.evening > .sky { top: 0; height: 100%; object-fit: cover; }
-.evening > .hills { top: 49.93%; }
-.evening > .meadow { top: 60.48%; }
+/* after the story: the garden at evening, behind the details and the close, laid out in the small viewport like the
+   story, with the meadow's own ground colour below it */
+.evening { inset: 0; z-index: 10; background: #2C0968; }
+.evening > img { position: absolute; left: 50%; width: calc(100svh * 2 / 3); max-width: none; height: auto; translate: -50% 0; }
+.evening > .sky { top: 0; height: 100svh; object-fit: cover; }
+.evening > .hills { top: calc(.4993 * 100svh); }
+.evening > .meadow { top: calc(.6048 * 100svh); }
 .dusk { position: absolute; inset: 0; background: linear-gradient(rgb(30 8 64 / .92), rgb(75 0 130 / .7) 55%, rgb(75 0 130 / .45)); }
 .track { pointer-events: none; }
 
@@ -106,7 +110,7 @@ dd { margin: 0; font-size: clamp(22px, 6.2vw, 28px); line-height: 1.25; }
 .sign { position: absolute; left: 0; right: 0; bottom: var(--pad-b); text-align: center; font-size: 15px; font-weight: 700; }
 
 /* small fluttering butterflies: two half-images flapping in CSS 3D, drifting on CSS keyframes (compositor only) */
-.flock { position: absolute; inset: 0; pointer-events: none; }
+.flock { position: absolute; inset: 0; overflow: clip; pointer-events: none; } /* one drifting off the edge flies out of view, never widens the page */
 .bf { position: absolute; left: var(--x); top: var(--y); width: var(--s); aspect-ratio: 1024 / 779; perspective: 300px; animation: drift var(--d) ease-in-out var(--dl) infinite alternate; }
 .bf i { position: absolute; top: 0; width: 50%; height: 100%; background: var(--img) no-repeat; background-size: 200% 100%; }
 .bf .l { left: 0; transform-origin: 100% 50%; animation: flap-l var(--f) ease-in-out infinite alternate; }

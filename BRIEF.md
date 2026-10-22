@@ -78,9 +78,9 @@ Timeline time is screens of scroll, and nothing smooths or delays it, so it move
 | Piece | State |
 |---|---|
 | Dawn garden (5 layers) | Approved, reused |
-| Vine, near foliage, paper caterpillar | Drawn by Codex 2026-10-22 for this story; stem line traced so the caterpillar crawls exactly on it |
+| Vine, near foliage, paper caterpillar | Drawn by Codex 2026-10-22 for this story; stem line traced so the caterpillar crawls exactly on it. The foliage's seam was repaired by Codex (`tools/art.py tile`) so it repeats without a line; the vine's stem ends inside the twig's branch |
 | Twig | Cut from the chrysalis drawing; the frames hang from its knot |
-| The change | Nine Codex drawings (2026-10-22), each drawn from the one before it: J, curling up, wrapped, chrysalis, glowing, crumpled wings, half open, open, the empty shell. `tools/art.py frames` lines each one up on the twig; the page dissolves from one to the next |
+| The change | Nine Codex drawings (2026-10-22), each drawn from the one before it: J, curling up, wrapped, chrysalis, glowing, crumpled wings, half open, open, the empty shell. `tools/art.py frames` lines each one up on the twig. The scroll picks the drawing and it dissolves in over 0.3 s on its own, so the picture always rests on a whole drawing |
 | The four memories | Baby drawing sheet from `b1`, `b2`, `b4`, `b5` and her drawing sheet B (`art/raw/baby-sheet-a.png`), awaiting your approval; four paper medallions drawn from it: gummy smile, serious stare, a long story, finger heart |
 | Her portrait | Version A; the butterfly lands on its wings |
 | Evening garden | The dawn layers under a dusk wash |
@@ -91,13 +91,13 @@ As before: no scroll hint, no emoji icons, no identical cards, balanced headline
 
 ## Mechanism
 
-- **The story:** our own GSAP timeline (`site/js/story.js`), played by the scroll once per frame. One pinned stage (CSS sticky), sized in `svh`, so nothing on it shifts when an iPhone's address bar collapses.
+- **The story:** our own GSAP timeline (`site/js/story.js`), played by the scroll once per frame. One pinned stage (CSS sticky), laid out in the small viewport (`svh`, the browser's bars showing) so nothing on it shifts when they collapse, and reaching down to the large one (`lvh`) so nothing shows below it when they do.
 - **scroll-craft's engine, unedited,** reveals the details and the close as they arrive, and its harness checks the page.
 - **GSAP 3.15.0** (latest). ScrollTrigger isn't loaded.
 
 ## How it gets checked
 
-- `npm run layout`: overlaps (art painting over words, unless the words sit on their own paper and the art passes behind), words off the side or off a pinned screen, tap targets, sideways scroll, broken images, errors; 7 setups, 1001 points each. Proven on planted faults.
+- `npm run layout`: overlaps (art painting over words, unless the words sit on their own paper and the art passes behind), words off the side or off a pinned screen, a drawing left half-dissolved once the scroll rests or more than two showing at once, tap targets, sideways scroll, broken images, errors; 7 setups, 1001 points each. Proven on planted faults.
 - `npm run craft`: scroll-craft's harness at phone, laptop and reduced motion; dead scroll checked through the stage's drawn state, densely sampled. Its contrast pass only grades words the engine cues, so it doesn't cover this page's words; contrast is read by eye on the sheets.
 - `npm run tasks` and `npm run flicker`.
 - The feel check, then your phones.

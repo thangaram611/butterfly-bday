@@ -6,7 +6,7 @@ Last updated 2026-10-22.
 ## Where things stand
 
 - `main` is the baseline (2026-10-22): one continuous story on one pinned picture (`BRIEF.md` is the plan). The paper caterpillar goes down a vine past her first year (four baby pictures on its leaves), curls up into a chrysalis, comes out as a butterfly and becomes her wings; then the details and the close over the evening garden. The previous baseline, the "one film", is `767dd74`.
-- Awaiting your phone check of the new art: her baby likeness (the four pictures, and the sheet they come from, `art/raw/baby-sheet-a.png`), and whether the change's frame-by-frame steps feel smooth. Anything to redo goes on a new branch.
+- Your notes on it are fixed on `fix/phone-notes`, awaiting your phone check.
 - **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is rebuilt as the one story. Still open from milestone 2: the iPhone check (next step 3).
 - Placeholders still in: the laptop shows the phone composition as a centred column; her winged portrait is version A of two; the evening garden is the dawn layers under a dusk wash.
 - Party: Saturday 28 November 2026, 6–8 PM IST, Party Hall, Ramaniyam Magnum, Perungudi. Plan launch Nov 12–14.
@@ -25,7 +25,8 @@ Last updated 2026-10-22.
 | (branch `feat/vertical-motion`, deleted, was `8b28da9`) | Vertical motion: everything drifting up inside the fixed stage at depth speeds | Rejected: "really bad". Cause: it faked normal scrolling through a timeline that trails the thumb, and moved art several screens (scroll-craft caps parallax near 200 px) |
 | `feat/scroll-craft` | Diagnosis against scroll-craft, engine lab, Codex video test, `BRIEF.md` | Brief approved; skeleton (five acts) rejected: "still feels like scenes stitched together" |
 | `852714d` (branch `feat/one-story`) | One story: the caterpillar's journey on one pinned picture, with stand-in art | "So far satisfied… just as I expected" (2026-10-22) |
-| branch `feat/story-art` | The stand-ins replaced: the change as nine Codex drawings played frame by frame (the caterpillar grows on its thread to their size); a baby drawing sheet and four memory pictures from it; `tools/art.py frames` | "Complete the stand-ins and merge to main" (2026-10-22): merged; your phone check of the art is still to come |
+| branch `feat/story-art` (`50afda0`) | The stand-ins replaced: the change as nine Codex drawings played frame by frame (the caterpillar grows on its thread to their size); a baby drawing sheet and four memory pictures from it; `tools/art.py frames` | Merged. "The baby pictures are on point… the change is perfect smooth no jumps" (2026-10-22) |
+| branch `fix/phone-notes` | Your three notes: the foliage repeated with a hard line once a screen (repaired by Codex into a seamless tile) and the vine ended above the twig; a white bar under the page on Android when the address bar hides (the stage now reaches the large viewport); drawings resting half-dissolved on a slow scroll (now each dissolves in on its own clock). Found on the way: the close's drifting butterflies could make the page a little wider than a phone, so it slid sideways (they're clipped now); the layout audit now judges a fresh page and fails on a drawing resting half-dissolved or more than two drawings showing at once | Awaiting your phone check |
 
 ## Decisions made with you (don't reopen without asking)
 
@@ -92,3 +93,4 @@ Each is its own branch, approved before merge. Details in `BRIEF.md`.
 - Laptop: the phone composition shows as a centred column with dark sides (milestone 3).
 - First screen is 538 KB against a 450 KB budget (milestone 3).
 - iPhone address-bar stutter: not re-tested since the film (next step 3).
+- The address-bar fix can't be reproduced on the Mac (desktop Chrome has no hiding bars); it was checked by rewriting every `svh` to be 56 px short of the screen. Confirm on an Android phone and an iPhone.

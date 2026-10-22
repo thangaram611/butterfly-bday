@@ -9,6 +9,12 @@
                                              drawing's, cut the twig off (the page draws one twig under them all), crop
                                              them to one shared box and write site/img/<name>/<n>.webp; prints the box
                                              in widths of the chrysalis sprite, for js/story.js
+  tools/art.py tile      <raw.png> <name> [repaired.png]   a tile that repeats down the page without a seam. Without
+                                             repaired.png it writes art/raw/<name>-rolled.png, the tile with its seam
+                                             moved to the middle, for Codex to repair (art/prompts/foliage-seam.txt).
+                                             With it, it puts the repair back over the original's rows, writes
+                                             site/img/<name>.webp (repeats seamlessly) and <name>-top.webp (the first
+                                             tile, which starts as the art starts), and fails if a seam remains
 
 Setup: python3 -m venv .venv && .venv/bin/pip install pillow numpy   (and cwebp from Homebrew)
 """
@@ -107,10 +113,48 @@ def frames(name, srcs):
           f"ratio: {(box[3] - box[1]) / (box[2] - box[0]):.4f} }}")
 
 
+def seam(im):
+    """How much the tile's last row differs from its first, against the roughest 1% of its neighbouring rows."""
+    a = np.asarray(im).astype(float)
+    a[..., :3] *= a[..., 3:] / 255  # premultiplied, so colour where it's transparent doesn't count
+    return np.abs(a[0] - a[-1]).mean(), np.percentile(np.abs(np.diff(a, axis=0)).mean(axis=(1, 2)), 99)
+
+
+def tile(src, name, repaired=None):
+    raw = np.asarray(Image.open(src).convert("RGBA"))
+    half = raw.shape[0] // 2
+    if not repaired:
+        Image.fromarray(np.roll(raw, half, axis=0)).save(f"art/raw/{name}-rolled.png")
+        return print(f"art/raw/{name}-rolled.png: seam at row {half}; repair it with Codex, then run again with the result")
+    rolled = np.roll(raw, half, axis=0).astype(float)
+    fix = np.asarray(Image.open(repaired).convert("RGBA").resize(raw.shape[1::-1], Image.LANCZOS)).astype(float)
+    # Codex redraws the whole picture but only reshapes the rows around the seam: take those (and 30 more each side,
+    # blended in), matched to the original's colour
+    both = (rolled[..., 3] > 200) & (fix[..., 3] > 200)
+    fix[..., :3] = np.clip(fix[..., :3] * rolled[both][:, :3].mean(0) / fix[both][:, :3].mean(0), 0, 255)
+    changed = np.abs(fix[..., 3] - rolled[..., 3]).mean(axis=1)
+    rows = np.where(changed > 3 * np.median(changed))[0]
+    rows = rows[np.abs(rows - half) < half // 2]  # the seam's band, not stray rows elsewhere
+    y = np.arange(raw.shape[0])[:, None, None]
+    w = np.clip(np.minimum(y - (rows.min() - 60), rows.max() + 60 - y) / 30, 0, 1)
+    print(f"repair used for rows {rows.min()}–{rows.max()} of the rolled tile, blended over 30 more each side")
+    out = np.roll(rolled * (1 - w) + fix * w, -half, axis=0).round().astype(np.uint8)
+    # the first tile starts as the original does; its bottom half is the seamless tile's, so it leads into it
+    top = np.concatenate([raw[:half], out[half:]])
+    e, q = seam(Image.fromarray(out))
+    print(f"seam {e:.1f}, roughest 1% of inner rows {q:.1f}")
+    if e > q:
+        sys.exit("a seam remains")
+    export(Image.fromarray(out), name)
+    export(Image.fromarray(top), f"{name}-top")
+
+
 if __name__ == "__main__":
     mode = sys.argv[1]
     if mode == "frames":
         frames(sys.argv[2], sys.argv[3:])
+    elif mode == "tile":
+        tile(*sys.argv[2:])
     else:
         src, name, *size = sys.argv[2:]
         {"layer": layer, "sprite": sprite, "butterfly": butterfly}[mode](Image.open(src).convert("RGBA"), name, *map(int, size))

@@ -4,8 +4,9 @@
 //   node tools/check.mjs tasks   [url]  slow scroll at phone size with the CPU slowed 4×; fails on main-thread tasks over 50 ms
 //   node tools/check.mjs layout  [url]  scrolls through the whole page (1001 points) on 5 screens in Chrome and Safari's
 //                                       engine (WebKit), plus reduced motion; fails on anything covering readable text,
-//                                       text off the side or off a pinned screen, scenery gaps on a pinned screen, broken
-//                                       images, sideways scrolling, small tap targets, console errors or failed requests
+//                                       text off the side or off a pinned screen, scenery gaps on a pinned screen, a
+//                                       drawing left half-dissolved once the scroll rests, broken images, sideways
+//                                       scrolling, small tap targets, console errors or failed requests
 //   npm run craft -- --url [url] ...    scroll-craft's own harness (tools/scrollcraft/shoot.mjs, unedited): dead scroll,
 //                                       words that never reach full strength, contrast on the composited frame
 // Uses the installed Chrome (playwright-core, no browser download) and Homebrew ffmpeg.
@@ -129,7 +130,9 @@ async function tasks() {
 async function audit(steps) {
   const TEXT = 'main h1, main h2, main p:not([aria-hidden]), main li, main dt, main dd, main figcaption, main .btn'; // read by guests: measured tight around the glyphs
   const BOXES = 'main .btn';                                                                        // buttons: measured as boxes
-  const DECOR = '.caterpillar, .memory .pic, .twig, .change img, .flyer, .her img, .two, .bf';        // art that must not sit on text
+  const DECOR = '.caterpillar, .memory .pic, .twig, .change img, .flyer img, .her img, .two, .bf';        // art that must not sit on text
+  const DRAWINGS = '.caterpillar, .change img, .flyer img';                                          // must come to rest whole
+  const POSES = '.caterpillar, .change img';                // one each (the butterfly takes off from the last frame, as one)
   const W = innerWidth, H = innerHeight;
   // A line-by-line headline is forced to opacity 1 by the engine, which fades its line units instead (scroll-craft
   // verify.md): read it through them.
@@ -198,12 +201,34 @@ async function audit(steps) {
     if (document.documentElement.scrollWidth > W + 1) found.push({ rule: 'sideways scroll', what: `page is ${document.documentElement.scrollWidth}px wide`, at });
   }
 
+  // drawings caught part-way through a dissolve (two of them half there, a blur): fine while it plays, never at rest
+  const half = () => [...document.querySelectorAll(DRAWINGS)].filter(el => getComputedStyle(el).visibility === 'visible' && opacity(el) > 0.05 && opacity(el) < 0.95);
+  // and while one dissolves into the next, only those two may show
+  const file = el => el.currentSrc.split('/').slice(-2).join('/');
+  const crowd = at => {
+    const on = [...document.querySelectorAll(POSES)].filter(el => getComputedStyle(el).visibility === 'visible' && opacity(el) > 0.05);
+    if (on.length > 2) found.push({ rule: 'more than two drawings at once', what: on.map(file).join(', '), at });
+  };
+
   for (const btn of document.querySelectorAll('.btn')) if (btn.getBoundingClientRect().height < 44) found.push({ rule: 'small tap target', what: name(btn), at: '-' });
   const max = document.documentElement.scrollHeight - H;
+  const blurred = [];
   for (let i = 0; i <= steps; i++) {
     scrollTo({ top: (i / steps) * max, behavior: 'instant' });
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
     measure(((i / steps) * max / H).toFixed(2));
+    crowd(((i / steps) * max / H).toFixed(2));
+    if (half().length) blurred.push(i);
+  }
+  // where a drawing was caught half-dissolved, rest there (every third such point) and look again, watching it settle
+  for (const i of blurred.filter((_, k) => k % 3 === 0)) {
+    const at = ((i / steps) * max / H).toFixed(2);
+    scrollTo({ top: (i / steps) * max, behavior: 'instant' });
+    for (let t = 0; t < 700; t += 50) {
+      await new Promise(r => setTimeout(r, 50));
+      crowd(at);
+    }
+    for (const el of half()) found.push({ rule: 'half-dissolved drawing at rest', what: file(el), at });
   }
   return found;
 }
@@ -228,12 +253,13 @@ async function layout() {
     page.on('pageerror', e => errors.push(String(e)));
     page.on('response', r => r.status() >= 400 && errors.push(`${r.status()} ${r.url()}`));
     await page.goto(url, { waitUntil: 'networkidle' });
-    // scroll it once so lazy images and the peak's frames load before they're judged
+    // scroll it once so every image is in the cache, then judge a fresh page: what happens the first time matters
     await page.evaluate(async () => {
       for (let y = 0; y < document.documentElement.scrollHeight; y += innerHeight / 2) { scrollTo({ top: y, behavior: 'instant' }); await new Promise(r => setTimeout(r, 120)); }
       scrollTo({ top: 0, behavior: 'instant' });
     });
     await page.waitForLoadState('networkidle');
+    await page.reload({ waitUntil: 'networkidle' });
     const found = await page.evaluate(audit, 1000);
     for (const e of errors) found.push({ rule: 'console or network error', what: e, at: '-' });
     // one line per problem, with the scroll positions (in screens) where it shows

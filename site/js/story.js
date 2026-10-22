@@ -21,22 +21,39 @@ const CHRYSALIS = { left: 0.1246, top: 0.1484, width: 0.7509, ratio: 1392 / 983 
 // butterfly in the frame where its wings are open, in widths of the frames' box, so the flyer takes over without a jump
 const FRAMES = { left: 0.0366, top: 0.3032, width: 0.9634, ratio: 1.2122 };
 const BUTTERFLY = { left: 0.0195, top: 0.565, width: 0.911, ratio: 779 / 1024 };
-// When each frame comes in, in screens after the camera stops at the twig: the caterpillar curls up (1–3), the
-// chrysalis (4) holds a little longer, then it glows (5), opens (6–8), and the butterfly leaves it empty (9)
+// Where the scroll moves on to each frame, in screens after the camera stops at the twig: the caterpillar curls up
+// (1–3), the chrysalis (4) holds a little longer, then it glows (5), opens (6–8), and the butterfly leaves it empty (9)
 const POSES = [0.35, 0.65, 0.95, 1.25, 1.65, 1.95, 2.15, 2.35, 2.6];
+// The scroll only picks the drawing; it dissolves in over SNAP seconds on its own, so the picture always comes to rest
+// on a whole drawing, however slowly the thumb moves
+const SNAP = 0.3;
 const ZOOM = 1.6;    // the caterpillar grows to the size it's drawn in the frames while it lowers itself on its thread
 const LEAVES = [{ x: 0.348, y: 0.228 }, { x: 0.691, y: 0.643 }]; // the vine's two big leaves, as fractions of a tile
 const TILES = 3;                                                   // vine images, one screen each
-const D = 0.12;                                                    // a frame's dissolve, in screens
 
 export function story() {
   const stage = document.querySelector('.stage');
   const $ = s => stage.querySelector(s);
   const world = Object.fromEntries(Object.keys(DEPTH).map(k => [k, k === 'words' ? $('.words') : $(`.world .${k}`)]));
   const cat = $('.caterpillar'), silk = $('.silk'), night = $('.night'), film = $('.film'), change = $('.change');
-  const poses = [...change.children], twig = $('.twig'), flyer = $('.flyer'), flap = $('.flyer img'), hush = $('.hush'), her = $('.her'), two = $('.two'), wings = $('.wings');
+  const frames = [...change.children], twig = $('.twig'), flyer = $('.flyer'), flap = $('.flyer img'), hush = $('.hush'), her = $('.her'), two = $('.two'), wings = $('.wings');
   const evening = $('.evening'), track = document.querySelector('.track');
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // the drawings the change goes through, each shown whole: the caterpillar on its thread, the frames (the butterfly
+  // takes off from the last), and the empty shell once the butterfly has landed on her
+  const drawings = [[cat, silk], ...frames.map(f => [f]), [frames.at(-1)]];
+  drawings[frames.length].push(flap);
+
+  // the small viewport, with the browser's bars showing: the story is laid out in it (the stage reaches further down, so
+  // nothing shows below it when the bars hide)
+  const small = () => {
+    const probe = document.body.appendChild(document.createElement('div'));
+    probe.className = 'svh';
+    const h = probe.offsetHeight;
+    probe.remove();
+    return h;
+  };
 
   // the pictures further down the story, once the first screen has loaded: the memories first, then the frames
   addEventListener('load', () => stage.querySelectorAll('img[data-src]').forEach(img => (img.src = img.dataset.src)), { once: true });
@@ -47,7 +64,7 @@ export function story() {
   function build() {
     const at = tl ? tl.time() : 0;
     tl?.kill();
-    H = stage.clientHeight;
+    H = small();
     const W = stage.clientWidth;
     const CW = (H * 2) / 3, colL = (W - CW) / 2;          // the 2:3 column the garden was drawn for
     const boxW = (H * 9) / 16, boxL = (W - boxW) / 2;      // the frames' 9:16 box, centred
@@ -63,12 +80,12 @@ export function story() {
     // the vine hangs from among the flowers; its end meets the twig exactly where the first frame draws it
     const vTop = 0.75 * H, vEnd = vTop + TILES * H;
     const chrysW = CHRYSALIS.width * boxW, chrysH = chrysW * CHRYSALIS.ratio;
-    const camHold = vEnd - CHRYSALIS.top * H - 0.06 * chrysH;
+    const camHold = vEnd - CHRYSALIS.top * H - 0.144 * chrysH; // the stem ends inside the twig's branch (200 of 1392 px down)
     px(world.vine, { left: colL, top: vTop, width: CW });
     // no straight edge ever slides past (scroll-craft devices.md §6): the meadow and the flowers fade out at their
     // feet (site.css), into solid ground in the meadow's own bottom colour that starts behind the meadow's middle
     px(world.ground, { left: 0, top: 0.6048 * H + 0.5 * ((CW * 607) / 1024), width: W, height: 7 * H });
-    px(world.foliage, { left: colL, top: 0.95 * H, width: CW, height: 8 * H });
+    px(world.foliage, { left: colL, top: 1.95 * H, width: CW, height: 7 * H }); // its first tile hangs above it (site.css)
 
     // the caterpillar: a third of the column long, starting on the vine low on the first screen
     const catW = 0.34 * CW, catH = (catW * 393) / 1024;
@@ -149,17 +166,14 @@ export function story() {
       .to($('.words'), { autoAlpha: 0, duration: 0.4 }, t1 - 0.6) // the vine's words go with the light
       .fromTo(hush, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.3 }, t1 - 0.2)
       .to(hush, { autoAlpha: 0, duration: 0.25 }, t1 + 1.4)
-      .to([cat, silk], { autoAlpha: 0, duration: D }, t1 + POSES[0] + D / 2)
       .fromTo(film, { scale: 1 }, { scale: 1.06, duration: 1.9 }, t1 + 0.8)
       .fromTo(p, { sway: 0 }, { sway: 1, duration: 0.5 }, t1 + POSES[0])
       .to(p, { sway: 0, duration: 0.4 }, tE - 0.5) // still when the butterfly lets go
-      .fromTo(flyer, { autoAlpha: 0 }, { autoAlpha: 1, duration: D }, t1 + POSES[8])
       // the camera follows it down to her; it flutters, then settles on her back as her wings
       .to(p, { cam: camHold + 1.1 * H, duration: 1.1, ease: 'sine.inOut' }, tE)
       .to(film, { scale: 1, duration: 0.6 }, tE)
       .to(p, { flap: 7, duration: 1.3 }, tE)
       .fromTo(flyer, { x: 0, y: 0, scale: 1 }, { x: land.x - fly0.x, y: land.y - fly0.y, scale: land.w / fly0.w, duration: 0.8, ease: 'power1.inOut' }, tE + 0.5)
-      .to(flyer, { autoAlpha: 0, duration: 0.25 }, tE + 1.3)
       .fromTo(two, { autoAlpha: 0, scale: 0.4, rotation: -20 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.15, ease: 'back.out(2)' }, t2)
       .fromTo(wings, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.2 }, t2 + 0.05)
       // the story is over. As the details rise, she and her words leave before their first line arrives (0.12 screens
@@ -170,23 +184,29 @@ export function story() {
     // the close's butterflies come out only once it has arrived
     const end = (document.documentElement.scrollHeight - innerHeight) / H;
     tl.fromTo('.close .flock', { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25 }, end - 0.3);
-    // the change, frame by frame: each frame dissolves in over the one before, which goes once it's half in
-    poses.forEach((el, i) => {
-      tl.fromTo(el, { autoAlpha: 0 }, { autoAlpha: 1, duration: D }, t1 + POSES[i]);
-      if (i) tl.to(poses[i - 1], { autoAlpha: 0, duration: D }, t1 + POSES[i] + D / 2);
-    });
 
     // her place in the world: she rises into view as the camera comes down to her
     herRise = camHold + 1.1 * H;
-    geometry = { vTop, vEnd, c0, follow, stem, catW, H, W, boxL, tE, t2, camHold };
+    // where the scroll moves on to each drawing: the frames, then the butterfly settled on her back as her wings
+    const turns = [...POSES.map(t => t1 + t), tE + 1.4];
+    geometry = { vTop, vEnd, c0, follow, stem, catW, H, W, boxL, tE, t2, camHold, turns };
     tl.time(at);
     render();
   }
 
-  let herRise = 0, geometry, burstDone = still;
+  let herRise = 0, geometry, burstDone = still, shown = 0, snap;
+
+  function show(n) {
+    const d = still ? 0 : SNAP;
+    snap?.kill();
+    snap = gsap.timeline()
+      .to(drawings[n], { autoAlpha: 1, duration: d }, 0)
+      .to(drawings.filter((_, i) => i !== n).flat().filter(el => !drawings[n].includes(el)), { autoAlpha: 0, duration: d }, d / 3);
+    shown = n;
+  }
 
   function render() {
-    const { vEnd, c0, follow, stem, catW, H, W, t2, camHold } = geometry;
+    const { vEnd, c0, follow, stem, catW, H, W, t2, camHold, turns } = geometry;
     const cam = p.cam;
     for (const [k, el] of Object.entries(world)) gsap.set(el, { y: -cam * DEPTH[k] });
     gsap.set(twig, { y: camHold - cam });
@@ -207,6 +227,8 @@ export function story() {
       Object.assign(silk.style, { left: `${W / 2}px`, top: `${vEnd - cam}px`, height: `${Math.max(0, cy - catW / 2 - vEnd)}px` });
     }
 
+    const n = turns.filter(t => tl.time() >= t).length;
+    if (n !== shown) show(n);
     if (!still) gsap.set(flap, { scaleX: 1 - 0.35 * Math.abs(Math.sin(p.flap * Math.PI)) });
     gsap.set(her, { y: herRise - cam });
 
@@ -218,7 +240,7 @@ export function story() {
     // what the stage shows, for scroll-craft's harness: rendered values only, never the scroll position itself (its
     // verify.md)
     const o = el => Math.round(gsap.getProperty(el, 'opacity') * 20);
-    stage.dataset.scVerifyState = [Math.round(cam / 4), ...poses.map(o), o(night), o(cat), o(flyer), o(two), o(wings), o(evening),
+    stage.dataset.scVerifyState = [Math.round(cam / 4), ...drawings.map(([el]) => o(el)), o(flap), o(night), o(two), o(wings), o(evening),
       Math.round(gsap.getProperty(film, 'scale') * 200), Math.round(gsap.getProperty(flyer, 'y') / 4)].join('|');
   }
 
