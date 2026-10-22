@@ -27,6 +27,7 @@ Last updated 2026-10-22.
 | branch `feat/story-art` (`50afda0`) | The stand-ins replaced: the change as nine Codex drawings played frame by frame (the caterpillar grows on its thread to their size); a baby drawing sheet and four memory pictures from it; `tools/art.py frames` | Merged. "The baby pictures are on point… the change is perfect smooth no jumps" (2026-10-22) |
 | branch `fix/phone-notes` (`63dca74`) | Your three notes: the foliage repeated with a hard line once a screen (repaired by Codex into a seamless tile) and the vine ended above the twig; a white bar under the page on Android when the address bar hides (the stage now reaches the large viewport); drawings resting half-dissolved on a slow scroll (now each dissolves in on its own clock). Found on the way: the close's drifting butterflies could make the page a little wider than a phone, so it slid sideways (they're clipped now); the layout audit now judges a fresh page and fails on a drawing resting half-dissolved or more than two drawings showing at once | Merged. "The foliage seam is gone… the white bar is gone on my android phone… mid-change settles cleanly" (2026-10-22) |
 | branch `fix/phone-notes-2` (`51c0f60`) | Your notes, round 2: the caterpillar is cut into its paper pieces, each on the stem at its own point along the body, so it bends around the vine's curves, ripples gently as it goes, and hangs straight under its thread (it hung beside it: the old picture's middle was on the thread, not its body); the hatching no longer jumps in size (Codex drew the empty shell 17% bigger, and its open-winged butterfly differed from the one that flies; now the shell is laid over the one before it, and the flying butterfly hangs from it from the start) | Merged. "Everything perfect" (2026-10-22) |
+| branch `feat/signature` | The signature butterflies, as you chose them: the first scroll releases one from under the finger and each tap another, up to 8 (then the nearest flutters); they flutter round the caterpillar and a flick sweeps them back; they land on the twig to watch the change; follow the new butterfly down to her; fly off with the burst for the details; and land on the edges of "Tell us you're coming", with the drifting ones still there. The checks now tap out all eight first | Awaiting your phone check |
 
 ## Decisions made with you (don't reopen without asking)
 
@@ -43,7 +44,7 @@ Last updated 2026-10-22.
 
 Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
-1. **Signature butterflies:** the first scroll touch releases one, taps add more; they follow the caterpillar, gather at the twig, and settle around "Tell us you're coming".
+1. **Signature butterflies:** on `feat/signature`, awaiting your phone check.
 2. **Details and close polish.**
 3. **iPhone check.** Ask which iOS version.
 4. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
@@ -69,7 +70,7 @@ Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
   | Command | What it does | Must show |
   |---|---|---|
-  | `npm run layout` | Scrolls the page through 1001 points × 7 setups, including Safari's engine and an SE-sized screen | All ok |
+  | `npm run layout` | Taps out the guest's eight butterflies, then scrolls the page through 1001 points × 7 setups, including Safari's engine and an SE-sized screen | All ok |
   | `npm run craft -- --url <url> --out shots/craft-phone --width 390 --height 844` | scroll-craft's own harness (also `--width 1440 --height 900`, and `--reduced-motion`): dead scroll, words that never reach full strength, contrast on the real frame | No dead scroll; every line clears 4.5:1 |
   | `npm run flicker` | Headed Chrome under memory pressure; reports flashes, hits and still stretches | No flashes. Hits only at the story's known stops: her landing on the last frame of the story, and the evening coming in |
   | `npm run tasks` | CPU slowed 4× | No task over 50 ms |

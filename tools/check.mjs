@@ -27,6 +27,8 @@ mkdirSync(OUT, { recursive: true });
 // Wheel through the whole page in small steps, like a slow thumb
 async function slowScroll(page) {
   const height = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+  const { width: w, height: h } = page.viewportSize();
+  for (let i = 0; i < 8; i++) await page.mouse.click(w * (0.15 + 0.1 * i), h * 0.85); // the guest's eight butterflies
   await page.mouse.move(100, 100);
   for (let y = 0; y < height; y += 20) {
     await page.mouse.wheel(0, 20);
@@ -211,6 +213,11 @@ async function audit(steps) {
   };
 
   for (const btn of document.querySelectorAll('.btn')) if (btn.getBoundingClientRect().height < 44) found.push({ rule: 'small tap target', what: name(btn), at: '-' });
+  // the guest's own butterflies: tap out all eight (js/butterflies.js), so every one's way down the page is checked
+  for (let i = 0; i < 8; i++) {
+    const x = W * (0.15 + 0.1 * i), y = H * 0.85, target = document.elementFromPoint(x, y);
+    for (const type of ['pointerdown', 'pointerup']) target.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: y, bubbles: true }));
+  }
   const max = document.documentElement.scrollHeight - H;
   const blurred = [];
   for (let i = 0; i <= steps; i++) {

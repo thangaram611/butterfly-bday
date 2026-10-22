@@ -105,6 +105,7 @@ dd { margin: 0; font-size: clamp(22px, 6.2vw, 28px); line-height: 1.25; }
 /* 5 · Warmth: the last screen of the page, over the evening garden */
 .close { position: relative; z-index: 1; min-height: 100svh; color: #fff; text-align: center; padding-top: 14svh; }
 .close .column { display: grid; justify-items: center; gap: 18px; }
+.close .coming { margin-block: 12px; } /* room for the guest's butterflies on its edges */
 .close .flock { z-index: 0; }
 .close h2 { text-shadow: 0 3px 0 var(--indigo); }
 .close .column p { font-weight: 800; text-shadow: 0 1px 4px var(--indigo); }
@@ -118,6 +119,10 @@ dd { margin: 0; font-size: clamp(22px, 6.2vw, 28px); line-height: 1.25; }
 .bf .r { right: 0; background-position: 100% 0; transform-origin: 0 50%; animation: flap-r var(--f) ease-in-out infinite alternate; }
 @keyframes flap-l { from { transform: rotateY(5deg); } to { transform: rotateY(68deg); } }
 @keyframes flap-r { from { transform: rotateY(-5deg); } to { transform: rotateY(-68deg); } }
+/* the guest's own butterflies: placed and turned by js/butterflies.js, frame by frame */
+.guests { inset: 0; z-index: 4; pointer-events: none; }
+.close .guests { position: absolute; z-index: 1; overflow: clip; }
+.bf.guest { left: 0; top: 0; animation: none; }
 @keyframes drift { from { transform: translate(0, 0) rotate(var(--r0)); } to { transform: translate(var(--dx), var(--dy)) rotate(var(--r1)); } }
 
 /* the engine never arrived: show what it would have revealed */

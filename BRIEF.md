@@ -50,6 +50,13 @@ So the page is one story on one pinned picture (`uniqueness.md` §2.4, continuou
 
 Unchanged from the review, and now it can join the story: the butterflies released by your finger follow the caterpillar down the vine, gather at the twig while it changes, and settle around **Tell us you're coming** at the end.
 
+Your choices (2026-10-22):
+- The first scroll releases one from under the finger, each tap another, **up to 8**; a tap after that makes the nearest one flutter.
+- On the vine they flutter round the caterpillar, and a flick sweeps them back a little before they catch up.
+- At the twig they **land and watch** the change from the branch, the stub, the knot and the two top leaves, wings slowly opening and closing; they lift off when the new butterfly lets go and follow it down to her.
+- **Away during the details:** they fly off the sides with the burst, so nothing flutters over the words, and fly back in at the close.
+- At the close **both**: the guest's own land on the edges of **Tell us you're coming**, clear of its words, and the drifting ones stay.
+
 **"It's the site where…"** *you follow a little paper caterpillar down a vine, past her first year, and watch it become Taneira with wings.*
 
 ### Fingerprint gate

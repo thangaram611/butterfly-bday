@@ -1,4 +1,4 @@
-import { flock } from './butterflies.js';
+import { flock, signature } from './butterflies.js';
 import { invite } from './invite.js';
 import { story } from './story.js';
 
@@ -16,7 +16,7 @@ invite(name);
 // The scroll-craft engine reveals the details and the close as they arrive (data-sc-in); the story is our own GSAP
 // timeline (js/story.js), played by the scroll once per frame.
 ScrollCraft.mount(document.body);
-const play = story();
+const { play, guide } = story();
 let queued = false;
 const update = () => {
   queued = false;
@@ -28,4 +28,7 @@ addEventListener('resize', schedule, { passive: true });
 addEventListener('load', schedule, { once: true });
 update();
 
-gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => flock());
+gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+  const stops = [flock(), signature(guide)];
+  return () => stops.forEach(stop => stop());
+});
