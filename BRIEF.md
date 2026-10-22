@@ -42,7 +42,7 @@ Your direction (2026-10-22): *"The website should start with a garden, when scro
 
 So the page is one story on one pinned picture (`uniqueness.md` §2.4, continuous world), with one camera and one character from the first screen to her portrait, then two ordinary sections over the same garden. The earlier versions failed this in the same way: every scene was its own picture, so it felt stitched, whatever moved between them.
 
-- **No video legs.** scroll-craft's worldflight mode crossfades video clips; here the world is our layered paper art moved live, and the transformation is played frame by frame from nine Codex drawings, like paper stop-motion. Its guidance for bespoke stages applies: the stage publishes what it draws in `data-sc-verify-state`, so the harness can check it.
+- **No video legs.** scroll-craft's worldflight mode crossfades video clips; here the world is our layered paper art moved live, and the transformation is played frame by frame from eight Codex drawings, like paper stop-motion. Its guidance for bespoke stages applies: the stage publishes what it draws in `data-sc-verify-state`, so the harness can check it.
 - **Navigation:** none (unchanged).
 - **The one place it stops:** when she has her wings. That's the end of the story, and you said a stop there is fine.
 
@@ -78,9 +78,9 @@ Timeline time is screens of scroll, and nothing smooths or delays it, so it move
 | Piece | State |
 |---|---|
 | Dawn garden (5 layers) | Approved, reused |
-| Vine, near foliage, paper caterpillar | Drawn by Codex 2026-10-22 for this story; stem line traced so the caterpillar crawls exactly on it. The foliage's seam was repaired by Codex (`tools/art.py tile`) so it repeats without a line; the vine's stem ends inside the twig's branch |
+| Vine, near foliage, paper caterpillar | Drawn by Codex 2026-10-22 for this story; stem line traced so the caterpillar crawls exactly on it. The caterpillar is cut into its paper pieces (`tools/art.py segments`), each placed on the stem at its own point along the body, so it bends with the vine and hangs straight from its thread. The foliage's seam was repaired by Codex (`tools/art.py tile`) so it repeats without a line; the vine's stem ends inside the twig's branch |
 | Twig | Cut from the chrysalis drawing; the frames hang from its knot |
-| The change | Nine Codex drawings (2026-10-22), each drawn from the one before it: J, curling up, wrapped, chrysalis, glowing, crumpled wings, half open, open, the empty shell. `tools/art.py frames` lines each one up on the twig. The scroll picks the drawing and it dissolves in over 0.3 s on its own, so the picture always rests on a whole drawing |
+| The change | Eight Codex drawings (2026-10-22), each drawn from the one before it: J, curling up, wrapped, chrysalis, glowing, crumpled wings, half open, then the empty shell with the butterfly that flies to her hanging from it (Codex's own open-winged drawing is dropped: its shell and butterfly didn't match the ones after it). `tools/art.py frames` lines each one up on the twig, and the empty shell on the shell before it. The scroll picks the drawing and it dissolves in over 0.3 s on its own, so the picture always rests on a whole drawing |
 | The four memories | Baby drawing sheet from `b1`, `b2`, `b4`, `b5` and her drawing sheet B (`art/raw/baby-sheet-a.png`), awaiting your approval; four paper medallions drawn from it: gummy smile, serious stare, a long story, finger heart |
 | Her portrait | Version A; the butterfly lands on its wings |
 | Evening garden | The dawn layers under a dusk wash |
@@ -107,7 +107,7 @@ As before: no scroll hint, no emoji icons, no identical cards, balanced headline
 Each step is its own branch, compared on your phone and merged only when you say so.
 
 1. **The story with stand-in art** (branch `feat/one-story`): judge the feel, especially the stop at the twig and that it reads as one story.
-2. **The change, done properly:** done on `feat/story-art`, nine drawings played frame by frame.
+2. **The change, done properly:** done on `feat/story-art`, nine drawings played frame by frame (eight since `fix/phone-notes-2`).
 3. **The signature butterflies.**
 4. **Year one:** done on `feat/story-art`, the baby drawing sheet and the four memory pictures.
 5. **Details and close polish,** then milestones 3 to 6 from `PROGRESS.md`.

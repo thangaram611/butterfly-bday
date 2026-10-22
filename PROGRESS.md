@@ -26,6 +26,7 @@ Last updated 2026-10-22.
 | `852714d` (branch `feat/one-story`) | One story: the caterpillar's journey on one pinned picture, with stand-in art | "So far satisfied… just as I expected" (2026-10-22) |
 | branch `feat/story-art` (`50afda0`) | The stand-ins replaced: the change as nine Codex drawings played frame by frame (the caterpillar grows on its thread to their size); a baby drawing sheet and four memory pictures from it; `tools/art.py frames` | Merged. "The baby pictures are on point… the change is perfect smooth no jumps" (2026-10-22) |
 | branch `fix/phone-notes` (`63dca74`) | Your three notes: the foliage repeated with a hard line once a screen (repaired by Codex into a seamless tile) and the vine ended above the twig; a white bar under the page on Android when the address bar hides (the stage now reaches the large viewport); drawings resting half-dissolved on a slow scroll (now each dissolves in on its own clock). Found on the way: the close's drifting butterflies could make the page a little wider than a phone, so it slid sideways (they're clipped now); the layout audit now judges a fresh page and fails on a drawing resting half-dissolved or more than two drawings showing at once | Merged. "The foliage seam is gone… the white bar is gone on my android phone… mid-change settles cleanly" (2026-10-22) |
+| branch `fix/phone-notes-2` | Your notes, round 2: the caterpillar is cut into its paper pieces, each on the stem at its own point along the body, so it bends around the vine's curves, ripples gently as it goes, and hangs straight under its thread (it hung beside it: the old picture's middle was on the thread, not its body); the hatching no longer jumps in size (Codex drew the empty shell 17% bigger, and its open-winged butterfly differed from the one that flies; now the shell is laid over the one before it, and the flying butterfly hangs from it from the start) | Awaiting your phone check |
 
 ## Decisions made with you (don't reopen without asking)
 
@@ -42,7 +43,7 @@ Last updated 2026-10-22.
 
 Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
-1. **Phone notes, round 2** (2026-10-22): the hanging caterpillar sits left of its thread; it's stiff around the vine's curves; the hatching drawings change size (drawing 4 → 5 → 6).
+1. **Phone notes, round 2** (2026-10-22): on `fix/phone-notes-2`, awaiting your phone check.
 2. **Signature butterflies:** the first scroll touch releases one, taps add more; they follow the caterpillar, gather at the twig, and settle around "Tell us you're coming".
 3. **Details and close polish.**
 4. **iPhone check.** Ask which iOS version.
@@ -78,7 +79,7 @@ Each is its own branch, approved before merge. Details in `BRIEF.md`.
 - **scroll-craft:** the reference repo isn't vendored. Clone it with `git clone --depth 50 https://github.com/nateherkai/scroll-craft` into a scratch folder to read `SKILL.md`, its references, or run `scripts/shoot.mjs` (run from this repo so `playwright-core` resolves). The engine files get copied into `site/` unedited.
 - **Art:**
   - `tools/gen.sh <prompt> <out> [reference images…]` runs Codex image generation on your ChatGPT plan, with no API key. Prompts live in `art/prompts/`, outputs go to `art/raw/` (git-ignored), and the style paragraph is prepended from `art/STYLE.md`.
-  - `tools/art.py layer|sprite|butterfly|frames` exports WebPs into `site/img/`; `frames` lines the change's drawings up on the twig and prints their box for `js/story.js`. It needs `.venv` with Pillow and numpy.
+  - `tools/art.py layer|sprite|segments|butterfly|frames` exports WebPs into `site/img/`; `frames` lines the change's drawings up on the twig and prints their box for `js/story.js`; `segments` cuts the caterpillar into its pieces and prints where each sits. It needs `.venv` with Pillow and numpy.
   - Codex's image tool takes at most 5 reference images.
 - **Her photos:**
   - The originals live only in `art/private/` (git-ignored, never deployed): `t1`–`t3` are recent, `t01`–`t06` are from before she turned one.

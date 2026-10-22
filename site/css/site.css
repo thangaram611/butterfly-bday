@@ -45,7 +45,8 @@ p { margin: 0; }
 .world .foliage::before { content: ""; position: absolute; left: 0; bottom: 100%; width: 100%; aspect-ratio: 2 / 3; background: url(../img/foliage-top.webp) top / 100% auto no-repeat; } /* the first tile: the foliage starts here */
 .night { inset: 0; z-index: 2; background: var(--dusk); opacity: 0; pointer-events: none; }
 .silk { z-index: 3; width: 2px; margin-left: -1px; background: rgb(200 162 200 / .8); }
-.caterpillar { z-index: 4; left: 0; top: 0; max-width: none; height: auto; }
+.caterpillar { z-index: 4; left: 0; top: 0; }
+.caterpillar img { position: absolute; max-width: none; height: auto; }
 .film { z-index: 6; transform-origin: 50% 30%; }
 .film > * { position: absolute; max-width: none; height: auto; }
 /* drawings wait hidden and fully transparent, so fading one out never shows it (js/story.js shows one at a time) */

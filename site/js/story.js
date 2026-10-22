@@ -18,16 +18,28 @@ const DEPTH = { sky: 0.15, hills: 0.4, wisteria: 1.25, meadow: 0.85, ground: 0.8
 // The twig, where the stand-in clip drew its chrysalis drawing, as fractions of a 9:16 box: the vine ends here
 const CHRYSALIS = { left: 0.1246, top: 0.1484, width: 0.7509, ratio: 1392 / 983 };
 // The change's frames share one box (printed by `tools/art.py frames`), in widths of that chrysalis drawing, and the
-// butterfly in the frame where its wings are open, in widths of the frames' box, so the flyer takes over without a jump
-const FRAMES = { left: 0.0366, top: 0.3032, width: 0.9634, ratio: 1.2122 };
-const BUTTERFLY = { left: 0.0195, top: 0.565, width: 0.911, ratio: 779 / 1024 };
+// butterfly, where Codex drew it hanging from the open shell with its wings open, in widths of the frames' box
+const FRAMES = { left: 0.1119, top: 0.3032, width: 0.8881, ratio: 1.2841 };
+const BUTTERFLY = { left: -0.0636, top: 0.6129, width: 0.9882, ratio: 779 / 1024 };
 // Where the scroll moves on to each frame, in screens after the camera stops at the twig: the caterpillar curls up
-// (1–3), the chrysalis (4) holds a little longer, then it glows (5), opens (6–8), and the butterfly leaves it empty (9)
-const POSES = [0.35, 0.65, 0.95, 1.25, 1.65, 1.95, 2.15, 2.35, 2.6];
+// (1–3), the chrysalis (4) holds a little longer, then it glows (5), opens (6–7), and the butterfly hangs from the empty
+// shell with its wings open (8): the one that then flies to her, so nothing changes when it lets go
+const POSES = [0.35, 0.65, 0.95, 1.25, 1.65, 1.95, 2.15, 2.35];
 // The scroll only picks the drawing; it dissolves in over SNAP seconds on its own, so the picture always comes to rest
 // on a whole drawing, however slowly the thumb moves
 const SNAP = 0.3;
 const ZOOM = 1.6;    // the caterpillar grows to the size it's drawn in the frames while it lowers itself on its thread
+// The caterpillar's paper pieces, tail first (printed by `tools/art.py segments`): where each sits along its body, and
+// its box around that point, in widths of the whole caterpillar
+const SEGMENTS = [
+  { at: 0.0920, left: -0.0920, top: -0.0918, width: 0.1846 },
+  { at: 0.2094, left: -0.0942, top: -0.0918, width: 0.1846 },
+  { at: 0.3309, left: -0.0966, top: -0.0918, width: 0.1895 },
+  { at: 0.4497, left: -0.0943, top: -0.0889, width: 0.1846 },
+  { at: 0.5708, left: -0.0942, top: -0.0908, width: 0.1846 },
+  { at: 0.6952, left: -0.0995, top: -0.0928, width: 0.1943 },
+  { at: 0.8650, left: -0.1384, top: -0.2549, width: 0.2734 },
+];
 const LEAVES = [{ x: 0.348, y: 0.228 }, { x: 0.691, y: 0.643 }]; // the vine's two big leaves, as fractions of a tile
 const TILES = 3;                                                   // vine images, one screen each
 
@@ -35,7 +47,7 @@ export function story() {
   const stage = document.querySelector('.stage');
   const $ = s => stage.querySelector(s);
   const world = Object.fromEntries(Object.keys(DEPTH).map(k => [k, k === 'words' ? $('.words') : $(`.world .${k}`)]));
-  const cat = $('.caterpillar'), silk = $('.silk'), night = $('.night'), film = $('.film'), change = $('.change');
+  const cat = $('.caterpillar'), segs = [...cat.children], silk = $('.silk'), night = $('.night'), film = $('.film'), change = $('.change');
   const frames = [...change.children], twig = $('.twig'), flyer = $('.flyer'), flap = $('.flyer img'), hush = $('.hush'), her = $('.her'), two = $('.two'), wings = $('.wings');
   const evening = $('.evening'), track = document.querySelector('.track');
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -93,6 +105,8 @@ export function story() {
       const u = (((y - vTop) / H) % 1 + 1) % 1, f = u * 100, i = Math.min(99, Math.floor(f)), k = f - i;
       return { x: colL + (VINE[i] + (VINE[i + 1] - VINE[i]) * k) * CW, slope: ((VINE[i + 1] - VINE[i]) * CW) / (H / 100) };
     };
+    // the caterpillar's way down: the stem to the vine's end, inside the twig's branch, then its thread from the knot
+    const way = y => (y < vEnd ? stem(y).x : W / 2 + (stem(vEnd).x - W / 2) * Math.max(0, 1 - (y - vEnd) / 40));
     // A line of words passes the caterpillar exactly when it crosses the caterpillar's height on the screen, and the
     // caterpillar is then on the stem at the words' own height. So each line keeps clear of the stem over its height,
     // plus the caterpillar's length above and below and its girth to the side.
@@ -148,7 +162,10 @@ export function story() {
     const fw = BUTTERFLY.width * fr.width;
     const fly0 = { x: fr.left + BUTTERFLY.left * fr.width + fw / 2, y: fr.top + BUTTERFLY.top * fr.width + (fw * BUTTERFLY.ratio) / 2, w: fw };
 
-    px(cat, { left: -catW / 2, top: -catH / 2, width: catW });
+    SEGMENTS.forEach((s, i) => {
+      px(segs[i], { left: s.left * catW, top: s.top * catW, width: s.width * catW });
+      segs[i].style.transformOrigin = `${-s.left * catW}px ${-s.top * catW}px`; // its place on the body
+    });
     const c0 = 0.86 * H, follow = 0.42 * H;
 
     // ---- the timeline, in screens of scroll ----
@@ -189,7 +206,7 @@ export function story() {
     herRise = camHold + 1.1 * H;
     // where the scroll moves on to each drawing: the frames, then the butterfly settled on her back as her wings
     const turns = [...POSES.map(t => t1 + t), tE + 1.4];
-    geometry = { vTop, vEnd, c0, follow, stem, catW, H, W, boxL, tE, t2, camHold, turns };
+    geometry = { vEnd, c0, follow, way, catW, H, W, t2, camHold, turns };
     tl.time(at);
     render();
   }
@@ -206,7 +223,7 @@ export function story() {
   }
 
   function render() {
-    const { vEnd, c0, follow, stem, catW, H, W, t2, camHold, turns } = geometry;
+    const { vEnd, c0, follow, way, catW, H, W, t2, camHold, turns } = geometry;
     const cam = p.cam;
     for (const [k, el] of Object.entries(world)) gsap.set(el, { y: -cam * DEPTH[k] });
     gsap.set(twig, { y: camHold - cam });
@@ -214,18 +231,18 @@ export function story() {
     // the dawn garden leaves the screen early on; stop painting it once it's gone
     for (const k of ['sky', 'hills', 'wisteria', 'meadow', 'blossoms']) world[k].style.visibility = cam > 1.6 * H ? 'hidden' : '';
 
-    // the caterpillar rides the vine until it reaches the middle of the screen, then the camera follows it down
-    const cy = Math.max(c0, cam + follow);
-    const grow = ((p.zoom - 1) * catW) / 2; // near the end it grows, from its tail, so it stays on the vine and the thread
-    if (cy < vEnd) {
-      const { x, slope } = stem(cy + grow);
-      const inch = still ? 0 : Math.sin(cam / 26);
-      gsap.set(cat, { x, y: cy + grow - cam, rotation: 90 - (Math.atan(slope) * 180) / Math.PI, scaleX: p.zoom * (1 + 0.05 * inch), scaleY: p.zoom * (1 - 0.04 * inch) });
-      silk.style.height = '0px';
-    } else { // past the end of the vine: hanging from the twig on a thread, head down
-      gsap.set(cat, { x: W / 2, y: cy + grow - cam, rotation: 90, scale: p.zoom });
-      Object.assign(silk.style, { left: `${W / 2}px`, top: `${vEnd - cam}px`, height: `${Math.max(0, cy - catW / 2 - vEnd)}px` });
-    }
+    // the caterpillar rides the vine until it reaches the middle of the screen, then the camera follows it down. Each
+    // of its pieces sits on the way at its own place along the body, so it bends with the stem, then hangs straight
+    // from its thread; a ripple runs through it from tail to head as it goes. Near the end it grows, from its tail, so
+    // it stays on the vine and the thread
+    const tail = Math.max(c0, cam + follow) - catW / 2, long = catW * p.zoom;
+    let y = tail, x = way(y), s = 0;
+    SEGMENTS.forEach((seg, i) => {
+      const d = seg.at * long + (still ? 0 : 0.012 * long * Math.sin(cam / 26 - 0.9 * i));
+      for (; s < d; y++) { const n = way(y + 1); s += Math.hypot(n - x, 1); x = n; }
+      gsap.set(segs[i], { x, y: y - cam, rotation: (Math.atan2(2, way(y + 1) - way(y - 1)) * 180) / Math.PI, scale: p.zoom });
+    });
+    Object.assign(silk.style, { left: `${W / 2}px`, top: `${vEnd - cam}px`, height: `${Math.max(0, tail - vEnd)}px` });
 
     const n = turns.filter(t => tl.time() >= t).length;
     if (n !== shown) show(n);

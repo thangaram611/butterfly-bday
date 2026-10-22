@@ -3,12 +3,16 @@
 
   tools/art.py layer     <raw.png> <name>   crop to the artwork's rows; prints its --top (% of the frame) for index.html
   tools/art.py sprite    <raw.png> <name> [width]   crop to the artwork's box (1024 px wide unless given)
+  tools/art.py segments  <raw.png> <name>   the caterpillar cut into its paper pieces, tail first, so the page can bend it
+                                             along the vine: writes site/img/<name>/<n>.webp and prints where each one
+                                             sits on the body, for js/story.js
   tools/art.py butterfly <raw.png> <name>   centre the body line at exactly 50%; also writes <name>-sm (256 px, for the
                                              small flying ones)
   tools/art.py frames    <name> <raw.png…>  the change's stop-motion frames: lay each one's twig exactly over the chrysalis
-                                             drawing's, cut the twig off (the page draws one twig under them all), crop
-                                             them to one shared box and write site/img/<name>/<n>.webp; prints the box
-                                             in widths of the chrysalis sprite, for js/story.js
+                                             drawing's (the last, the empty shell, over the shell of the one before it),
+                                             cut the twig off (the page draws one twig under them all), crop them to one
+                                             shared box and write site/img/<name>/<n>.webp; prints the box in widths of
+                                             the chrysalis sprite, for js/story.js
   tools/art.py tile      <raw.png> <name> [repaired.png]   a tile that repeats down the page without a seam. Without
                                              repaired.png it writes art/raw/<name>-rolled.png, the tile with its seam
                                              moved to the middle, for Codex to repair (art/prompts/foliage-seam.txt).
@@ -28,6 +32,7 @@ from PIL import Image
 CHRYSALIS = "art/raw/chrysalis.png"  # the frame the twig sprite was cut from: its box is (21, 25) + 983 wide
 TWIG = (25, 300)   # its rows that hold only the twig and its leaves, to register by
 CUT = (322, 338)   # the twig sprite ends at 338; each frame fades in over these rows, below the knot
+SHELL = (338, 880) # the open shell's rows, from the knot to its widest, above the butterfly's wings
 
 
 def opaque(im):
@@ -54,6 +59,51 @@ def sprite(im, name, width=1024):
     export(im.crop(Image.fromarray(opaque(im)).getbbox()), name, width)
 
 
+def segments(im, name):
+    """Each round body segment is the circle through its top edge; the head, in front, the circle through its edges
+    left and right of the body's line (its left one is the darkest pixel, its shadow). Every pixel goes to the
+    front-most circle it's in or just outside of (the next segment covers the one before), or else the circle whose
+    edge is nearest (the feet, the antennae). Each segment's part hidden under the next is filled in its own paper colour, so a bend
+    never shows a hole."""
+    im = im.crop(Image.fromarray(opaque(im)).getbbox())
+    im = im.resize((1024, round(im.height * 1024 / im.width)), Image.LANCZOS)
+    px = np.asarray(im).copy()
+    a = px[..., 3] > 128
+    top = np.array([np.argmax(c) if c.any() else len(c) for c in a.T])
+
+    def circle(pts):
+        x, y = np.array(pts, float).T
+        cx, cy, c = np.linalg.lstsq(np.c_[2 * x, 2 * y, np.ones_like(x)], x * x + y * y, rcond=None)[0]
+        return cx, cy, np.sqrt(c + cx * cx + cy * cy)
+    tail = np.argmax(top < len(a))
+    head = tail + 20 + np.argmax(np.diff(top[tail + 20:]) < -40)              # the antennae rise: the head starts here
+    hills = [x for x in range(tail + 12, head - 12) if top[x] == top[x - 12:x + 13].max() > max(top[x - 12], top[x + 12])]
+    dips = [x for i, x in enumerate(hills) if not i or x - hills[i - 1] > 5]  # where one segment's top meets the next
+    edges = [tail] + dips + [head]
+    discs = [circle([(x, top[x]) for x in range(l + 6, r - 6)]) for l, r in zip(edges, edges[1:])]
+    axis = np.mean([c[1] for c in discs])
+    r = np.mean([c[2] for c in discs])
+    cx = discs[-1][0]
+    lum = px[..., :3].astype(int).sum(-1)
+    rows = range(round(axis - 0.6 * r), round(axis + 0.6 * r))
+    head = circle([(cx + np.argmin(lum[y, round(cx):round(cx + r)]) + 3, y) for y in rows] + [(np.where(a[y])[0].max(), y) for y in rows])
+    circles = discs + [head]
+
+    yy, xx = np.mgrid[:a.shape[0], :a.shape[1]]
+    d = np.stack([np.hypot(xx - x, yy - y) - rr for x, y, rr in circles])
+    inside = d <= 6  # with the thin shadow round each piece's edge
+    owner = np.where(inside.any(0), len(circles) - 1 - np.argmax(inside[::-1], 0), np.argmin(d, 0))
+    for k, (x, y, rr) in enumerate(circles, 1):
+        piece = px.copy()
+        piece[..., 3] = np.where((owner == k - 1) & opaque(im), px[..., 3], 0)
+        hidden = (d[k - 1] <= 1) & inside[k:].any(0)
+        piece[hidden] = [*np.median(px[(owner == k - 1) & (d[k - 1] < -10)][:, :3], 0), 255]
+        p = Image.fromarray(piece, "RGBA")
+        box = p.getbbox()
+        export(p.crop(box), f"{name}/{k}")
+        print(f"  {{ at: {x / 1024:.4f}, left: {(box[0] - x) / 1024:.4f}, top: {(box[1] - axis) / 1024:.4f}, width: {(box[2] - box[0]) / 1024:.4f} }},")
+
+
 def butterfly(im, name):
     a = opaque(im)
     cols, rows = np.where(a.any(axis=0))[0], np.where(a.any(axis=1))[0]
@@ -70,25 +120,25 @@ def scaled(im, s, dx, dy, resample=Image.BICUBIC):
     return im.transform(im.size, Image.AFFINE, (1 / s, 0, cx - (cx + dx) / s, 0, 1 / s, -dy / s), resample)
 
 
-def register(ref, im):
-    """The scale and shift that lay im's twig over ref's: the best overlap of their twig rows, searched coarsely at
-    quarter size, then finely around that."""
+def register(ref, im, rows=TWIG):
+    """The scale and shift that lay im over ref: the best overlap of these rows (the twig's, unless given), searched
+    coarsely at quarter size, then finely around that."""
     def iou(m, t, rows):
         band = m[rows[0]:rows[1]]
         return (band & t).sum() / max(1, (band | t).sum())
-    q, rows = 4, (TWIG[0] // 4, TWIG[1] // 4)
+    q, quarter = 4, (rows[0] // 4, rows[1] // 4)
     small = lambda a: Image.fromarray(a.astype(np.uint8) * 255).resize((a.shape[1] // q, a.shape[0] // q), Image.BILINEAR)
-    target, f = np.asarray(small(opaque(ref)))[rows[0]:rows[1]] > 127, small(opaque(im))
+    target, f = np.asarray(small(opaque(ref)))[quarter[0]:quarter[1]] > 127, small(opaque(im))
     best = (0, 1, 0, 0)
     for s in np.arange(0.8, 1.201, 0.01):
         m = np.asarray(scaled(f, s, 0, 0, Image.BILINEAR)) > 127
-        best = max([best] + [(iou(np.roll(m, (dy, dx), (0, 1)), target, rows), s, dx * q, dy * q)
+        best = max([best] + [(iou(np.roll(m, (dy, dx), (0, 1)), target, quarter), s, dx * q, dy * q)
                              for dy in range(-20, 21) for dx in range(-20, 21)])
     _, s0, dx0, dy0 = best
-    target = opaque(ref)[TWIG[0]:TWIG[1]]
+    target = opaque(ref)[rows[0]:rows[1]]
     for s in np.arange(s0 - 0.01, s0 + 0.0101, 0.0025):
         m = opaque(scaled(im, s, 0, 0, Image.BILINEAR))
-        best = max([best] + [(iou(np.roll(m, (dy, dx), (0, 1)), target, TWIG), s, dx, dy)
+        best = max([best] + [(iou(np.roll(m, (dy, dx), (0, 1)), target, rows), s, dx, dy)
                              for dy in range(dy0 - 4, dy0 + 5) for dx in range(dx0 - 4, dx0 + 5)])
     return best
 
@@ -96,9 +146,10 @@ def register(ref, im):
 def frames(name, srcs):
     ref = Image.open(CHRYSALIS).convert("RGBA")
     out = []
-    for src in srcs:
+    for i, src in enumerate(srcs, 1):
         im = Image.open(src).convert("RGBA").resize(ref.size, Image.LANCZOS)
-        fit, s, dx, dy = register(ref, im)
+        # Codex draws the empty shell a little bigger than the shell it was drawn from, so it's laid over that one
+        fit, s, dx, dy = register(out[-1], im, SHELL) if i == len(srcs) else register(ref, im)
         print(f"{src}: twig overlap {fit:.3f}, scale {s:.4f}, shift {dx},{dy}")
         px = np.asarray(scaled(im, s, dx, dy)).copy()
         fade = np.clip((np.arange(ref.height) - CUT[0]) / (CUT[1] - CUT[0]), 0, 1)
@@ -157,4 +208,4 @@ if __name__ == "__main__":
         tile(*sys.argv[2:])
     else:
         src, name, *size = sys.argv[2:]
-        {"layer": layer, "sprite": sprite, "butterfly": butterfly}[mode](Image.open(src).convert("RGBA"), name, *map(int, size))
+        {"layer": layer, "sprite": sprite, "segments": segments, "butterfly": butterfly}[mode](Image.open(src).convert("RGBA"), name, *map(int, size))

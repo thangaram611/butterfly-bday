@@ -130,7 +130,7 @@ async function tasks() {
 async function audit(steps) {
   const TEXT = 'main h1, main h2, main p:not([aria-hidden]), main li, main dt, main dd, main figcaption, main .btn'; // read by guests: measured tight around the glyphs
   const BOXES = 'main .btn';                                                                        // buttons: measured as boxes
-  const DECOR = '.caterpillar, .memory .pic, .twig, .change img, .flyer img, .her img, .two, .bf';        // art that must not sit on text
+  const DECOR = '.caterpillar img, .memory .pic, .twig, .change img, .flyer img, .her img, .two, .bf';        // art that must not sit on text
   const DRAWINGS = '.caterpillar, .change img, .flyer img';                                          // must come to rest whole
   const POSES = '.caterpillar, .change img';                // one each (the butterfly takes off from the last frame, as one)
   const W = innerWidth, H = innerHeight;
@@ -204,7 +204,7 @@ async function audit(steps) {
   // drawings caught part-way through a dissolve (two of them half there, a blur): fine while it plays, never at rest
   const half = () => [...document.querySelectorAll(DRAWINGS)].filter(el => getComputedStyle(el).visibility === 'visible' && opacity(el) > 0.05 && opacity(el) < 0.95);
   // and while one dissolves into the next, only those two may show
-  const file = el => el.currentSrc.split('/').slice(-2).join('/');
+  const file = el => el.currentSrc?.split('/').slice(-2).join('/') ?? el.className;
   const crowd = at => {
     const on = [...document.querySelectorAll(POSES)].filter(el => getComputedStyle(el).visibility === 'visible' && opacity(el) > 0.05);
     if (on.length > 2) found.push({ rule: 'more than two drawings at once', what: on.map(file).join(', '), at });
