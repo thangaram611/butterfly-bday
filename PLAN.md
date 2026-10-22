@@ -2,7 +2,7 @@
 
 A one-page invitation website for Taneira's second birthday. It's built for phones, because the link goes out on WhatsApp. The story: a caterpillar a year ago, wings this year.
 
-Status: **milestone 2, rough build, revised** (plan and style test approved 2026-10-21). This file is the design; `PROGRESS.md` tracks what is done and what comes next.
+Status: **milestone 2, rough build, revised** (plan and style test approved 2026-10-21). On 2026-10-22 the scroll structure was reopened: the rebuild follows scroll-craft properly and `BRIEF.md` supersedes this file wherever they disagree (scroll structure, mechanism, the peak's technique). `PROGRESS.md` tracks what is done and what comes next.
 
 ## Event facts (single source: `event.json`)
 
@@ -245,7 +245,7 @@ Real-phone checklist, before launch:
 
 ## What we took from the references
 
-- **scroll-craft:** one engineered peak with quiet before it; independent depth planes in the hero; phones art-directed separately; a style preamble used word for word; verifying by scrolling and screenshots, with a real phone as a first-class target. Left out: its engine, its uniqueness-gate process, and its paid image service (kie.ai).
+- **scroll-craft:** one engineered peak with quiet before it; independent depth planes in the hero; phones art-directed separately; a style preamble used word for word; verifying by scrolling and screenshots, with a real phone as a first-class target. Originally left out: its engine, its uniqueness-gate process, and its paid image service (kie.ai). Since 2026-10-22 its engine, brief, feeling curve, device rules, taste floor and harness are adopted (`BRIEF.md`); kie.ai stays out ($0).
 - **scroll-world:** every asset generated from one style source; the iOS lessons (address-bar resizes, safe areas, decoders that behave differently from desktop); native portrait art for phones. Left out: the video chain (paid and fragile).
 
 ## Open items
