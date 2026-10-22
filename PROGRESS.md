@@ -5,8 +5,8 @@ Last updated 2026-10-22.
 
 ## Where things stand
 
-- `main` is the baseline (2026-10-22): one continuous story on one pinned picture (`BRIEF.md` is the plan). The paper caterpillar goes down a vine past her first year (four baby pictures on its leaves), curls up into a chrysalis, comes out as a butterfly and becomes her wings; then the details and the close over the evening garden. The previous baseline, the "one film", is `767dd74`.
-- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is rebuilt as the one story. Still open from milestone 2: the iPhone check (next step 4).
+- `main` is the baseline (2026-10-22, pushed to GitHub): one continuous story on one pinned picture (`BRIEF.md` is the plan). The paper caterpillar goes down a vine past her first year (four baby pictures on its leaves), curls up into a chrysalis, comes out as a butterfly and becomes her wings; then the details and the close over the evening garden. The previous baseline, the "one film", is `767dd74`.
+- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is rebuilt as the one story. Still open from milestone 2: the iPhone check (next step 3).
 - Placeholders still in: the laptop shows the phone composition as a centred column; her winged portrait is version A of two; the evening garden is the dawn layers under a dusk wash.
 - Party: Saturday 28 November 2026, 6–8 PM IST, Party Hall, Ramaniyam Magnum, Perungudi. Plan launch Nov 12–14.
 
@@ -26,7 +26,7 @@ Last updated 2026-10-22.
 | `852714d` (branch `feat/one-story`) | One story: the caterpillar's journey on one pinned picture, with stand-in art | "So far satisfied… just as I expected" (2026-10-22) |
 | branch `feat/story-art` (`50afda0`) | The stand-ins replaced: the change as nine Codex drawings played frame by frame (the caterpillar grows on its thread to their size); a baby drawing sheet and four memory pictures from it; `tools/art.py frames` | Merged. "The baby pictures are on point… the change is perfect smooth no jumps" (2026-10-22) |
 | branch `fix/phone-notes` (`63dca74`) | Your three notes: the foliage repeated with a hard line once a screen (repaired by Codex into a seamless tile) and the vine ended above the twig; a white bar under the page on Android when the address bar hides (the stage now reaches the large viewport); drawings resting half-dissolved on a slow scroll (now each dissolves in on its own clock). Found on the way: the close's drifting butterflies could make the page a little wider than a phone, so it slid sideways (they're clipped now); the layout audit now judges a fresh page and fails on a drawing resting half-dissolved or more than two drawings showing at once | Merged. "The foliage seam is gone… the white bar is gone on my android phone… mid-change settles cleanly" (2026-10-22) |
-| branch `fix/phone-notes-2` | Your notes, round 2: the caterpillar is cut into its paper pieces, each on the stem at its own point along the body, so it bends around the vine's curves, ripples gently as it goes, and hangs straight under its thread (it hung beside it: the old picture's middle was on the thread, not its body); the hatching no longer jumps in size (Codex drew the empty shell 17% bigger, and its open-winged butterfly differed from the one that flies; now the shell is laid over the one before it, and the flying butterfly hangs from it from the start) | Awaiting your phone check |
+| branch `fix/phone-notes-2` (`51c0f60`) | Your notes, round 2: the caterpillar is cut into its paper pieces, each on the stem at its own point along the body, so it bends around the vine's curves, ripples gently as it goes, and hangs straight under its thread (it hung beside it: the old picture's middle was on the thread, not its body); the hatching no longer jumps in size (Codex drew the empty shell 17% bigger, and its open-winged butterfly differed from the one that flies; now the shell is laid over the one before it, and the flying butterfly hangs from it from the start) | Merged. "Everything perfect" (2026-10-22) |
 
 ## Decisions made with you (don't reopen without asking)
 
@@ -43,14 +43,13 @@ Last updated 2026-10-22.
 
 Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
-1. **Phone notes, round 2** (2026-10-22): on `fix/phone-notes-2`, awaiting your phone check.
-2. **Signature butterflies:** the first scroll touch releases one, taps add more; they follow the caterpillar, gather at the twig, and settle around "Tell us you're coming".
-3. **Details and close polish.**
-4. **iPhone check.** Ask which iOS version.
-5. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
-6. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
-7. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
-8. **Milestone 6, launch** on Cloudflare Pages.
+1. **Signature butterflies:** the first scroll touch releases one, taps add more; they follow the caterpillar, gather at the twig, and settle around "Tell us you're coming".
+2. **Details and close polish.**
+3. **iPhone check.** Ask which iOS version.
+4. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
+5. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
+6. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
+7. **Milestone 6, launch** on Cloudflare Pages.
 
 ## How to work here
 
@@ -93,5 +92,5 @@ Each is its own branch, approved before merge. Details in `BRIEF.md`.
 - The canvas burst is invisible to the layout audit; it stays inside the peak's part by construction.
 - Laptop: the phone composition shows as a centred column with dark sides (milestone 3).
 - First screen is 538 KB against a 450 KB budget (milestone 3).
-- iPhone address-bar stutter: not re-tested since the film (next step 4).
+- iPhone address-bar stutter: not re-tested since the film (next step 3).
 - The address-bar fix can't be reproduced on the Mac (desktop Chrome has no hiding bars); it was checked by rewriting every `svh` to be 56 px short of the screen. Confirm on an Android phone and an iPhone.
