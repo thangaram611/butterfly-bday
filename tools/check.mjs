@@ -1,4 +1,6 @@
 // Browser checks for the site (dev only). Serve it first: python3 -m http.server -d site 8000
+//   node tools/check.mjs all     [url]  everything that must pass before a change is shown (npm run check): layout and
+//                                       craft side by side, then tasks and flicker, each alone; about 3.5 minutes
 //   node tools/check.mjs shots   [url]  24 evenly spaced scroll positions at 3 sizes + reduced motion → shots/*.png
 //   node tools/check.mjs flicker [url]  slow scroll recorded with GPU memory cut to 48 MB; fails on blank-frame flashes
 //   node tools/check.mjs tasks   [url]  slow scroll at phone size with the CPU slowed 4×; fails on main-thread tasks over 50 ms
@@ -9,11 +11,13 @@
 //                                       half-dissolved once the scroll rests, butterflies that don't all come back to
 //                                       the garden, broken images, sideways scrolling, small tap targets, console errors
 //                                       or failed requests
-//   npm run craft -- --url [url] ...    scroll-craft's own harness (tools/scrollcraft/shoot.mjs, unedited): dead scroll,
-//                                       words that never reach full strength, contrast on the composited frame
+//   node tools/check.mjs craft   [url]  scroll-craft's own harness (tools/scrollcraft/shoot.mjs, unedited) at phone size,
+//                                       laptop size and with reduced motion, side by side: dead scroll, words that never
+//                                       reach full strength, contrast on the composited frame, console errors
+//   npm run craft -- --url [url] ...    one pass of the harness, with its own options
 // Uses the installed Chrome (playwright-core, no browser download) and Homebrew ffmpeg.
 import { chromium, webkit, devices } from 'playwright-core';
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { mkdirSync, readdirSync, rmSync } from 'node:fs';
 
 const [mode, url = 'http://127.0.0.1:8000/'] = process.argv.slice(2);
@@ -25,6 +29,9 @@ const SIZES = {
 const OUT = 'shots';
 mkdirSync(OUT, { recursive: true });
 
+
+// Chrome sometimes takes minutes to quit: wait 5 s at most (Playwright ends whatever is left when the run exits)
+const close = browser => Promise.race([browser.close(), new Promise(r => setTimeout(r, 5000))]);
 
 // Wheel through the whole page in small steps, like a slow thumb
 async function slowScroll(page) {
@@ -55,7 +62,7 @@ async function shots() {
   const page = await browser.newPage({ ...SIZES.iphone, reducedMotion: 'reduce' });
   await page.goto(url, { waitUntil: 'networkidle' });
   await page.screenshot({ path: `${OUT}/reduced-motion.png`, fullPage: true });
-  await browser.close();
+  await close(browser);
   console.log(`screenshots in ${OUT}/`);
 }
 
@@ -76,7 +83,7 @@ async function flicker() {
     await page.waitForTimeout(1000);
     await slowScroll(page);
     await ctx.close();
-    await browser.close();
+    await close(browser);
     // A flash is a blink: the picture jumps away at frame i and is back within 4 frames.
     // (A fast scroll past a dark/light scene edge also changes a lot, but it doesn't come back, so it doesn't count.)
     const w = 64, h = Math.round((w * viewport.height) / viewport.width / 2) * 2;
@@ -105,7 +112,7 @@ async function flicker() {
       `hits ${hits.length ? `${hits.length} (at ${hits.map(h => (h / 25).toFixed(1) + ' s').join(', ')})` : 'none'}, longest still stretch ${(still / 25).toFixed(1)} s${still ? ` (ending ${(stillEnd / 25).toFixed(1)} s)` : ''}`);
     failed ||= flashes.length > 0;
   }
-  process.exitCode = failed ? 1 : 0;
+  return failed ? 1 : 0;
 }
 
 async function tasks() {
@@ -121,8 +128,8 @@ async function tasks() {
   await slowScroll(page);
   const long = await page.evaluate(() => window.longTasks);
   console.log(long.length ? `long tasks while scrolling (ms): ${long.join(', ')}` : 'no main-thread task over 50 ms while scrolling');
-  await browser.close();
-  process.exitCode = long.length ? 1 : 0;
+  await close(browser);
+  return long.length ? 1 : 0;
 }
 
 // Runs inside the page. Scrolls through the whole page in small steps (waiting two frames each, so the scroll-craft
@@ -265,11 +272,13 @@ const LAYOUT = [
   ['iphone 13, reduced motion', webkit, { ...devices['iPhone 13'], reducedMotion: 'reduce' }],
 ];
 
+// The setups side by side, each in its own fresh context of one browser per engine: nothing in the audit measures
+// speed, so they don't skew each other. Reported in order.
 async function layout() {
-  let total = 0;
-  for (const [name, engine, size] of LAYOUT) {
-    const browser = await engine.launch(engine === chromium ? { channel: 'chrome' } : {});
-    const page = await browser.newPage(size);
+  const browsers = new Map(LAYOUT.map(([, engine]) => [engine, null]));
+  for (const engine of browsers.keys()) browsers.set(engine, engine.launch(engine === chromium ? { channel: 'chrome' } : {}));
+  const reports = await Promise.all(LAYOUT.map(async ([name, engine, size]) => {
+    const context = await (await browsers.get(engine)).newContext(size), page = await context.newPage();
     const errors = [];
     page.on('console', m => m.type() === 'error' && errors.push(m.text()));
     page.on('pageerror', e => errors.push(String(e)));
@@ -287,12 +296,39 @@ async function layout() {
     // one line per problem, with the scroll positions (in screens) where it shows
     const grouped = new Map();
     for (const f of found) grouped.set(`${f.rule}: ${f.what}`, [...(grouped.get(`${f.rule}: ${f.what}`) || []), f.at]);
-    console.log(`${name}: ${grouped.size ? `${grouped.size} problem(s)` : 'ok'}`);
-    for (const [k, ats] of grouped) console.log(`  ${k}  (at ${ats[0]}${ats.length > 1 ? ` – ${ats.at(-1)}, ${ats.length} points` : ''})`);
-    total += grouped.size;
-    await browser.close();
-  }
-  process.exitCode = total ? 1 : 0;
+    await context.close();
+    return [`${name}: ${grouped.size ? `${grouped.size} problem(s)` : 'ok'}`,
+      ...[...grouped].map(([k, ats]) => `  ${k}  (at ${ats[0]}${ats.length > 1 ? ` – ${ats.at(-1)}, ${ats.length} points` : ''})`)];
+  }));
+  for (const browser of await Promise.all(browsers.values())) await close(browser);
+  console.log(reports.flat().join('\n'));
+  return reports.reduce((n, r) => n + r.length - 1, 0);
 }
 
-await { shots, flicker, tasks, layout }[mode]();
+// scroll-craft's harness at the three sizes it's checked at, side by side. Its findings are the lines it prints in
+// capitals (DEAD SCROLL, CONTRAST FAIL, CONSOLE ERRORS…), each starting its own paragraph.
+const CRAFT = [['phone', '--width', '390', '--height', '844'], ['laptop', '--width', '1440', '--height', '900'], ['reduced motion', '--width', '390', '--height', '844', '--reduced-motion']];
+async function craft() {
+  const runs = await Promise.all(CRAFT.map(([name, ...args]) => new Promise(done => execFile('node',
+    ['tools/scrollcraft/shoot.mjs', '--url', url, '--out', `${OUT}/craft-${name.split(' ')[0]}`, ...args], { maxBuffer: 1 << 26 },
+    (err, out) => done({ name, found: out.split('\n\n').map(p => p.trim()).filter(p => /^[A-Z]{4}/.test(p)), err })))));
+  for (const { name, found, err } of runs) console.log(`craft, ${name}: ${found.length ? found.join('\n') : err ? err.message : 'ok'}`);
+  return runs.reduce((n, r) => n + (r.found.length || (r.err ? 1 : 0)), 0);
+}
+
+// Everything that must pass before a change is shown: the layout audit and the harness side by side, then the two
+// checks that measure speed, each alone (anything running beside them would skew them)
+async function all() {
+  const start = Date.now(), since = t => `${Math.round((Date.now() - t) / 1000)} s`;
+  const timed = async ([name, check]) => {
+    const t = Date.now(), problems = await check();
+    console.log(`→ ${name}: ${problems ? 'FAILED' : 'passed'} (${since(t)})\n`);
+    return problems ? [name] : [];
+  };
+  const failed = (await Promise.all([['layout', layout], ['craft', craft]].map(timed))).flat();
+  for (const check of [['tasks', tasks], ['flicker', flicker]]) failed.push(...(await timed(check)));
+  console.log(failed.length ? `FAILED: ${failed.join(', ')} (${since(start)})` : `all checks passed (${since(start)})`);
+  return failed.length;
+}
+
+process.exit((await { shots, flicker, tasks, layout, craft, all }[mode]()) ? 1 : 0);

@@ -3,6 +3,7 @@
   "type": "module",
   "scripts": {
     "serve": "python3 -m http.server -d site 8000",
+    "check": "node tools/check.mjs all",
     "shots": "node tools/check.mjs shots",
     "flicker": "node tools/check.mjs flicker",
     "tasks": "node tools/check.mjs tasks",
