@@ -1,0 +1,7 @@
+Use: widening one layer of a layered scroll-parallax scene from a phone screen to a wide laptop screen; the layers are stacked in code and move at different speeds. Image 1 is the layer to widen: the drawn strip at one side of the frame is the edge of the meadow exactly as drawn for the phone, and the rest of the frame is empty. Image 2 is the approved full phone scene the layer comes from. Image 3 is the style reference sheet: match its paper, cut edges, shadows and palette exactly.
+
+Format: wide landscape 3:2, exactly the frame of image 1.
+
+Task: keep the drawn strip exactly as it is, in the same place and at the same scale, and continue the meadow from it across the whole empty part of the frame: the same rolling violet meadow at the same height, its outline carrying on smoothly from where the strip ends, dotted with small off-white and lilac paper flowers with gold centres and tall violet grass blades like those in the strip, down to the bottom edge of the frame. Nothing rises higher than the strip's highest point. Nothing else: no sky, sun, hills, wisteria or big flowers.
+
+Transparent background: real alpha, fully transparent everywhere outside the described element. No checkerboard pattern, no backdrop.

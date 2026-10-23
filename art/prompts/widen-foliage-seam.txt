@@ -1,0 +1,9 @@
+Use: a repeating background tile for a wide laptop website. Code stacks copies of this image vertically, so its top edge must continue into its bottom edge. Image 1 is the tile as it is now. Image 2 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Image 1 has a flaw: exactly across its middle, the leaves, flowers, stems and tendrils stop along a hard, straight horizontal line, as if cut with a ruler. Redraw image 1 with only that fixed: the foliage just above the middle line and the foliage just below it join up naturally, the leaves, buds and stems growing across the middle line so no straight edge remains anywhere.
+
+Keep everything else exactly as in image 1: the same leaves, flowers, stems, colours and positions, the same size and framing. The top third and the bottom third of the image must stay unchanged, and the empty space between the sprigs stays empty and transparent.
+
+Format: wide landscape 3:2, the same framing as image 1.
+
+Transparent background: real alpha, fully transparent everywhere outside the foliage. No checkerboard pattern, no backdrop.

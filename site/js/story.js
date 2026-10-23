@@ -91,15 +91,19 @@ export function story() {
     H = small();
     const W = stage.clientWidth;
     const CW = (H * 2) / 3, colL = (W - CW) / 2;          // the 2:3 column the garden was drawn for
+    // The garden's own frame: that column, but grown to cover a screen up to a fifth wider (an SE-sized phone's is 3%
+    // wider). A wider screen gets the garden's sides instead (site.css), or, too short for them, a column.
+    const GW = W > CW && W <= 1.2 * CW ? W : CW, GH = 1.5 * GW, gL = (W - GW) / 2;
     const boxW = (H * 9) / 16, boxL = (W - boxW) / 2;      // the frames' 9:16 box, centred
     const px = (el, box) => Object.assign(el.style, Object.fromEntries(Object.entries(box).map(([k, v]) => [k, `${v}px`])));
 
     // the dawn garden: the frame of five layers, as drawn
-    px(world.sky, { left: colL, top: 0, width: CW, height: H });
-    px(world.hills, { left: colL, top: 0.4993 * H, width: CW });
-    px(world.wisteria, { left: colL, top: 0, width: CW });
-    px(world.meadow, { left: colL, top: 0.6048 * H, width: CW });
-    px(world.blossoms, { left: colL, top: 0.6081 * H, width: CW });
+    px(world.sky, { left: gL, top: 0, width: GW });
+    px(world.hills, { left: gL, top: 0.4993 * GH, width: GW });
+    px(world.wisteria, { left: gL, top: 0, width: GW });
+    px(world.meadow, { left: gL, top: 0.6048 * GH, width: GW });
+    px(world.blossoms, { left: gL, top: 0.6081 * GH, width: GW });
+    px(evening.querySelector('.scene'), { left: gL, top: 0, width: GW }); // and at evening
 
     // the vine hangs from among the flowers; its end meets the twig exactly where the first frame draws it
     const vTop = 0.75 * H, vEnd = vTop + TILES * H;
@@ -108,8 +112,8 @@ export function story() {
     px(world.vine, { left: colL, top: vTop, width: CW });
     // no straight edge ever slides past (scroll-craft devices.md §6): the meadow and the flowers fade out at their
     // feet (site.css), into solid ground in the meadow's own bottom colour that starts behind the meadow's middle
-    px(world.ground, { left: 0, top: 0.6048 * H + 0.5 * ((CW * 607) / 1024), width: W, height: 7 * H });
-    px(world.foliage, { left: colL, top: 1.95 * H, width: CW, height: 7 * H }); // its first tile hangs above it (site.css)
+    px(world.ground, { left: 0, top: 0.6048 * GH + 0.5 * ((GW * 607) / 1024), width: W, height: 7 * H });
+    px(world.foliage, { left: gL, top: 1.95 * H, width: GW, height: 7 * H }); // its first tile hangs above it (site.css)
 
     // the caterpillar: a third of the column long, starting on the vine low on the first screen
     const catW = 0.34 * CW, catH = (catW * 393) / 1024;
@@ -122,6 +126,8 @@ export function story() {
     // A line of words passes the caterpillar exactly when it crosses the caterpillar's height on the screen, and the
     // caterpillar is then on the stem at the words' own height. So each line keeps clear of the stem over its height,
     // plus the caterpillar's length above and below and its girth to the side.
+    // the words keep to the garden's frame as it shows on the screen (on a phone, the screen)
+    const X0 = Math.max(0, gL), X1 = Math.min(W, gL + GW);
     const room = (top, height) => { // the free width left and right of the caterpillar, over a line's height
       let l = W, r = 0;
       for (let i = 0; i <= 8; i++) {
@@ -130,11 +136,11 @@ export function story() {
         l = Math.min(l, x - half);
         r = Math.max(r, x + half);
       }
-      return { left: l - 14, right: W - 14 - r, l, r };
+      return { left: l - 14 - X0, right: X1 - 14 - r, l, r };
     };
     const place = (el, top, side, height) => { // never narrower than 150 px, so a long word stays on its tag
       const f = room(top, height);
-      px(el, side === 'left' ? { left: 14, top, width: Math.max(150, f.left) } : { left: Math.min(f.r, W - 164), top, width: Math.max(150, f.right) });
+      px(el, side === 'left' ? { left: X0 + 14, top, width: Math.max(150, f.left) } : { left: Math.min(f.r, X1 - 164), top, width: Math.max(150, f.right) });
     };
     // on the preferred side if it leaves 150 px for the words (a long word needs about that), else the roomier side
     const side = (top, height, prefer) => {
@@ -145,6 +151,12 @@ export function story() {
     // words that travel with the vine: the title, the first line, and a memory on each big leaf of tiles 1 and 2
     px($('.title'), { left: 16, top: 0.16 * H, width: W - 32 });
     px($('.words .scrim'), { left: 0, top: 0.08 * H, width: W, height: 0.34 * H });
+    // as wide as the garden's frame; with the garden carrying on beyond it, just around the title's letters (once
+    // their font is in)
+    const glow = () => $('.words .scrim').style.setProperty('--rx',
+      `${0.6 * (GW < W ? Math.min(X1 - X0, titleText.getBoundingClientRect().width + 80) : X1 - X0)}px`);
+    glow();
+    document.fonts.ready.then(glow);
     place($('.intro'), vTop + 0.4 * H, side(vTop + 0.4 * H, 0.2 * H, 'left'), 0.2 * H);
     stage.querySelectorAll('.memory').forEach((m, i) => {
       const leaf = LEAVES[i % 2], y = vTop + (1 + Math.floor(i / 2)) * H + leaf.y * H, d = 0.3 * CW;

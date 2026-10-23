@@ -9,9 +9,11 @@
 //   node tools/check.mjs flicker [url]  slow scroll recorded with GPU memory cut to 48 MB; fails on blank-frame flashes
 //   node tools/check.mjs tasks   [url]  slow scroll at phone size with the CPU slowed 4×; fails on main-thread tasks over 50 ms
 //   node tools/check.mjs layout  [url]  watches the garden's butterflies play, then scrolls through the whole page (1001
-//                                       points) and back up, on 5 screens in Chrome and Safari's engine (WebKit), plus
-//                                       reduced motion; fails on anything covering readable text, text off the side or
-//                                       off a pinned screen, scenery gaps on a pinned screen, a drawing left
+//                                       points) and back up, on 5 phone screens, a laptop and a wide desktop in Chrome
+//                                       and Safari's engine (WebKit), plus reduced motion; fails on anything covering
+//                                       readable text, text off the side or off a pinned screen, the vine's words
+//                                       outside the garden, scenery that doesn't reach both sides of the screen, a
+//                                       phone downloading the wide screens' art, a drawing left
 //                                       half-dissolved once the scroll rests, butterflies that don't all come back to
 //                                       the garden, broken images, sideways scrolling, small tap targets, console errors
 //                                       or failed requests
@@ -170,6 +172,7 @@ async function audit(steps) {
   const TEXT = 'main h1, main h2, main p:not([aria-hidden]), main li, main dt, main dd, main figcaption, main .btn'; // read by guests: measured tight around the glyphs
   const BOXES = 'main .btn';                                                                        // buttons: measured as boxes
   const DECOR = '.caterpillar img, .memory .pic, .twig, .change img, .flyer img, .her img, .two, .bf, .cake, .card .ornament'; // art that must not sit on text
+  const SCENERY = '.world .sky, .world .hills, .world .wisteria, .world .meadow, .world .blossoms, .world .foliage, .evening .scene';
   const DRAWINGS = '.caterpillar, .change img, .flyer img';                                          // must come to rest whole
   const POSES = '.caterpillar, .change img';                // one each (the butterfly takes off from the last frame, as one)
   const W = innerWidth, H = innerHeight;
@@ -225,16 +228,26 @@ async function audit(steps) {
       if (a.r.left < -1 || a.r.right > W + 1) found.push({ rule: 'text off the side', what: name(a.el), at });
       if (a.o >= 0.9 && pinned(a.el) && (a.r.top < -1 || a.r.bottom > H + 1)) found.push({ rule: 'text off a pinned screen', what: name(a.el), at });
     }
-    // scenery: a frame of art must fill its box down to the bottom (and both sides on a phone), wherever it is
-    for (const f of document.querySelectorAll('main .frame')) {
-      if (!shown(f)) continue;
-      const box = f.parentElement.getBoundingClientRect();
-      if (box.bottom < 0 || box.top > H) continue;
-      const rs = [...f.querySelectorAll('img')].filter(shown).map(e => e.getBoundingClientRect());
-      const gap = box.bottom - Math.max(...rs.map(r => r.bottom));
-      if (gap > 1) found.push({ rule: 'scenery gap', what: `${f.closest('section').className}: ends ${Math.round(gap)}px above the bottom`, at });
-      if (W / H <= 2 / 3 && (Math.min(...rs.map(r => r.left)) > 1 || Math.max(...rs.map(r => r.right)) < W - 1))
-        found.push({ rule: 'scenery gap', what: `${f.closest('section').className}: doesn't reach both sides`, at });
+    // scenery: the garden's layers, the vine's foliage and the evening reach both sides of the screen wherever they
+    // show, counting the sides a wide screen gets (their ::before and ::after, site.css)
+    for (const el of document.querySelectorAll(SCENERY)) {
+      const r = el.getBoundingClientRect();
+      if (!shown(el) || !onScreen(r)) continue;
+      let left = r.left, right = r.right;
+      for (const host of [el, ...el.children]) for (const side of ['::before', '::after']) {
+        const s = getComputedStyle(host, side);
+        if (s.content === 'none' || s.position !== 'absolute') continue;
+        const x = host.getBoundingClientRect().left + parseFloat(s.left);
+        left = Math.min(left, x);
+        right = Math.max(right, x + parseFloat(s.width));
+      }
+      if (left > 1 || right < W - 1) found.push({ rule: 'scenery gap', what: `${name(el)} spans ${Math.round(left)}–${Math.round(right)} of ${W}px`, at });
+    }
+    // the vine's words keep to the garden's frame (a phone's is wider than its screen): a paper tag as a whole
+    const frame = document.querySelector('.world .sky').getBoundingClientRect();
+    for (const t of text) {
+      const r = onTag(t.el) ? t.el.getBoundingClientRect() : t.r;
+      if (t.el.closest('.words') && (r.left < Math.max(0, frame.left) - 1 || r.right > Math.min(W, frame.right) + 1)) found.push({ rule: 'words outside the garden', what: name(t.el), at });
     }
     for (const img of document.querySelectorAll('main img')) if (shown(img) && img.complete && !img.naturalWidth) found.push({ rule: 'broken image', what: img.src, at });
     if (document.documentElement.scrollWidth > W + 1) found.push({ rule: 'sideways scroll', what: `page is ${document.documentElement.scrollWidth}px wide`, at });
@@ -300,6 +313,7 @@ const LAYOUT = [
   ['large android', chromium, { viewport: { width: 412, height: 839 }, deviceScaleFactor: 2.6, isMobile: true, hasTouch: true }],
   ['android 360', chromium, SIZES.android],
   ['laptop', chromium, SIZES.laptop],
+  ['wide desktop', chromium, { viewport: { width: 2400, height: 920 } }], // near the widest the garden's sides reach
   ['iphone 13, reduced motion', webkit, { ...devices['iPhone 13'], reducedMotion: 'reduce' }],
 ];
 
@@ -314,6 +328,7 @@ async function layout() {
     page.on('console', m => m.type() === 'error' && errors.push(m.text()));
     page.on('pageerror', e => errors.push(String(e)));
     page.on('response', r => r.status() >= 400 && errors.push(`${r.status()} ${r.url()}`));
+    page.on('request', r => size.isMobile && r.url().includes('/img/wide/') && errors.push(`a phone downloads ${r.url()}`)); // wide screens' only
     await page.goto(url, { waitUntil: 'networkidle' });
     // scroll it once so every image is in the cache, then judge a fresh page: what happens the first time matters
     await page.evaluate(async () => {

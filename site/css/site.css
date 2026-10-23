@@ -36,15 +36,51 @@ p { margin: 0; }
 .words { z-index: 5; } /* in front of the caterpillar: it crawls behind the paper tags */
 .words > :not(.memory) { position: absolute; }
 .world img { max-width: none; height: auto; }
-.world .sky { object-fit: cover; }
+.world > :is(.sky, .hills, .wisteria, .meadow, .blossoms) > img { display: block; width: 100%; }
 .world .vine img { position: static; display: block; width: 100%; height: auto; }
 .world .ground { background: linear-gradient(#2C0968, var(--dusk)); }
-.world .meadow { -webkit-mask: linear-gradient(#000 55%, #0000); mask: linear-gradient(#000 55%, #0000); }
-.world .blossoms { -webkit-mask: linear-gradient(#000 70%, #0000); mask: linear-gradient(#000 70%, #0000); }
+.world .meadow > img { -webkit-mask: linear-gradient(#000 55%, #0000); mask: linear-gradient(#000 55%, #0000); }
+.world .blossoms > img { -webkit-mask: linear-gradient(#000 70%, #0000); mask: linear-gradient(#000 70%, #0000); }
 .world .foliage { background: top / 100% auto repeat-y; } /* repeats without a seam (art.py tile) */
 .world .foliage::before { content: ""; position: absolute; left: 0; bottom: 100%; width: 100%; aspect-ratio: 2 / 3; background: top / 100% auto no-repeat; } /* the first tile: the foliage starts here */
 .later .world .foliage { background-image: url(../img/foliage.webp); } /* downloaded once the first screen has loaded (js/story.js) */
 .later .world .foliage::before { background-image: url(../img/foliage-top.webp); }
+
+/* On a wide screen the garden, the vine's foliage and the evening carry on past the column they were drawn for: each
+   layer's sides (art.py widen) hang off its edges, 1.75 times its width, and overlap its outer quarter, where they
+   blend into it; where Codex drew them taller, they reach above it by --up of its height (art.py prints it). Phones
+   never load them, upright or turned sideways. */
+@media (min-aspect-ratio: 2 / 3) and (min-height: 600px) {
+  :is(.world > :is(.sky, .hills, .wisteria, .meadow, .blossoms), .world .sides, .evening .scene)::before,
+  :is(.world > :is(.sky, .hills, .wisteria, .meadow, .blossoms), .world .sides, .evening .scene)::after {
+    content: ""; position: absolute; z-index: 1; top: calc(-100% * var(--up, 0)); width: 174.96%; height: calc(100% * (1 + var(--up, 0)));
+    background: top / 100% 100% no-repeat; } /* over the layer, even masked */
+  :is(.world > :is(.sky, .hills, .wisteria, .meadow, .blossoms), .world .sides, .evening .scene)::before { right: 74.96%; }
+  :is(.world > :is(.sky, .hills, .wisteria, .meadow, .blossoms), .world .sides, .evening .scene)::after { left: 74.96%; }
+  .world .hills { --up: .0019; } .world .meadow { --up: .0025; } .world .blossoms { --up: .0149; }
+  /* the layers' fading feet, at the same height */
+  .world .meadow::before, .world .meadow::after {
+    -webkit-mask: linear-gradient(#000 calc(100% * (var(--up, 0) + .55) / (1 + var(--up, 0))), #0000); mask: linear-gradient(#000 calc(100% * (var(--up, 0) + .55) / (1 + var(--up, 0))), #0000); }
+  .world .blossoms::before, .world .blossoms::after {
+    -webkit-mask: linear-gradient(#000 calc(100% * (var(--up, 0) + .7) / (1 + var(--up, 0))), #0000); mask: linear-gradient(#000 calc(100% * (var(--up, 0) + .7) / (1 + var(--up, 0))), #0000); }
+  .world .sky::before { background-image: url(../img/wide/s1-sky-l.webp); }
+  .world .sky::after { background-image: url(../img/wide/s1-sky-r.webp); }
+  .world .hills::before { background-image: url(../img/wide/s1-hills-l.webp); }
+  .world .hills::after { background-image: url(../img/wide/s1-hills-r.webp); }
+  .world .wisteria::before { background-image: url(../img/wide/s1-wisteria-l.webp); }
+  .world .wisteria::after { background-image: url(../img/wide/s1-wisteria-r.webp); }
+  .world .meadow::before { background-image: url(../img/wide/s1-meadow-l.webp); }
+  .world .meadow::after { background-image: url(../img/wide/s1-meadow-r.webp); }
+  .world .blossoms::before { background-image: url(../img/wide/s1-blossoms-l.webp); }
+  .world .blossoms::after { background-image: url(../img/wide/s1-blossoms-r.webp); }
+  /* the foliage's start with its first tile, a frame (1.5 widths) above it, and grow in from the dark */
+  .world .sides { position: absolute; inset: 0; margin-top: -150%; }
+  .world .sides::before, .world .sides::after { background: top / 100% auto repeat-y; -webkit-mask: linear-gradient(#0000, #000 4%); mask: linear-gradient(#0000, #000 4%); }
+  .later .world .sides::before { background-image: url(../img/wide/foliage-l.webp); }
+  .later .world .sides::after { background-image: url(../img/wide/foliage-r.webp); }
+  .later .evening .scene::before { background-image: url(../img/wide/evening-l.webp); }
+  .later .evening .scene::after { background-image: url(../img/wide/evening-r.webp); }
+}
 .night { inset: 0; z-index: 2; background: var(--dusk); opacity: 0; pointer-events: none; }
 .silk { z-index: 3; width: 2px; margin-left: -1px; background: rgb(200 162 200 / .8); }
 .caterpillar { z-index: 4; left: 0; top: 0; }
@@ -56,7 +92,7 @@ p { margin: 0; }
 .film .flyer img { display: block; width: 100%; height: auto; visibility: hidden; opacity: 0; }
 
 /* words on the vine */
-.words .scrim { background: radial-gradient(60% 50% at 50% 50%, rgb(251 247 253 / .82), rgb(251 247 253 / 0)); pointer-events: none; }
+.words .scrim { background: radial-gradient(var(--rx, 60%) 50% at 50% 50%, rgb(251 247 253 / .82), rgb(251 247 253 / 0)); pointer-events: none; }
 .words .title { text-align: center; }
 .title h1 { max-width: 9em; margin: 0 auto; text-shadow: 0 2px 0 var(--paper), 0 4px 14px rgb(75 0 130 / .25); }
 .greet { font-weight: 800; font-size: 19px; margin-bottom: 6px; }
@@ -80,8 +116,9 @@ p { margin: 0; }
 /* after the story: the garden at evening, ready for the party, behind the details and the close. Laid out in the small
    viewport like the story; its foot fades into its own colour, which carries on below it when the phone's bars hide */
 .evening { inset: 0; z-index: 10; background: #3C1C73; }
-.evening > img { position: absolute; max-width: none; }
-.evening > .scene { top: 0; left: 50%; width: calc(100svh * 2 / 3); height: 100svh; translate: -50% 0; -webkit-mask: linear-gradient(#000 94%, #0000); mask: linear-gradient(#000 94%, #0000); }
+.evening > .scene { position: absolute; } /* sized with the garden (js/story.js) */
+.evening .scene > img { display: block; width: 100%; height: auto; }
+.evening .scene > img, .evening .scene::before, .evening .scene::after { -webkit-mask: linear-gradient(#000 94%, #0000); mask: linear-gradient(#000 94%, #0000); }
 .track { pointer-events: none; }
 
 /* 4 · Clarity: the details on an invitation card, a paper one on a lilac one turned a little, with a gold frame and a

@@ -13,6 +13,7 @@
                                              cut the twig off (the page draws one twig under them all), crop them to one
                                              shared box and write site/img/<name>/<n>.webp; prints the box in widths of
                                              the chrysalis sprite, for js/story.js
+  tools/art.py widen     <raw.png> <name> [tiles]   the layer's sides for a wide screen, drawn on by Codex: see widen()
   tools/art.py tile      <raw.png> <name> [repaired.png]   a tile that repeats down the page without a seam. Without
                                              repaired.png it writes art/raw/<name>-rolled.png, the tile with its seam
                                              moved to the middle, for Codex to repair (art/prompts/foliage-seam.txt).
@@ -22,6 +23,7 @@
 
 Setup: python3 -m venv .venv && .venv/bin/pip install pillow numpy   (and cwebp from Homebrew)
 """
+import os
 import subprocess
 import sys
 import tempfile
@@ -45,10 +47,10 @@ QUALITY = {"s1-sky": (72, 90), "s1-hills": (72, 40), "s1-wisteria": (75, 40), "s
            "vine": (75, 40)}
 
 
-def export(im, name, width=1024):
+def export(im, name, width=1024, quality=None):
     if im.width > width:
         im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
-    q, alpha_q = QUALITY.get(name, (82, 90))
+    q, alpha_q = quality or QUALITY.get(name, (82, 90))
     with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
         im.save(tmp.name)
         subprocess.run(["cwebp", "-quiet", "-m", "6", "-q", str(q), "-alpha_q", str(alpha_q), "-alpha_filter", "best", tmp.name,
@@ -185,6 +187,17 @@ def tile(src, name, repaired=None):
     if not repaired:
         Image.fromarray(np.roll(raw, half, axis=0)).save(f"art/raw/{name}-rolled.png")
         return print(f"art/raw/{name}-rolled.png: seam at row {half}; repair it with Codex, then run again with the result")
+    out = mend(raw, repaired)
+    # the first tile starts as the original does; its bottom half is the seamless tile's, so it leads into it
+    top = np.concatenate([raw[:half], out[half:]])
+    export(Image.fromarray(out), name)
+    export(Image.fromarray(top), f"{name}-top")
+
+
+def mend(raw, repaired, keep=1):
+    """raw made to repeat vertically: Codex's repair of its seam (rolled to the middle) put back over the seam's rows,
+    as much as keep allows in each column (1: all of it). Fails if a seam remains."""
+    half = raw.shape[0] // 2
     rolled = np.roll(raw, half, axis=0).astype(float)
     fix = np.asarray(Image.open(repaired).convert("RGBA").resize(raw.shape[1::-1], Image.LANCZOS)).astype(float)
     # Codex redraws the whole picture but only reshapes the rows around the seam: take those (and 30 more each side,
@@ -192,20 +205,103 @@ def tile(src, name, repaired=None):
     both = (rolled[..., 3] > 200) & (fix[..., 3] > 200)
     fix[..., :3] = np.clip(fix[..., :3] * rolled[both][:, :3].mean(0) / fix[both][:, :3].mean(0), 0, 255)
     changed = np.abs(fix[..., 3] - rolled[..., 3]).mean(axis=1)
-    rows = np.where(changed > 3 * np.median(changed))[0]
+    rows = np.where(changed > 2 * np.median(changed))[0]
     rows = rows[np.abs(rows - half) < half // 2]  # the seam's band, not stray rows elsewhere
+    if not len(rows):
+        sys.exit(f"{repaired} changes nothing around the seam")
     y = np.arange(raw.shape[0])[:, None, None]
-    w = np.clip(np.minimum(y - (rows.min() - 60), rows.max() + 60 - y) / 30, 0, 1)
+    w = np.clip(np.minimum(y - (rows.min() - 60), rows.max() + 60 - y) / 30, 0, 1) * keep
     print(f"repair used for rows {rows.min()}–{rows.max()} of the rolled tile, blended over 30 more each side")
     out = np.roll(rolled * (1 - w) + fix * w, -half, axis=0).round().astype(np.uint8)
-    # the first tile starts as the original does; its bottom half is the seamless tile's, so it leads into it
-    top = np.concatenate([raw[:half], out[half:]])
     e, q = seam(Image.fromarray(out))
     print(f"seam {e:.1f}, roughest 1% of inner rows {q:.1f}")
     if e > q:
         sys.exit("a seam remains")
-    export(Image.fromarray(out), name)
-    export(Image.fromarray(top), f"{name}-top")
+    return out
+
+
+# A wide screen's sides of a layer: Codex continues the layer's outer quarter (STRIP, scaled to a frame SIDE_H tall)
+# across an empty 3:2 frame. A side keeps that quarter, blended from the layer's own pixels into Codex's, and reaches
+# REACH (a frame's height) beyond the layer: enough for a screen 2.67 times as wide as it is tall.
+SIDE_H, STRIP, REACH = 1024, 171, 1024
+
+
+def widen(src, name, tiles=None):
+    """The first run writes the canvases for Codex (art/raw/wide/<name>-l-in.png and -r-in.png, for
+    art/prompts/widen-*.txt). Given its drawings (art/raw/wide/<name>-l.png and -r.png), it matches their colour to the
+    layer's, blends them into it over the quarter they share, cuts them to the layer's rows and writes
+    site/img/wide/<name>-l.webp and -r.webp. With tiles, the sides repeat down the page like the layer: their seams are
+    mended first (as in tile; the repairs are art/raw/wide/<name>-<side>-mended.png)."""
+    im = Image.open(src).convert("RGBA")
+    os.makedirs("art/raw/wide", exist_ok=True)
+    os.makedirs("site/img/wide", exist_ok=True)
+    col = np.asarray(im.resize((round(im.width * SIDE_H / im.height), SIDE_H), Image.LANCZOS)).astype(float)
+    rows = np.where(opaque(im).any(axis=1))[0]
+    y0, y1 = int(rows[0] * SIDE_H / im.height), round((rows[-1] + 1) * SIDE_H / im.height)
+    failed, done = [], {}
+    for side in "lr":
+        # worked on as if on the right: the strip first, from inside the layer out to its edge
+        edge = col[:, :STRIP][:, ::-1] if side == "l" else col[:, -STRIP:]
+        flip = (lambda a: a[:, ::-1]) if side == "l" else (lambda a: a)
+        drawn = f"art/raw/wide/{name}-{side}.png"
+        if not os.path.exists(drawn):
+            canvas = np.zeros((SIDE_H, 1536, 4))
+            canvas[:, :STRIP] = edge
+            Image.fromarray(flip(canvas).astype(np.uint8)).save(f"art/raw/wide/{name}-{side}-in.png")
+            print(f"art/raw/wide/{name}-{side}-in.png: have Codex continue it, as {drawn}")
+            continue
+        gen = np.asarray(Image.open(drawn).convert("RGBA").resize((1536, SIDE_H), Image.LANCZOS))
+        if tiles:
+            mended = f"art/raw/wide/{name}-{side}-mended.png"
+            if not os.path.exists(mended):
+                Image.fromarray(np.roll(gen, SIDE_H // 2, axis=0)).save(f"art/raw/wide/{name}-{side}-rolled.png")
+                print(f"art/raw/wide/{name}-{side}-rolled.png: have Codex repair its seam, as {mended}")
+                continue
+            # the strip already repeats (it's the layer's): only Codex's own part takes the repair, blended in over 30 px
+            keep = np.clip((np.arange(1536) - STRIP) / 30, 0, 1)[None, :, None]
+            gen = mend(gen, mended, flip(keep))
+        gen = flip(gen).astype(float)
+        # Codex redraws the strip a shade off the layer's, and not by the same at every height (the sky's gradient):
+        # match it row by row, over 64 rows around each, or as a whole where a row has too little art in common
+        both = ((edge[..., 3] > 200) & (gen[:, :STRIP, 3] > 200))[..., None]
+        sums = lambda v: np.cumsum(np.concatenate([np.zeros((1, v.shape[1])), v]), axis=0)
+        n, want, have = (sums((both * x).sum(axis=1)) for x in (np.ones_like(edge[..., :1]), edge[..., :3], gen[:, :STRIP, :3]))
+        lo, hi = np.clip(np.arange(SIDE_H) - 32, 0, SIDE_H), np.clip(np.arange(SIDE_H) + 32, 0, SIDE_H)
+        gain = (want[hi] - want[lo]) / np.maximum(have[hi] - have[lo], 1)
+        whole = (want[-1] / have[-1])[None]
+        gain = np.where((n[hi] - n[lo]) > 2000, gain, whole)
+        gen[..., :3] = np.clip(gen[..., :3] * gain[:, None], 0, 255)
+        # the blend fades from the layer into Codex's copy of the strip, so the copy must be faithful
+        p, q = gen[:, :STRIP].copy(), edge.copy()
+        p[..., :3] *= p[..., 3:] / 255
+        q[..., :3] *= q[..., 3:] / 255
+        iou = ((p[..., 3] > 128) & (q[..., 3] > 128)).sum() / max(1, ((p[..., 3] > 128) | (q[..., 3] > 128)).sum())
+        if iou < 0.9 or np.abs(p - q).mean() > 8:  # the colour, premultiplied, also counts a shifted outline
+            failed.append(f"{drawn} copies the layer's strip unfaithfully (outline {iou:.0%} the same, colour off by {np.abs(p - q).mean():.1f})")
+            continue
+        # Codex sometimes copies the strip, then starts afresh beside it: a break at the layer's edge no blend can hide
+        pm = gen[y0:y1].copy()
+        pm[..., :3] *= pm[..., 3:] / 255
+        step = np.abs(np.diff(pm, axis=1)).mean(axis=(0, 2))
+        jump = step[STRIP - 5:STRIP + 4].max() / np.percentile(step[STRIP:STRIP + REACH], 99)  # a few px either way
+        if jump > 2:
+            failed.append(f"{drawn} breaks at the layer's edge ({jump:.1f}x its roughest columns)")
+            continue
+        # across the strip, from the layer's own pixels to Codex's, weighted by how opaque each is
+        w = np.linspace(0, 1, STRIP)[None, :, None]
+        a = edge[..., 3:] * (1 - w) + gen[:, :STRIP, 3:] * w
+        rgb = edge[..., :3] * edge[..., 3:] * (1 - w) + gen[:, :STRIP, :3] * gen[:, :STRIP, 3:] * w
+        gen[:, :STRIP] = np.concatenate([rgb / np.maximum(a, 1e-6), a], axis=2)
+        done[side] = flip(gen[:, :STRIP + REACH])
+    if failed:
+        sys.exit("\n".join(failed))
+    # Codex may draw the sides a little taller than the layer: both are cut from the highest row either needs
+    top = min(y0, *(np.where((g[..., 3] > 8).any(axis=1))[0][0] for g in done.values()))
+    for side, g in done.items():
+        out = g[top:y1].round().astype(np.uint8)
+        export(Image.fromarray(out), f"wide/{name}-{side}", out.shape[1], QUALITY.get(name, (75, 40)))  # out at the edges
+    print(f"a side overlaps the layer by {STRIP / col.shape[1]:.2%} of its width and is {(STRIP + REACH) / col.shape[1]:.2%} as wide;"
+          f" it reaches above the layer by --up: {(y0 - top) / (y1 - y0):.4f} of the layer's height")
 
 
 if __name__ == "__main__":
@@ -214,6 +310,8 @@ if __name__ == "__main__":
         frames(sys.argv[2], sys.argv[3:])
     elif mode == "tile":
         tile(*sys.argv[2:])
+    elif mode == "widen":
+        widen(*sys.argv[2:])
     else:
         src, name, *size = sys.argv[2:]
         {"layer": layer, "sprite": sprite, "segments": segments, "butterfly": butterfly}[mode](Image.open(src).convert("RGBA"), name, *map(int, size))
