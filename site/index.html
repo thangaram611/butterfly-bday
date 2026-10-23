@@ -33,6 +33,9 @@
 <script src="js/vendor/gsap.min.js" defer></script>
 <script src="js/scrollcraft.js" defer></script>
 <script src="js/main.js" type="module"></script>
+<!-- the stage shows once these have laid it out: fetched together, not one after another as each import is found -->
+<link rel="modulepreload" href="js/story.js"><link rel="modulepreload" href="js/butterflies.js">
+<link rel="modulepreload" href="js/invite.js"><link rel="modulepreload" href="js/vine-path.js">
 </head>
 <body>
 <!-- One story, one picture (BRIEF.md): the stage stays pinned for the whole page. Scrolling plays a single animation
@@ -43,7 +46,7 @@
   <div class="stage" data-sc-verify-state="">
     <div class="world" aria-hidden="true">
       <div class="sky"><img src="img/s1-sky.webp" width="1024" height="1536" alt="" fetchpriority="high"></div>
-      <div class="hills"><img src="img/s1-hills.webp" width="1024" height="769" alt=""></div>
+      <div class="hills"><img src="img/s1-hills.webp" width="1024" height="769" alt="" fetchpriority="high"></div>
       <div class="wisteria"><img src="img/s1-wisteria.webp" width="1024" height="731" alt=""></div>
       <div class="ground"></div>
       <div class="meadow"><img src="img/s1-meadow.webp" width="1024" height="607" alt=""></div>

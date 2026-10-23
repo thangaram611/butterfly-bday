@@ -1,15 +1,19 @@
 // Browser checks for the site (dev only). Serve it first: python3 -m http.server -d site 8000
 //   node tools/check.mjs all     [url]  everything that must pass before a change is shown (npm run check): layout, craft,
-//                                       weight, share and invite side by side, then tasks and flicker, each alone;
-//                                       about 2.5 minutes
+//                                       weight, share, invite and offline side by side, then tasks, flicker and
+//                                       lighthouse, each alone; about 3 minutes
 //   node tools/check.mjs shots   [url]  24 evenly spaced scroll positions at 3 sizes + reduced motion → shots/*.png
-//   node tools/check.mjs weight  [url]  what a phone downloads before the page's load event, as it will travel (code
-//                                       gzipped, images as they are); fails over the first screen's 450 KB budget
+//   node tools/check.mjs weight  [url]  what a phone downloads, as it will travel (code gzipped, images as they are):
+//                                       fails over the first screen's 450 KB, the whole page's 2500 or the code's 120
 //   node tools/check.mjs share   [url]  the WhatsApp preview and the icons, as the page declares them: sizes, types,
 //                                       weights; on a deployed page, og:image must be a full address
 //   node tools/check.mjs invite  [url]  the invitation's working parts on an iPhone and an Android: in step with
 //                                       event.json, countdown, calendar link, a family's link, thanks after the reply,
 //                                       and the link helper (links.html)
+//   node tools/check.mjs offline [url]  a family's link opened once, then the plain address with no signal: greeting,
+//                                       details, every picture; and the manifest opens it like an app
+//   node tools/check.mjs lighthouse [url]  mobile performance at least 90, layout shift under 0.05, measured over HTTP/2
+//                                       with text compressed, as Cloudflare will serve it
 //   node tools/check.mjs flicker [url]  slow scroll recorded with GPU memory cut to 48 MB; fails on blank-frame flashes
 //   node tools/check.mjs tasks   [url]  slow scroll at phone size with the CPU slowed 4×; fails on main-thread tasks over 50 ms
 //   node tools/check.mjs layout  [url]  watches the garden's butterflies play, then scrolls through the whole page (1001
@@ -126,9 +130,10 @@ async function flicker() {
   return failed ? 1 : 0;
 }
 
-// The first screen's weight: everything a phone downloads before the page's load event, counted as it will travel
-// (code and text gzipped, as the host serves them; images and fonts as they are). Budget: PLAN.md.
-const BUDGET = 450;
+// The weight, as it will travel (code and text gzipped, as the host serves them; images and fonts as they are), against
+// PLAN.md's budgets: the first screen (everything a phone downloads before the page's load event), the whole page, and
+// its code (HTML, CSS, JS and fonts).
+const BUDGET = { first: 450, page: 2500, code: 120 };
 async function weight() {
   const browser = await chromium.launch({ channel: 'chrome' });
   const page = await browser.newPage(SIZES.iphone);
@@ -139,17 +144,25 @@ async function weight() {
     const load = performance.getEntriesByType('navigation')[0].loadEventStart;
     return [location.href, ...performance.getEntriesByType('resource').filter(r => r.responseEnd <= load).map(r => r.name)];
   });
-  const text = name => /\.(js|css|html|svg|json)$|\/$/.test(new URL(name).pathname);
+  await page.waitForLoadState('networkidle'); // the pictures further down come once the first screen is painted
+  const all = await page.evaluate(() => [...new Set([location.href, ...performance.getEntriesByType('resource').map(r => r.name)])]);
+  const text = name => /\.(js|css|html|svg|json|webmanifest)$|\/$/.test(new URL(name).pathname);
+  const kb = async name => { const body = await bodies.get(name); return body ? (text(name) ? gzipSync(body, { level: 9 }) : body).length / 1024 : 0; };
   const rows = [];
-  for (const name of before) {
-    const body = await bodies.get(name);
-    if (body) rows.push([name.replace(new URL(url).origin + '/', '') || 'index.html', Math.round((text(name) ? gzipSync(body, { level: 9 }) : body).length / 1024)]);
+  for (const name of before) rows.push([name.replace(new URL(url).origin + '/', '') || 'index.html', Math.round(await kb(name))]);
+  let whole = 0, code = 0;
+  for (const name of all) {
+    const k = await kb(name);
+    whole += k;
+    if (/\.(html|css|js|woff2)$|\/$/.test(new URL(name).pathname)) code += k;
   }
   await close(browser);
   rows.sort((a, b) => b[1] - a[1]);
-  const total = rows.reduce((n, [, kb]) => n + kb, 0);
-  console.log(`first screen: ${total} KB (budget ${BUDGET} KB), the heaviest: ${rows.slice(0, 8).map(([f, kb]) => `${f} ${kb}`).join(', ')}`);
-  return total > BUDGET ? 1 : 0;
+  const first = rows.reduce((n, [, k]) => n + k, 0);
+  [whole, code] = [whole, code].map(Math.round);
+  console.log(`first screen: ${first} KB (budget ${BUDGET.first} KB), the heaviest: ${rows.slice(0, 8).map(([f, k]) => `${f} ${k}`).join(', ')}\n` +
+    `whole page: ${whole} KB (budget ${BUDGET.page} KB); code: ${code} KB (budget ${BUDGET.code} KB)`);
+  return (first > BUDGET.first) + (whole > BUDGET.page) + (code > BUDGET.code);
 }
 
 async function tasks() {
@@ -411,6 +424,83 @@ async function share() {
   return problems.length;
 }
 
+// Offline after one visit (sw.js), as a guest at the venue with no signal: their family's link opened once and read to
+// the end, then, with the network cut, the invite opened again from its plain address, as from the home screen. It must
+// greet them, show the details, and have every picture it shows. And the manifest must open it like an app.
+async function offline() {
+  const problems = [], name = 'Ravi Uncle & family';
+  const browser = await chromium.launch({ channel: 'chrome' });
+  const context = await browser.newContext(SIZES.android);
+  const page = await context.newPage();
+  await page.goto(`${url}?to=${encodeURIComponent(name)}`, { waitUntil: 'networkidle' });
+  const read = async p => p.evaluate(async () => { // to the end, slowly enough for each picture to arrive
+    for (let y = 0; y <= document.documentElement.scrollHeight; y += innerHeight / 2) { scrollTo({ top: y, behavior: 'instant' }); await new Promise(r => setTimeout(r, 120)); }
+  });
+  await read(page);
+  await page.waitForLoadState('networkidle');
+  if (!(await page.waitForFunction(() => navigator.serviceWorker?.controller, null, { timeout: 5000 }).catch(() => null))) problems.push('no offline worker (sw.js) took charge of the page');
+  const copied = () => page.evaluate(async () => { const [name] = await caches.keys(); return name ? (await (await caches.open(name)).keys()).length : 0; });
+  await page.goto('about:blank'); // the guest leaves: the page hands the worker the rest of its list
+  await page.goto(url, { waitUntil: 'networkidle' });
+  for (let n = -1, t = 0; t < 5000; t += 250) { const m = await copied(); if (m === n) break; n = m; await page.waitForTimeout(250); }
+  const manifest = await (await page.request.get(new URL('manifest.webmanifest', url).href)).json();
+  if (manifest.display !== 'standalone') problems.push(`the manifest opens it as "${manifest.display ?? 'browser'}", not like an app`);
+
+  await context.setOffline(true);
+  const failed = [];
+  const away = await context.newPage();
+  away.on('requestfailed', r => failed.push(r.url().replace(new URL(url).origin, '')));
+  await away.goto(url, { waitUntil: 'load' }).catch(e => problems.push(`with no signal the invite doesn't open: ${e.message.split('\n')[0]}`));
+  await read(away).catch(() => {});
+  await away.waitForTimeout(500);
+  const got = await away.evaluate(() => ({
+    greet: document.querySelector('.greet')?.hidden ? '' : document.querySelector('.greet')?.textContent,
+    when: document.querySelector('[data-event="when"]')?.textContent,
+    missing: [...document.images].filter(i => i.getAttribute('src') && !(i.complete && i.naturalWidth)).map(i => i.getAttribute('src')),
+  })).catch(() => ({}));
+  if (got.greet !== `Dear ${name},`) problems.push(`with no signal, from the plain address, the greeting reads "${got.greet ?? ''}"`);
+  if (!got.when?.includes('November')) problems.push('with no signal, the details are missing');
+  if (got.missing?.length) problems.push(`with no signal, ${got.missing.length} picture(s) missing: ${got.missing.slice(0, 5).join(', ')}`);
+  if (failed.length) problems.push(`with no signal, ${failed.length} request(s) failed: ${[...new Set(failed)].slice(0, 6).join(', ')}`);
+  await close(browser);
+  console.log(problems.length ? `offline: ${problems.length} problem(s)\n  ${problems.join('\n  ')}` : 'offline: ok');
+  return problems.length;
+}
+
+// Lighthouse's mobile performance (PLAN.md: at least 90, and layout shift under 0.05), measured as Cloudflare will serve
+// the page: over HTTP/2 with text compressed. A local [url] is put behind a front that adds both (with a certificate
+// made here); a deployed https one is measured as it is.
+async function lighthouse() {
+  const { default: run } = await import('lighthouse');
+  const { launch } = await import('chrome-launcher');
+  let target = url, front;
+  if (!url.startsWith('https:')) {
+    const { createSecureServer } = await import('node:http2');
+    const [key, cert] = [`${OUT}/front-key.pem`, `${OUT}/front-cert.pem`];
+    execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', key, '-out', cert, '-days', '30', '-subj', '/CN=localhost'], { stdio: 'ignore' });
+    front = createSecureServer({ key: readFileSync(key), cert: readFileSync(cert), allowHTTP1: true }, async (req, res) => {
+      const r = await fetch(new URL(req.url, url));
+      let body = Buffer.from(await r.arrayBuffer());
+      const type = r.headers.get('content-type') || '', headers = { 'content-type': type };
+      if (/text|json|javascript|svg|manifest/.test(type)) [body, headers['content-encoding']] = [gzipSync(body, { level: 9 }), 'gzip'];
+      res.writeHead(r.status, headers).end(body);
+    });
+    await new Promise(r => front.listen(0, '127.0.0.1', r));
+    target = `https://127.0.0.1:${front.address().port}/`;
+  }
+  const chrome = await launch({ chromeFlags: ['--headless=new', '--ignore-certificate-errors'] });
+  try {
+    const { lhr } = await run(target, { port: chrome.port, onlyCategories: ['performance'], logLevel: 'error' });
+    const score = Math.round(lhr.categories.performance.score * 100), a = lhr.audits, cls = a['cumulative-layout-shift'].numericValue;
+    console.log(`lighthouse: performance ${score} (at least 90); first paint ${a['first-contentful-paint'].displayValue}, largest ` +
+      `${a['largest-contentful-paint'].displayValue}, layout shift ${cls.toFixed(3)} (under 0.05), blocking ${a['total-blocking-time'].displayValue}`);
+    return (score < 90) + (cls >= 0.05);
+  } finally {
+    await chrome.kill();
+    front?.close();
+  }
+}
+
 // The invitation's working parts, as a guest meets them on each phone: the page says what event.json says; the countdown
 // counts to its day; "Add to calendar" is the .ics file on an iPhone and Google Calendar's link on Android; a family's
 // ?to= link greets them and fills in their reply; tapping "Tell us you're coming" leaves thanks that are still there
@@ -481,9 +571,9 @@ async function craft() {
   return runs.reduce((n, r) => n + (r.found.length || (r.err ? 1 : 0)), 0);
 }
 
-// Everything that must pass before a change is shown: the layout audit, the harness, the weight, the share files and the
-// invitation's working parts side by side, then
-// the two checks that measure speed, each alone (anything running beside them would skew them)
+// Everything that must pass before a change is shown: the layout audit, the harness, the weight, the share files, the
+// invitation's working parts and offline side by side, then the three that measure speed, each alone (anything running
+// beside them would skew them)
 async function all() {
   const start = Date.now(), since = t => `${Math.round((Date.now() - t) / 1000)} s`;
   const timed = async ([name, check]) => {
@@ -491,10 +581,10 @@ async function all() {
     console.log(`→ ${name}: ${problems ? 'FAILED' : 'passed'} (${since(t)})\n`);
     return problems ? [name] : [];
   };
-  const failed = (await Promise.all([['layout', layout], ['craft', craft], ['weight', weight], ['share', share], ['invite', invite]].map(timed))).flat();
-  for (const check of [['tasks', tasks], ['flicker', flicker]]) failed.push(...(await timed(check)));
+  const failed = (await Promise.all([['layout', layout], ['craft', craft], ['weight', weight], ['share', share], ['invite', invite], ['offline', offline]].map(timed))).flat();
+  for (const check of [['tasks', tasks], ['flicker', flicker], ['lighthouse', lighthouse]]) failed.push(...(await timed(check)));
   console.log(failed.length ? `FAILED: ${failed.join(', ')} (${since(start)})` : `all checks passed (${since(start)})`);
   return failed.length;
 }
 
-process.exit((await { shots, flicker, tasks, layout, craft, weight, share, invite, all }[mode]()) ? 1 : 0);
+process.exit((await { shots, flicker, tasks, layout, craft, weight, share, invite, offline, lighthouse, all }[mode]()) ? 1 : 0);

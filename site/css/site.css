@@ -30,6 +30,7 @@ p { margin: 0; }
    shows below it when they hide; the negative margin keeps the page as long as the small viewport makes it. */
 .story { position: relative; }
 .stage { position: sticky; top: 0; height: 100lvh; margin-bottom: calc(100svh - 100lvh); overflow: clip; background: var(--dawn); }
+.stage:not(.built) > * { visibility: hidden; } /* until js/story.js has placed it all: dawn, then the garden, nothing moving */
 .svh { position: absolute; height: 100svh; } /* js/story.js measures the small viewport with it */
 .stage > *, .world > * { position: absolute; }
 .world, .words { inset: 0 auto auto 0; z-index: 0; }

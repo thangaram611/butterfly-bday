@@ -1,7 +1,10 @@
 {
+  "id": "./",
   "name": "Taneira is turning two",
   "short_name": "Taneira's 2nd",
   "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
   "theme_color": "#6F2DA8",
   "background_color": "#1E0840",
   "icons": [

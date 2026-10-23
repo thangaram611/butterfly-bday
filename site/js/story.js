@@ -75,12 +75,14 @@ export function story() {
     return h;
   };
 
-  // the first screen loads alone; once it has, every picture further down the page, in its order (the memories, the
-  // twig and the frames, her, the evening, the card and the cake), and the vine's foliage (site.css)
-  addEventListener('load', () => {
+  // the first screen loads alone; once it has, and has been painted, every picture further down the page, in its order
+  // (the memories, the twig and the frames, her, the evening, the card and the cake), and the vine's foliage (site.css)
+  const painted = () => Promise.all([...stage.querySelectorAll('img[src]')].map(img => img.decode().catch(() => {})))
+    .then(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+  addEventListener('load', () => painted().then(() => {
     document.querySelectorAll('img[data-src]').forEach(img => (img.src = img.dataset.src));
     document.documentElement.classList.add('later');
-  }, { once: true });
+  }), { once: true });
 
   let tl, length, H;
   const p = { cam: 0, flap: 0, sway: 0, zoom: 1 };
@@ -291,6 +293,7 @@ export function story() {
   }
 
   build();
+  stage.classList.add('built'); // shown only now, laid out (site.css)
   let lastW = innerWidth;
   addEventListener('resize', () => {
     if (innerWidth === lastW) return; // a phone's address bar: nothing on the stage depends on it
