@@ -3,8 +3,12 @@ export function invite(name) {
   const coming = document.querySelector('.coming');
   coming.href = 'https://wa.me/?text=' + encodeURIComponent(`Hi! ${who} be there for Taneira’s 2nd birthday 🦋`);
 
-  // Once they've tapped it: thanks, waiting when they come back from WhatsApp and on every later visit from this phone
-  const thank = () => (document.querySelector('.close .note').textContent = 'Thank you! See you there.');
+  // Once they've tapped it, the button thanks them: waiting when they come back from WhatsApp, and on every later visit
+  // from this phone. It still opens WhatsApp, in case the message didn't go.
+  const thank = () => {
+    coming.textContent = 'Thank you! See you there';
+    document.querySelector('.close .note').textContent = 'Didn’t send? Tap it again.';
+  };
   try {
     if (localStorage.getItem('coming')) thank();
   } catch {}

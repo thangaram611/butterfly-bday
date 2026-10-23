@@ -435,7 +435,7 @@ async function invite() {
       greet: document.querySelector('.greet').hidden ? '' : document.querySelector('.greet').textContent,
       reply: new URL(document.querySelector('.coming').href).searchParams.get('text'),
       calendar: document.querySelector('[data-event="calendar"]').href, download: document.querySelector('[data-event="calendar"]').hasAttribute('download'),
-      countdown: document.querySelector('.countdown').textContent, note: document.querySelector('.close .note').textContent,
+      countdown: document.querySelector('.countdown').textContent, thanks: `${document.querySelector('.coming').textContent} / ${document.querySelector('.close .note').textContent}`,
     }));
     const g = await got();
     if (g.greet !== `Dear ${name},`) problems.push(`${phone}: the greeting reads "${g.greet}"`);
@@ -447,9 +447,10 @@ async function invite() {
     await page.click('.coming'); // off to WhatsApp, and back
     await page.waitForURL(/wa\.me/);
     await page.goBack({ waitUntil: 'load' });
-    if ((await got()).note !== 'Thank you! See you there.') problems.push(`${phone}: no thanks on coming back from "Tell us you’re coming"`);
+    const thanks = 'Thank you! See you there / Didn’t send? Tap it again.';
+    if ((await got()).thanks !== thanks) problems.push(`${phone}: no thanks on coming back from "Tell us you’re coming"`);
     await page.reload({ waitUntil: 'load' });
-    if ((await got()).note !== 'Thank you! See you there.') problems.push(`${phone}: the thanks are gone after a reload`);
+    if ((await got()).thanks !== thanks) problems.push(`${phone}: the thanks are gone after a reload`);
     await context.close();
   }
   const page = await browser.newPage();
