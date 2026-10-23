@@ -223,9 +223,10 @@ export function story() {
   function show(n) {
     const d = still ? 0 : SNAP;
     snap?.kill();
-    snap = gsap.timeline()
-      .to(drawings[n], { autoAlpha: 1, duration: d }, 0)
-      .to(drawings.filter((_, i) => i !== n).flat().filter(el => !drawings[n].includes(el)), { autoAlpha: 0, duration: d }, d / 3);
+    snap = gsap.timeline().to(drawings[n], { autoAlpha: 1, duration: d }, 0);
+    // the others fade from where they are at one steady pace, so one the scroll passed quickly is soon gone (a whole
+    // new fade each time the scroll moved on kept it faintly there)
+    for (const el of new Set(drawings.flat())) if (!drawings[n].includes(el)) snap.to(el, { autoAlpha: 0, duration: d * gsap.getProperty(el, 'opacity') }, d / 3);
     shown = n;
   }
 
