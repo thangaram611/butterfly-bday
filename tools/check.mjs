@@ -1,9 +1,11 @@
 // Browser checks for the site (dev only). Serve it first: python3 -m http.server -d site 8000
-//   node tools/check.mjs all     [url]  everything that must pass before a change is shown (npm run check): layout, craft
-//                                       and weight side by side, then tasks and flicker, each alone; about 2.5 minutes
+//   node tools/check.mjs all     [url]  everything that must pass before a change is shown (npm run check): layout, craft,
+//                                       weight and share side by side, then tasks and flicker, each alone; about 2.5 minutes
 //   node tools/check.mjs shots   [url]  24 evenly spaced scroll positions at 3 sizes + reduced motion → shots/*.png
 //   node tools/check.mjs weight  [url]  what a phone downloads before the page's load event, as it will travel (code
 //                                       gzipped, images as they are); fails over the first screen's 450 KB budget
+//   node tools/check.mjs share   [url]  the WhatsApp preview and the icons, as the page declares them: sizes, types,
+//                                       weights; on a deployed page, og:image must be a full address
 //   node tools/check.mjs flicker [url]  slow scroll recorded with GPU memory cut to 48 MB; fails on blank-frame flashes
 //   node tools/check.mjs tasks   [url]  slow scroll at phone size with the CPU slowed 4×; fails on main-thread tasks over 50 ms
 //   node tools/check.mjs layout  [url]  watches the garden's butterflies play, then scrolls through the whole page (1001
@@ -333,6 +335,62 @@ async function layout() {
   console.log(reports.flat().join('\n'));
   return reports.reduce((n, r) => n + r.length - 1, 0);
 }
+// What WhatsApp and a phone's home screen read from the page as served, without running it (tools/share.mjs makes the
+// pictures): the preview, a JPEG of 1200×630 under 300 KB (WhatsApp may skip a heavier one), and every icon at the size
+// it declares, the iPhone's and the maskable one with no transparency. Each file is fetched at its path on the server
+// under test; on a deployed page, og:image must also be a full address (WhatsApp may not resolve a relative one).
+async function share() {
+  const browser = await chromium.launch({ channel: 'chrome' });
+  const page = await browser.newPage();
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  const { problems, found } = await page.evaluate(async () => {
+    const problems = [], found = [];
+    const doc = new DOMParser().parseFromString(await (await fetch(location.href)).text(), 'text/html');
+    const meta = p => doc.querySelector(`meta[property="${p}"]`)?.content;
+    const load = async (src, base, want) => {
+      const res = await fetch(new URL(new URL(src, base).pathname, location.href));
+      if (!res.ok) return problems.push(`${src}: ${res.status}`);
+      const blob = await res.blob(), kb = Math.round(blob.size / 1024), img = new Image();
+      img.src = URL.createObjectURL(blob);
+      if (!(await img.decode().then(() => true, () => false))) return problems.push(`${src}: doesn't decode`);
+      const size = `${img.naturalWidth}x${img.naturalHeight}`;
+      if (want.type && blob.type !== want.type) problems.push(`${src}: ${blob.type}, not ${want.type}`);
+      if (want.size && size !== want.size) problems.push(`${src}: ${size}, not ${want.size}`);
+      if (want.kb && kb > want.kb) problems.push(`${src}: ${kb} KB, over ${want.kb} KB`);
+      if (want.opaque) {
+        const c = new OffscreenCanvas(img.naturalWidth, img.naturalHeight).getContext('2d');
+        c.drawImage(img, 0, 0);
+        if (c.getImageData(0, 0, img.naturalWidth, img.naturalHeight).data.some((v, i) => i % 4 === 3 && v < 255)) problems.push(`${src}: has transparency`);
+      }
+      found.push(`${src.split('/').pop()} ${blob.type === 'image/svg+xml' ? '' : size + ' '}${kb} KB`);
+    };
+
+    for (const p of ['og:title', 'og:description', 'og:image']) if (!meta(p)) problems.push(`no ${p}`);
+    const og = meta('og:image');
+    if (og) {
+      if (!/^https:\/\//.test(og) && !/^(localhost|127\.|10\.|192\.168\.)/.test(location.hostname)) problems.push(`og:image is not a full https address: ${og}`);
+      await load(og, location.href, { type: 'image/jpeg', size: '1200x630', kb: 300 });
+      if (`${meta('og:image:width')}x${meta('og:image:height')}` !== '1200x630') problems.push('og:image:width and height are not 1200x630');
+    }
+    for (const link of doc.querySelectorAll('link[rel~="icon"], link[rel="apple-touch-icon"]')) {
+      const href = link.getAttribute('href'), svg = link.type === 'image/svg+xml';
+      if (link.rel === 'apple-touch-icon') await load(href, location.href, { type: 'image/png', size: '180x180', opaque: true });
+      else await load(href, location.href, svg ? { type: 'image/svg+xml', kb: 2 } : { type: 'image/png', size: link.sizes.value.replace(' ', '') || 'declared' });
+    }
+    const manifest = doc.querySelector('link[rel="manifest"]')?.getAttribute('href');
+    if (!manifest) problems.push('no manifest');
+    else {
+      const base = new URL(manifest, location.href), { icons = [] } = await (await fetch(base)).json();
+      for (const i of icons) await load(i.src, base, { type: i.type, size: i.sizes, opaque: i.purpose === 'maskable' });
+      for (const need of ['192x192', '512x512']) if (!icons.some(i => i.sizes === need)) problems.push(`manifest: no ${need} icon`);
+      if (!icons.some(i => i.purpose === 'maskable')) problems.push('manifest: no maskable icon');
+    }
+    return { problems, found };
+  });
+  await close(browser);
+  console.log(problems.length ? `share: ${problems.length} problem(s)\n  ${problems.join('\n  ')}` : `share: ok (${found.join(', ')})`);
+  return problems.length;
+}
 
 // scroll-craft's harness at the three sizes it's checked at, side by side. Its findings are the lines it prints in
 // capitals (DEAD SCROLL, CONTRAST FAIL, CONSOLE ERRORS…), each starting its own paragraph.
@@ -345,7 +403,8 @@ async function craft() {
   return runs.reduce((n, r) => n + (r.found.length || (r.err ? 1 : 0)), 0);
 }
 
-// Everything that must pass before a change is shown: the layout audit, the harness and the weight side by side, then
+// Everything that must pass before a change is shown: the layout audit, the harness, the weight and the share files side
+// by side, then
 // the two checks that measure speed, each alone (anything running beside them would skew them)
 async function all() {
   const start = Date.now(), since = t => `${Math.round((Date.now() - t) / 1000)} s`;
@@ -354,10 +413,10 @@ async function all() {
     console.log(`→ ${name}: ${problems ? 'FAILED' : 'passed'} (${since(t)})\n`);
     return problems ? [name] : [];
   };
-  const failed = (await Promise.all([['layout', layout], ['craft', craft], ['weight', weight]].map(timed))).flat();
+  const failed = (await Promise.all([['layout', layout], ['craft', craft], ['weight', weight], ['share', share]].map(timed))).flat();
   for (const check of [['tasks', tasks], ['flicker', flicker]]) failed.push(...(await timed(check)));
   console.log(failed.length ? `FAILED: ${failed.join(', ')} (${since(start)})` : `all checks passed (${since(start)})`);
   return failed.length;
 }
 
-process.exit((await { shots, flicker, tasks, layout, craft, weight, all }[mode]()) ? 1 : 0);
+process.exit((await { shots, flicker, tasks, layout, craft, weight, share, all }[mode]()) ? 1 : 0);

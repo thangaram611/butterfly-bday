@@ -1,0 +1,12 @@
+{
+  "name": "Taneira is turning two",
+  "short_name": "Taneira's 2nd",
+  "start_url": "./",
+  "theme_color": "#6F2DA8",
+  "background_color": "#1E0840",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
