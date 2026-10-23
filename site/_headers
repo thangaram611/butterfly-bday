@@ -1,0 +1,14 @@
+# Cloudflare Pages reads this file (it isn't served). Pages, code and styles keep Cloudflare's default, checked on every
+# visit, so a change reaches everyone at once.
+
+# Kept out of search engines, every file: the invite, its pictures and the link helper
+/*
+  X-Robots-Tag: noindex
+
+# Fonts never change; a picture that changes gets a new file name (site/sw.js keeps a phone's copy of each anyway)
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+/img/*
+  Cache-Control: public, max-age=604800
+/icons/*
+  Cache-Control: public, max-age=604800
