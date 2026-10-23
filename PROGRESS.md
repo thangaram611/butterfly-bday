@@ -6,7 +6,7 @@ Last updated 2026-10-23.
 ## Where things stand
 
 - `main` is the baseline (2026-10-23, pushed to GitHub): one continuous story on one pinned picture (`BRIEF.md` is the plan). Butterflies play in the dawn garden; the paper caterpillar goes down a vine past her first year (four baby pictures on its leaves) with a few of them along, curls up into a chrysalis, comes out as a butterfly and becomes her wings; then the details and the close over the evening garden, where they land on the button. The previous baseline, the "one film", is `767dd74`.
-- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is rebuilt as the one story. Still open from milestone 2: the iPhone check (next step 3).
+- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is rebuilt as the one story. Still open from milestone 2: the iPhone check (next step 2).
 - Placeholders still in: the laptop shows the phone composition as a centred column; her winged portrait is version A of two; the evening garden is the dawn layers under a dusk wash.
 - Party: Saturday 28 November 2026, 6–8 PM IST, Party Hall, Ramaniyam Magnum, Perungudi. Plan launch Nov 12–14.
 
@@ -31,7 +31,7 @@ Last updated 2026-10-23.
 | branch `feat/garden` | Your idea (2026-10-23): no more tapping out butterflies. Ten play in the dawn garden (fourteen on a laptop), each its own wandering, bobbing way, now and then gliding, resting on a daisy or whirling round another, passing behind the near flowers; they rise out of the flower bed when the page opens. When you scroll, the five nearest the caterpillar (seven on a laptop) come along and make the same journey as on `feat/signature`. Scrolled back, the story rewinds and they go with it, and at the top they rejoin the others. A touch, or the mouse, startles the ones near it. The layout check now watches the garden play (startling the highest butterfly up towards the title) and scrolls back up, failing if any butterfly doesn't make it home. That way back also turned up one thing that's on `main` too (fixed on `fix/rewind-dissolve`) | Merged. "all good" (2026-10-23) |
 | branch `fix/rewind-dissolve` | The faint wing on a fast scroll back: a drawing the scroll leaves now fades from where it is at one steady pace, instead of starting a whole new fade each time the scroll moves on, so one passed quickly is gone before the next line comes in. A slow scroll looks exactly as before | Merged at your word (2026-10-23) |
 | branch `tools/fast-checks` | Faster checks, as you asked (2026-10-23): `npm run check -- <url>` runs everything in about 2.5 minutes instead of 11. The layout audit's seven setups run side by side (each in its own fresh context of one browser per engine), with the harness alongside; then the two speed checks, each alone. A browser that takes minutes to quit (Chrome sometimes does) no longer holds a run up | Merged at your word (2026-10-23) |
-| branch `fix/clearance` | Room around the words for the butterflies: they're the same size on every screen (the garden is drawn about as big on a laptop as on a phone, so the laptop's were a quarter too big and grazed "We've saved a spot for you." as they flew in); a butterfly coming in to land levels out instead of banking and bobbing; and none can come within 6 px of the title's letters, whatever it's doing. The layout audit run 15 at a time found the graze on `main` and nothing in 60 runs of the fix | Awaiting your check |
+| branch `fix/clearance` | Room around the words for the butterflies: they're the same size on every screen (the garden is drawn about as big on a laptop as on a phone, so the laptop's were a quarter too big and grazed "We've saved a spot for you." as they flew in); a butterfly coming in to land levels out instead of banking and bobbing; and none can come within 6 px of the title's letters, whatever it's doing. The layout audit run 15 at a time found the graze on `main` and nothing in 60 runs of the fix | Merged. "all good" (2026-10-23) |
 
 ## Decisions made with you (don't reopen without asking)
 
@@ -48,13 +48,12 @@ Last updated 2026-10-23.
 
 Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
-1. **Room around the words for the butterflies** (found 2026-10-23 by running the layout audit many times): on the laptop, now and then, a butterfly tilting as it flies in to the button grazes the bottom of "We've saved a spot for you." by 2–3 px, and once a garden butterfly grazed the title. The space left around the words ignores how much a tilted, bobbing butterfly's box grows and how far the letters' tails reach below their line; sizes are random, so it shows only sometimes. On `fix/clearance`, awaiting your check.
-2. **Details and close polish.**
-3. **iPhone check.** Ask which iOS version.
-4. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
-5. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
-6. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
-7. **Milestone 6, launch** on Cloudflare Pages.
+1. **Details and close polish.**
+2. **iPhone check.** Ask which iOS version.
+3. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
+4. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
+5. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
+6. **Milestone 6, launch** on Cloudflare Pages.
 
 ## How to work here
 
@@ -97,5 +96,5 @@ Each is its own branch, approved before merge. Details in `BRIEF.md`.
 - The canvas burst is invisible to the layout audit; it stays inside the peak's part by construction.
 - Laptop: the phone composition shows as a centred column with dark sides (milestone 3).
 - First screen is 538 KB against a 450 KB budget (milestone 3).
-- iPhone address-bar stutter: not re-tested since the film (next step 3).
+- iPhone address-bar stutter: not re-tested since the film (next step 2).
 - The address-bar fix can't be reproduced on the Mac (desktop Chrome has no hiding bars); it was checked by rewriting every `svh` to be 56 px short of the screen. Confirm on an Android phone and an iPhone.
