@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Invite links</title>
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<!-- For the family only, linked from nowhere: each guest's own link, which opens the invite with "Dear …," and fills in
+     their reply (js/main.js reads ?to=, up to 40 letters) -->
+<style>
+  @font-face { font-family: Fredoka; src: url(fonts/fredoka.woff2) format("woff2"); font-weight: 300 700; font-display: swap; }
+  @font-face { font-family: Nunito; src: url(fonts/nunito.woff2) format("woff2"); font-weight: 200 1000; font-display: swap; }
+  :root { --lilac: #C8A2C8; --violet: #6F2DA8; --indigo: #4B0082; --paper: #FBF7FD; --gold: #F4C95D; --dusk: #2D0868; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100svh; display: grid; place-items: center; padding: 24px 16px; background: linear-gradient(160deg, var(--violet), var(--dusk));
+         font: 17px/1.4 Nunito, system-ui, sans-serif; color: var(--indigo); }
+  main { width: min(100%, 26rem); padding: 28px 22px; border-radius: 22px; background: var(--paper); box-shadow: 0 16px 34px rgb(30 8 64 / .5); }
+  h1, label, .btn { font-family: Fredoka, system-ui, sans-serif; font-weight: 700; }
+  h1 { margin: 0 0 6px; font-size: 30px; line-height: 1.1; }
+  p { margin: 0 0 18px; }
+  label { display: block; margin-bottom: 6px; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--violet); }
+  input { width: 100%; padding: 12px 14px; border: 2px solid var(--lilac); border-radius: 14px; font: inherit; color: inherit; background: #fff; }
+  input:focus { outline: 3px solid var(--gold); outline-offset: 1px; }
+  .greet { margin: 10px 0 18px; }
+  output { display: block; margin-bottom: 18px; padding: 10px 12px; border-radius: 12px; background: #F3EAF8; font-size: 15px; overflow-wrap: anywhere; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 0; }
+  .btn { display: inline-block; min-height: 48px; padding: 12px 22px; border-radius: 999px; border: 3px solid var(--gold); background: var(--violet); color: #fff;
+         font-size: 18px; text-decoration: none; cursor: pointer; box-shadow: 0 4px 0 var(--indigo); }
+  .btn.gold { background: var(--gold); color: var(--indigo); border-color: var(--indigo); }
+  .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--indigo); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Invite links</h1>
+  <p>Each family gets their own link. The invite greets them by name, and their reply says who is coming.</p>
+  <label for="name">Who is it for?</label>
+  <input id="name" maxlength="40" placeholder="Ravi Uncle &amp; family" autocomplete="off" autocapitalize="words">
+  <p class="greet">They’ll see: <b>Dear <span>…</span>,</b></p>
+  <output></output>
+  <p class="actions"><button type="button" class="btn copy">Copy link</button><a class="btn gold send">Send on WhatsApp</a></p>
+</main>
+<script type="module">
+  const $ = s => document.querySelector(s);
+  const site = new URL('./', location.href).href; // the invite: this page's folder
+  let link;
+  function update() {
+    const name = $('#name').value.trim();
+    link = name ? `${site}?to=${encodeURIComponent(name)}` : site;
+    $('.greet span').textContent = name || '…';
+    $('output').textContent = link;
+    $('.send').href = 'https://wa.me/?text=' + encodeURIComponent(`Hi${name ? ` ${name}` : ''}! Taneira is turning two and we’d love you there 🦋\n${link}`);
+  }
+  $('#name').addEventListener('input', update);
+  update();
+
+  // The clipboard API needs https (or this computer); over the home Wi-Fi, the older way
+  $('.copy').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+    } catch {
+      const area = Object.assign(document.createElement('textarea'), { value: link });
+      document.body.append(area);
+      area.select();
+      document.execCommand('copy');
+      area.remove();
+    }
+    $('.copy').textContent = 'Copied!';
+    setTimeout(() => ($('.copy').textContent = 'Copy link'), 1500);
+  });
+</script>
+</body>
+</html>

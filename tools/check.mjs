@@ -1,11 +1,15 @@
 // Browser checks for the site (dev only). Serve it first: python3 -m http.server -d site 8000
 //   node tools/check.mjs all     [url]  everything that must pass before a change is shown (npm run check): layout, craft,
-//                                       weight and share side by side, then tasks and flicker, each alone; about 2.5 minutes
+//                                       weight, share and invite side by side, then tasks and flicker, each alone;
+//                                       about 2.5 minutes
 //   node tools/check.mjs shots   [url]  24 evenly spaced scroll positions at 3 sizes + reduced motion → shots/*.png
 //   node tools/check.mjs weight  [url]  what a phone downloads before the page's load event, as it will travel (code
 //                                       gzipped, images as they are); fails over the first screen's 450 KB budget
 //   node tools/check.mjs share   [url]  the WhatsApp preview and the icons, as the page declares them: sizes, types,
 //                                       weights; on a deployed page, og:image must be a full address
+//   node tools/check.mjs invite  [url]  the invitation's working parts on an iPhone and an Android: in step with
+//                                       event.json, countdown, calendar link, a family's link, thanks after the reply,
+//                                       and the link helper (links.html)
 //   node tools/check.mjs flicker [url]  slow scroll recorded with GPU memory cut to 48 MB; fails on blank-frame flashes
 //   node tools/check.mjs tasks   [url]  slow scroll at phone size with the CPU slowed 4×; fails on main-thread tasks over 50 ms
 //   node tools/check.mjs layout  [url]  watches the garden's butterflies play, then scrolls through the whole page (1001
@@ -25,7 +29,7 @@
 import { chromium, webkit, devices } from 'playwright-core';
 import { execFile, execFileSync } from 'node:child_process';
 import { gzipSync } from 'node:zlib';
-import { mkdirSync, readdirSync, rmSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 
 const [mode, url = 'http://127.0.0.1:8000/'] = process.argv.slice(2);
 const SIZES = {
@@ -407,6 +411,64 @@ async function share() {
   return problems.length;
 }
 
+// The invitation's working parts, as a guest meets them on each phone: the page says what event.json says; the countdown
+// counts to its day; "Add to calendar" is the .ics file on an iPhone and Google Calendar's link on Android; a family's
+// ?to= link greets them and fills in their reply; tapping "Tell us you're coming" leaves thanks that are still there
+// after a reload. And the link helper (links.html): kept from search engines, linked from nowhere, making a family's
+// link and its WhatsApp message.
+async function invite() {
+  const problems = [];
+  const sync = await new Promise(done => execFile('node', ['tools/event-sync.mjs', '--check'], (err, out) => done(err && out.trim())));
+  if (sync) problems.push(sync);
+  const e = JSON.parse(readFileSync('event.json', 'utf8'));
+  const ist = d => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(d);
+  const days = Math.round((Date.parse(ist(new Date(e.start))) - Date.parse(ist(new Date()))) / 864e5);
+  const utc = d => new Date(d).toISOString().replace(/[-:]|\.\d{3}/g, '');
+  const name = 'Ravi Uncle & family';
+  const browser = await chromium.launch({ channel: 'chrome' });
+  for (const [phone, size] of [['iphone', SIZES.iphone], ['android', { ...SIZES.android, userAgent: devices['Pixel 7'].userAgent }]]) {
+    const context = await browser.newContext(size);
+    await context.route(/^https:\/\/(wa\.me|api\.whatsapp\.com)\//, r => r.fulfill({ body: 'WhatsApp' })); // a stand-in
+    const page = await context.newPage();
+    await page.goto(`${url}?to=${encodeURIComponent(name)}`, { waitUntil: 'load' });
+    const got = () => page.evaluate(() => ({
+      greet: document.querySelector('.greet').hidden ? '' : document.querySelector('.greet').textContent,
+      reply: new URL(document.querySelector('.coming').href).searchParams.get('text'),
+      calendar: document.querySelector('[data-event="calendar"]').href, download: document.querySelector('[data-event="calendar"]').hasAttribute('download'),
+      countdown: document.querySelector('.countdown').textContent, note: document.querySelector('.close .note').textContent,
+    }));
+    const g = await got();
+    if (g.greet !== `Dear ${name},`) problems.push(`${phone}: the greeting reads "${g.greet}"`);
+    if (g.reply !== `Hi! ${name} will be there for Taneira’s 2nd birthday 🦋`) problems.push(`${phone}: the reply reads "${g.reply}"`);
+    if (days > 1 && g.countdown !== `${days} days to go`) problems.push(`${phone}: the countdown reads "${g.countdown}", not ${days} days`);
+    const ics = g.calendar.endsWith('/taneira-2nd-birthday.ics') && g.download;
+    const google = g.calendar.startsWith('https://calendar.google.com/calendar/render?') && new URL(g.calendar).searchParams.get('dates') === `${utc(e.start)}/${utc(e.end)}`;
+    if (phone === 'iphone' ? !ics : !google) problems.push(`${phone}: "Add to calendar" goes to ${g.calendar}`);
+    await page.click('.coming'); // off to WhatsApp, and back
+    await page.waitForURL(/wa\.me/);
+    await page.goBack({ waitUntil: 'load' });
+    if ((await got()).note !== 'Thank you! See you there.') problems.push(`${phone}: no thanks on coming back from "Tell us you’re coming"`);
+    await page.reload({ waitUntil: 'load' });
+    if ((await got()).note !== 'Thank you! See you there.') problems.push(`${phone}: the thanks are gone after a reload`);
+    await context.close();
+  }
+  const page = await browser.newPage();
+  if (/href="links\.html"/.test(await (await page.request.get(url)).text())) problems.push('the invite links to links.html');
+  await page.goto(new URL('links.html', url).href, { waitUntil: 'load' });
+  await page.fill('#name', name);
+  const helper = await page.evaluate(() => ({
+    robots: document.querySelector('meta[name="robots"]')?.content, link: document.querySelector('output').textContent,
+    message: new URL(document.querySelector('.send').href).searchParams.get('text'),
+  }));
+  const link = `${new URL('./', url).href}?to=${encodeURIComponent(name)}`;
+  if (helper.robots !== 'noindex') problems.push('links.html: not kept from search engines');
+  if (helper.link !== link) problems.push(`links.html: makes ${helper.link}, not ${link}`);
+  if (helper.message !== `Hi ${name}! Taneira is turning two and we’d love you there 🦋\n${link}`) problems.push(`links.html: the message reads "${helper.message}"`);
+  await close(browser);
+  console.log(problems.length ? `invite: ${problems.length} problem(s)\n  ${problems.join('\n  ')}` : 'invite: ok');
+  return problems.length;
+}
+
 // scroll-craft's harness at the three sizes it's checked at, side by side. Its findings are the lines it prints in
 // capitals (DEAD SCROLL, CONTRAST FAIL, CONSOLE ERRORS…), each starting its own paragraph.
 const CRAFT = [['phone', '--width', '390', '--height', '844'], ['laptop', '--width', '1440', '--height', '900'], ['reduced motion', '--width', '390', '--height', '844', '--reduced-motion']];
@@ -418,8 +480,8 @@ async function craft() {
   return runs.reduce((n, r) => n + (r.found.length || (r.err ? 1 : 0)), 0);
 }
 
-// Everything that must pass before a change is shown: the layout audit, the harness, the weight and the share files side
-// by side, then
+// Everything that must pass before a change is shown: the layout audit, the harness, the weight, the share files and the
+// invitation's working parts side by side, then
 // the two checks that measure speed, each alone (anything running beside them would skew them)
 async function all() {
   const start = Date.now(), since = t => `${Math.round((Date.now() - t) / 1000)} s`;
@@ -428,10 +490,10 @@ async function all() {
     console.log(`→ ${name}: ${problems ? 'FAILED' : 'passed'} (${since(t)})\n`);
     return problems ? [name] : [];
   };
-  const failed = (await Promise.all([['layout', layout], ['craft', craft], ['weight', weight], ['share', share]].map(timed))).flat();
+  const failed = (await Promise.all([['layout', layout], ['craft', craft], ['weight', weight], ['share', share], ['invite', invite]].map(timed))).flat();
   for (const check of [['tasks', tasks], ['flicker', flicker]]) failed.push(...(await timed(check)));
   console.log(failed.length ? `FAILED: ${failed.join(', ')} (${since(start)})` : `all checks passed (${since(start)})`);
   return failed.length;
 }
 
-process.exit((await { shots, flicker, tasks, layout, craft, weight, share, all }[mode]()) ? 1 : 0);
+process.exit((await { shots, flicker, tasks, layout, craft, weight, share, invite, all }[mode]()) ? 1 : 0);

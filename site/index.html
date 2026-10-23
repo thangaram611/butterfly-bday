@@ -11,11 +11,13 @@
 <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
-<!-- The WhatsApp preview (WhatsApp runs no JS). og:image becomes a full address at launch: tools/check.mjs share -->
+<!-- The WhatsApp preview (WhatsApp runs no JS): tools/share.mjs. The date, time, place and the site's address in this
+     page come from event.json (node tools/event-sync.mjs) -->
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://taneira.pages.dev/">
 <meta property="og:title" content="Taneira is turning two 🦋">
 <meta property="og:description" content="Saturday 28 November, 6 – 8 PM · Party Hall, Ramaniyam Magnum, Perungudi">
-<meta property="og:image" content="og.jpg">
+<meta property="og:image" content="https://taneira.pages.dev/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Taneira with paper butterfly wings in a purple paper garden">
@@ -99,17 +101,17 @@
         <div class="paper">
           <img class="ornament" data-src="img/card-ornament.webp" alt="">
           <dl>
-            <div><dt><img data-src="img/icon-when.webp" alt="">When</dt><dd>Saturday, 28 November<br>6 – 8 PM</dd></div>
-            <div><dt><img data-src="img/icon-where.webp" alt="">Where</dt><dd>Party Hall, Ramaniyam Magnum<br>Perungudi, Chennai</dd></div>
+            <div><dt><img data-src="img/icon-when.webp" alt="">When</dt><dd data-event="when">Saturday, 28 November<br>6 – 8 PM</dd></div>
+            <div><dt><img data-src="img/icon-where.webp" alt="">Where</dt><dd data-event="where">Party Hall, Ramaniyam Magnum<br>Perungudi, Chennai</dd></div>
             <div><dt><img data-src="img/icon-wear.webp" alt="">Wear</dt><dd>Any shade of purple<span class="swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></dd></div>
           </dl>
           <p class="actions">
-            <a class="btn" href="taneira-2nd-birthday.ics" download>Add to calendar</a>
-            <a class="btn" href="https://www.google.com/maps/dir/?api=1&amp;destination=12.977811,80.245802">Directions</a>
+            <a class="btn" data-event="calendar" href="taneira-2nd-birthday.ics" download data-google="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Taneira%27s+2nd+birthday+%F0%9F%A6%8B&amp;dates=20261128T123000Z%2F20261128T143000Z&amp;location=Party+Hall%2C+Ramaniyam+Magnum%2C+Perungudi%2C+Chennai&amp;details=Wear+any+shade+of+purple+%F0%9F%92%9C">Add to calendar</a>
+            <a class="btn" data-event="maps" href="https://www.google.com/maps/dir/?api=1&amp;destination=12.977811,80.245802">Directions</a>
           </p>
         </div>
       </div>
-      <p class="countdown" hidden></p>
+      <p class="countdown" data-day="2026-11-28" hidden></p>
     </div>
   </section>
   <section class="close" data-sc-act="flow">
@@ -118,7 +120,7 @@
     <div class="column" data-sc-in data-sc-stagger="70">
       <h2>We’ve saved a spot for you.</h2>
       <a class="btn gold coming" href="https://wa.me/?text=Hi!%20We'll%20be%20there%20for%20Taneira's%202nd%20birthday%20%F0%9F%A6%8B">Tell us you’re coming</a>
-      <p>So we know how much cake to make.</p>
+      <p class="note">So we know how much cake to make.</p>
     </div>
     <img class="cake" data-src="img/cake.webp" width="512" height="642" alt="" data-sc-in> <!-- in the meadow, under its last line -->
     <p class="sign">Made with love by Taneira’s family</p>
