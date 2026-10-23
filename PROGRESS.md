@@ -6,7 +6,7 @@ Last updated 2026-10-23.
 ## Where things stand
 
 - `main` is the baseline (2026-10-23, pushed to GitHub): one continuous story on one pinned picture (`BRIEF.md` is the plan). Butterflies play in the dawn garden; the paper caterpillar goes down a vine past her first year (four baby pictures on its leaves) with a few of them along, curls up into a chrysalis, comes out as a butterfly and becomes her wings; then the details and the close over the evening garden, where they land on the button. The previous baseline, the "one film", is `767dd74`.
-- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is rebuilt as the one story. Still open from milestone 2: the iPhone check (next step 1).
+- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is rebuilt as the one story. Still open from milestone 2: the iPhone check (in the backlog).
 - Placeholders still in: the laptop shows the phone composition as a centred column; her winged portrait is version A of two.
 - Party: Saturday 28 November 2026, 6–8 PM IST, Party Hall, Ramaniyam Magnum, Perungudi. Plan launch Nov 12–14.
 
@@ -49,11 +49,13 @@ Last updated 2026-10-23.
 
 Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
-1. **iPhone check.** Ask which iOS version.
-2. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
-3. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
-4. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
-5. **Milestone 6, launch** on Cloudflare Pages.
+1. **Milestone 3, final art**, in three branches (your choices, 2026-10-23): the first screen's weight (1.86 MB loads before the page is ready, against a 450 KB budget; the 538 KB figure was from the one-film build); the WhatsApp preview (`og.jpg`: her with wings in the dawn garden, with the title), icons and favicon; and wider scenes on a laptop (the dawn garden, the vine's foliage and the evening extended sideways, the story column unchanged).
+2. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
+3. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
+4. **Milestone 6, launch** on Cloudflare Pages.
+
+**Backlog** (waiting on something outside this repo):
+- **iPhone check** (you had no iPhone to hand on 2026-10-23). Ask which model and iOS version, then: a fresh load; a slow scroll through the story watching the address bar; any strip under the page with the bar hidden; a tap on the clock to jump to the top (the butterflies come home); Low Power Mode; the three buttons (Calendar, Maps, WhatsApp); turning the phone sideways; the `?to=` greeting.
 
 ## How to work here
 
@@ -96,5 +98,5 @@ Each is its own branch, approved before merge. Details in `BRIEF.md`.
 - The canvas burst is invisible to the layout audit; it stays inside the peak's part by construction.
 - Laptop: the phone composition shows as a centred column with dark sides (milestone 3).
 - First screen is 538 KB against a 450 KB budget (milestone 3).
-- iPhone address-bar stutter: not re-tested since the film (next step 1).
+- iPhone address-bar stutter: not re-tested since the film (in the backlog).
 - The address-bar fix can't be reproduced on the Mac (desktop Chrome has no hiding bars); it was checked by rewriting every `svh` to be 56 px short of the screen. Confirm on an Android phone and an iPhone.
