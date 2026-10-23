@@ -75,41 +75,45 @@ p { margin: 0; }
 .burst { z-index: 6; /* bursts out from behind her */ left: 0; width: 100%; pointer-events: none; -webkit-mask: linear-gradient(transparent, #000 18%); mask: linear-gradient(transparent, #000 18%); }
 .wings { z-index: 9; left: var(--pad-l); right: var(--pad-r); top: calc(var(--pad-t) + 4svh); text-align: center; color: #fff; text-shadow: 0 3px 0 var(--indigo); }
 
-/* after the story: the garden at evening, behind the details and the close, laid out in the small viewport like the
-   story, with the meadow's own ground colour below it */
-.evening { inset: 0; z-index: 10; background: #2C0968; }
-.evening > img { position: absolute; left: 50%; width: calc(100svh * 2 / 3); max-width: none; height: auto; translate: -50% 0; }
-.evening > .sky { top: 0; height: 100svh; object-fit: cover; }
-.evening > .hills { top: calc(.4993 * 100svh); }
-.evening > .meadow { top: calc(.6048 * 100svh); }
-.dusk { position: absolute; inset: 0; background: linear-gradient(rgb(30 8 64 / .92), rgb(75 0 130 / .7) 55%, rgb(75 0 130 / .45)); }
+/* after the story: the garden at evening, ready for the party, behind the details and the close. Laid out in the small
+   viewport like the story; its foot fades into its own colour, which carries on below it when the phone's bars hide */
+.evening { inset: 0; z-index: 10; background: #3C1C73; }
+.evening > img { position: absolute; max-width: none; }
+.evening > .scene { top: 0; left: 50%; width: calc(100svh * 2 / 3); height: 100svh; translate: -50% 0; -webkit-mask: linear-gradient(#000 94%, #0000); mask: linear-gradient(#000 94%, #0000); }
 .track { pointer-events: none; }
 
-/* 4 · Clarity: the details, plainly, on the night sky */
-.details { position: relative; z-index: 1; color: #fff; padding: 12svh 0 8svh; }
-.details h2 { margin-bottom: 7svh; }
-dl { margin: 0; display: grid; gap: 4svh; }
-dt { font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
-dd { margin: 0; font-size: clamp(22px, 6.2vw, 28px); line-height: 1.25; }
+/* 4 · Clarity: the details on an invitation card, a paper one on a lilac one turned a little, with a gold frame and a
+   paper butterfly on its top edge */
+.details { position: relative; z-index: 1; color: #fff; padding: 8svh 0 8svh; overflow-x: clip; } /* she leaves as its first line arrives (js/story.js); the turned card never widens the page */
+.details h2, .countdown { text-align: center; text-shadow: 0 3px 0 var(--indigo); }
+.card { margin-top: calc(5svh + 40px); border-radius: 22px; background: linear-gradient(160deg, var(--lilac), var(--lavender)); rotate: -2.5deg; box-shadow: 0 16px 34px rgb(30 8 64 / .5); }
+.card .paper { position: relative; rotate: 2.5deg; padding: 46px 26px 26px; border-radius: 20px; color: var(--indigo); background: radial-gradient(120% 80% at 30% 0%, #fff, var(--paper) 60%, #F3EAF8); box-shadow: 0 2px 0 rgb(75 0 130 / .2), 0 6px 14px rgb(30 8 64 / .25); }
+.card .paper::before { content: ""; position: absolute; inset: 9px; border: 3px double var(--gold); border-radius: 14px; pointer-events: none; } /* the gold frame */
+.card .ornament { position: absolute; left: 50%; top: -34px; /* within the card's top margin */ width: min(70%, 230px); translate: -50% 0; filter: drop-shadow(0 3px 3px rgb(30 8 64 / .3)); }
+dl { margin: 0; display: grid; gap: 3svh; }
+dt { display: flex; align-items: center; gap: 8px; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; color: var(--violet); margin-bottom: 6px; }
+dt img { width: auto; height: 30px; }
+dd { margin: 0; font-size: clamp(20px, 5.4vw, 26px); line-height: 1.25; }
 .swatches { display: flex; gap: 6px; margin-top: 10px; }
-.swatches i { width: 30px; height: 14px; border-radius: 7px; box-shadow: 0 0 0 1px rgb(255 255 255 / .25); }
+.swatches i { width: 30px; height: 14px; border-radius: 7px; box-shadow: 0 0 0 1px rgb(75 0 130 / .2); }
 .swatches i:nth-child(1) { background: var(--lilac); } .swatches i:nth-child(2) { background: var(--lavender); }
 .swatches i:nth-child(3) { background: var(--amethyst); } .swatches i:nth-child(4) { background: var(--violet); }
 .swatches i:nth-child(5) { background: var(--indigo); }
-.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 7svh; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4svh; }
 .countdown { margin-top: 4svh; font: 700 22px var(--sc-font-display); color: var(--gold); }
 .btn { display: inline-block; padding: 14px 24px; border-radius: 999px; background: var(--violet); color: #fff; font-size: 20px; text-decoration: none; border: 3px solid var(--gold); box-shadow: 0 4px 0 var(--indigo); transition: transform 120ms var(--sc-ease-out), box-shadow 120ms var(--sc-ease-out); }
 .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--indigo); }
 .btn.gold { background: var(--gold); color: var(--indigo); border-color: var(--indigo); font-size: 22px; }
 
 /* 5 · Warmth: the last screen of the page, over the evening garden */
-.close { position: relative; z-index: 1; min-height: 100svh; color: #fff; text-align: center; padding-top: 14svh; }
+.close { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100svh; color: #fff; text-align: center; padding: 14svh 0 var(--pad-b); }
 .close .column { display: grid; justify-items: center; gap: 18px; }
 .close .coming { margin-block: 12px; } /* room for the butterflies that land on its edges */
 .close .flock { z-index: 0; }
 .close h2 { text-shadow: 0 3px 0 var(--indigo); }
 .close .column p { font-weight: 800; text-shadow: 0 1px 4px var(--indigo); }
-.sign { position: absolute; left: 0; right: 0; bottom: var(--pad-b); text-align: center; font-size: 15px; font-weight: 700; }
+.close .cake { margin: auto auto 2svh; width: auto; height: 25svh; filter: drop-shadow(0 6px 10px rgb(30 8 64 / .5)); } /* at the foot of the screen, in the evening meadow */
+.sign { text-align: center; font-size: 15px; font-weight: 700; }
 
 /* small fluttering butterflies: two half-images flapping in CSS 3D, drifting on CSS keyframes (compositor only) */
 .flock { position: absolute; inset: 0; overflow: clip; pointer-events: none; } /* one drifting off the edge flies out of view, never widens the page */

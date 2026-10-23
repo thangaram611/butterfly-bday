@@ -84,8 +84,8 @@ Timeline time is screens of scroll, and nothing smooths or delays it, so it move
 | The twig | Hush | The camera slows to a stop as the vine ends at a twig (it eases in at the speed it was going, so there's no jolt). The caterpillar, grown a little, lowers itself on a silk thread; night falls; "Lately, something has been changing…" | 3.1 – 4.0 |
 | The change | Awe (the peak) | It hangs in a J and curls up asleep, and paper petals close round it into the chrysalis; the chrysalis glows, opens, and a butterfly climbs out, crumpled, and spreads its wings, the camera leaning in | 4.0 – 6.7 |
 | Her | Joy | The camera follows the butterfly down; she rises into view; it flutters down behind her and becomes her wings. "She's got her wings!", the gold 2, a burst of butterflies from behind her. The story ends | 6.7 – 8.6 |
-| Details | Clarity | She steps away, and the same garden comes back at evening behind the date, venue and dress code | after the story |
-| Close | Warmth | "We've saved a spot for you." Tell us you're coming. A few butterflies come out once it has arrived | the last screen |
+| Details | Clarity | She steps away, and the same garden comes back at evening, ready for the party (string lights, paper lanterns, the moon rising), behind an invitation card with the date, venue and dress code | after the story |
+| Close | Warmth | "We've saved a spot for you." Tell us you're coming. A paper cake with a gold "2" candle stands in the meadow under "So we know how much cake to make." A few butterflies come out once it has arrived | the last screen |
 
 **The peak, as a guest would tell it:** *"the caterpillar I'd followed down the vine turned into a butterfly under my thumb, and then it became her wings."*
 

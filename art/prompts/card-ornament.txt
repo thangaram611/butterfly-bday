@@ -1,0 +1,7 @@
+Use: a decoration that sits centred on the top edge of a paper invitation card in a children's birthday invitation website, overlapping the card's edge. Image 1 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Format: wide 3:1.
+
+Subject: a symmetrical paper-cut flourish: in the centre a lilac paper butterfly with gold wing tips, its wings open, flanked by two curling sprigs of wisteria and violet leaves reaching out to the left and right and tapering to fine tips.
+
+Transparent background: real alpha, fully transparent everywhere outside the flourish. No checkerboard pattern, no white or coloured backdrop.

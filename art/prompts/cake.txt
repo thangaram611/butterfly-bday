@@ -1,0 +1,7 @@
+Use: a cut-out that stands in the evening meadow at the bottom of the last screen of a children's birthday invitation website, under the line "So we know how much cake to make". Image 1 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Format: square.
+
+Subject: a two-tier birthday cake made of layered paper, seen straight on: lilac and off-white tiers with violet paper icing drips and a row of tiny paper flowers, two small paper butterflies resting on its side, on a round off-white paper cake stand. On top stands one gold paper candle in the shape of the numeral 2 (a candle shape, the only exception to "no text"), with a small paper flame giving a soft warm glow.
+
+Transparent background: real alpha, fully transparent everywhere outside the cake and its stand. No checkerboard pattern, no white or coloured backdrop, no table.

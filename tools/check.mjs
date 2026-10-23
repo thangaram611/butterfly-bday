@@ -138,7 +138,7 @@ async function tasks() {
 async function audit(steps) {
   const TEXT = 'main h1, main h2, main p:not([aria-hidden]), main li, main dt, main dd, main figcaption, main .btn'; // read by guests: measured tight around the glyphs
   const BOXES = 'main .btn';                                                                        // buttons: measured as boxes
-  const DECOR = '.caterpillar img, .memory .pic, .twig, .change img, .flyer img, .her img, .two, .bf';        // art that must not sit on text
+  const DECOR = '.caterpillar img, .memory .pic, .twig, .change img, .flyer img, .her img, .two, .bf, .cake, .card .ornament'; // art that must not sit on text
   const DRAWINGS = '.caterpillar, .change img, .flyer img';                                          // must come to rest whole
   const POSES = '.caterpillar, .change img';                // one each (the butterfly takes off from the last frame, as one)
   const W = innerWidth, H = innerHeight;
@@ -311,7 +311,7 @@ const CRAFT = [['phone', '--width', '390', '--height', '844'], ['laptop', '--wid
 async function craft() {
   const runs = await Promise.all(CRAFT.map(([name, ...args]) => new Promise(done => execFile('node',
     ['tools/scrollcraft/shoot.mjs', '--url', url, '--out', `${OUT}/craft-${name.split(' ')[0]}`, ...args], { maxBuffer: 1 << 26 },
-    (err, out) => done({ name, found: out.split('\n\n').map(p => p.trim()).filter(p => /^[A-Z]{4}/.test(p)), err })))));
+    (err, out) => done({ name, found: out.split('\n\n').map(p => p.trim()).filter(p => /^[A-Z]{4}/.test(p)).map(p => p.split('\n').filter((l, i) => !i || /^\s/.test(l)).join('\n')), err })))));
   for (const { name, found, err } of runs) console.log(`craft, ${name}: ${found.length ? found.join('\n') : err ? err.message : 'ok'}`);
   return runs.reduce((n, r) => n + (r.found.length || (r.err ? 1 : 0)), 0);
 }

@@ -1,0 +1,11 @@
+Use: three small icons beside the date, the place and the dress code on a paper invitation card in a children's birthday invitation website, shown about 32 px tall. Image 1 is the style reference sheet: match its paper, cut edges, shadows and palette.
+
+Format: wide 3:1.
+
+Subject: three separate small paper-cut icons in a row, evenly spaced with wide clear gaps between them, each about the same size, seen straight on:
+1. a little calendar page with a gold ring binding and a lilac header;
+2. a map location pin in violet with an off-white centre and a tiny gold heart in it;
+3. a little party dress in amethyst with a flared lilac skirt and a small gold bow.
+Simple bold shapes that still read when small.
+
+Transparent background: real alpha, fully transparent everywhere outside the three icons. No checkerboard pattern, no white or coloured backdrop.

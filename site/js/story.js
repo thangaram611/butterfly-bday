@@ -201,10 +201,10 @@ export function story() {
       .fromTo(flyer, { x: 0, y: 0, scale: 1 }, { x: land.x - fly0.x, y: land.y - fly0.y, scale: land.w / fly0.w, duration: 0.8, ease: 'power1.inOut' }, tE + 0.5)
       .fromTo(two, { autoAlpha: 0, scale: 0.4, rotation: -20 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.15, ease: 'back.out(2)' }, t2)
       .fromTo(wings, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.2 }, t2 + 0.05)
-      // the story is over. As the details rise, she and her words leave before their first line arrives (0.12 screens
-      // in), and the same garden comes back at evening behind them
-      .to([her, two, wings], { autoAlpha: 0, duration: 0.12 }, length)
-      .fromTo(evening, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6 }, length);
+      // the story is over. As the details rise, she and her words leave before their first line arrives (0.08 screens
+      // in, site.css), and the same garden comes back at evening behind them, ready for the party
+      .to([her, two, wings], { autoAlpha: 0, duration: 0.08 }, length)
+      .fromTo(evening, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, length);
     track.style.height = `${length * H}px`;
     // the close's butterflies come out only once it has arrived
     const end = (document.documentElement.scrollHeight - innerHeight) / H;
@@ -269,6 +269,9 @@ export function story() {
     const o = el => Math.round(gsap.getProperty(el, 'opacity') * 20);
     stage.dataset.scVerifyState = [Math.round(cam / 4), ...drawings.map(([el]) => o(el)), o(flap), o(night), o(two), o(wings), o(evening),
       Math.round(gsap.getProperty(film, 'scale') * 200), Math.round(gsap.getProperty(flyer, 'y') / 4)].join('|');
+    // once the evening garden covers the story, the stage is a still backdrop by design while the details and the close
+    // scroll over it: an authored hold, not dead scroll
+    stage.dataset.scVerifyHold = gsap.getProperty(evening, 'opacity') === 1;
   }
 
   build();
