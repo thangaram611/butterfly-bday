@@ -114,7 +114,7 @@ export function friends(guide) {
   // one after another they rise out of the flowers below the screen into the garden
   const z0 = guide().garden;
   for (let i = 0; i < COUNT.play[+wide]; i++) {
-    const s = wide ? rand(36, 46) : rand(29, 37), h = (s * 779) / 1024, el = document.createElement('div');
+    const s = rand(29, 37), h = (s * 779) / 1024, el = document.createElement('div'); // the garden is drawn about as big on any screen
     el.className = 'bf friend';
     el.style.setProperty('--img', `url(${new URL(SPRITES[i % SPRITES.length], location.href)})`);
     el.style.setProperty('--s', `${s}px`);
@@ -189,7 +189,7 @@ export function friends(guide) {
   // open air and never up into the title
   function flit(g, z, target, dt, t, now) {
     if (g.rest) return (g.p = target); // resting on its daisy, which moves with the meadow
-    const home = g.layer === garden, dx = target[0] - g.p[0], dy = target[1] - g.p[1], d = Math.hypot(dx, dy) || 1, landing = g.daisy >= 0 && home;
+    const home = g.layer === garden, dx = target[0] - g.p[0], dy = target[1] - g.p[1], d = Math.hypot(dx, dy) || 1, landing = (g.landing = g.daisy >= 0 && home);
     if (landing && d < 4) {
       g.p = target;
       g.v = [0, 0];
@@ -298,6 +298,7 @@ export function friends(guide) {
         }
         const target = g.layer === home ? place : !shared ? [side(g.p[0]), g.p[1]] : among(g, z.near) ? rise(g, z.near) : place; // off the side first, to change over unseen
         perch &&= phase !== 'away' && g.layer === home && now > g.calm;
+        g.landing = perch;
 
         if (g.perched && perch) g.p = target; // it stays on its perch as the twig or the button moves
         else {
@@ -326,8 +327,16 @@ export function friends(guide) {
       const still = g.perched || g.rest, flap = still ? 1.4 : g.mode === 'play' && g.pace < 0.7 ? 2.5 * g.f : g.f; // wings slowly opening and closing
       if (g.flap !== flap) g.el.style.setProperty('--f', `${(g.flap = flap)}s`);
       g.el.style.visibility = off ? 'hidden' : '';
-      const bob = still ? 0 : 2.5 * Math.sin((t * Math.PI) / g.f + g.bob); // it rises a little with each beat
-      g.el.style.transform = `translate(${g.p[0] - g.s / 2}px, ${g.p[1] - g.h / 2 + bob}px) rotate(${still ? g.tilt : clamp(g.v[0] / (g.mode === 'play' ? 12 : 30), -28, 28)}deg)`;
+      // in free flight it banks into its turns and rises a little with each beat; landing or resting, it's level
+      const free = !(still || g.landing), tilt = free ? clamp(g.v[0] / (g.mode === 'play' ? 12 : 30), -28, 28) : g.tilt;
+      const bob = free ? 2.5 * Math.sin((t * Math.PI) / g.f + g.bob) : 0;
+      // and never over the title: its turned box keeps 6 px below the letters
+      const a = (tilt * Math.PI) / 180, half = (g.s * Math.abs(Math.sin(a)) + g.h * Math.cos(a)) / 2;
+      if (g.layer !== close && g.p[1] + bob - half < G.title + 6) {
+        g.p[1] = G.title + 6 + half - bob;
+        g.v[1] = Math.max(0, g.v[1]);
+      }
+      g.el.style.transform = `translate(${g.p[0] - g.s / 2}px, ${g.p[1] - g.h / 2 + bob}px) rotate(${tilt}deg)`;
     }
     if (busy) wake();
   }

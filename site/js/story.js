@@ -56,7 +56,8 @@ export function story() {
   const world = Object.fromEntries(Object.keys(DEPTH).map(k => [k, k === 'words' ? $('.words') : $(`.world .${k}`)]));
   const cat = $('.caterpillar'), segs = [...cat.children], silk = $('.silk'), night = $('.night'), film = $('.film'), change = $('.change');
   const frames = [...change.children], twig = $('.twig'), flyer = $('.flyer'), flap = $('.flyer img'), hush = $('.hush'), her = $('.her'), two = $('.two'), wings = $('.wings');
-  const evening = $('.evening'), track = document.querySelector('.track');
+  const evening = $('.evening'), track = document.querySelector('.track'), titleText = document.createRange();
+  titleText.selectNodeContents($('.title'));
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // the drawings the change goes through, each shown whole: the caterpillar on its thread, the frames (the butterfly
@@ -296,9 +297,10 @@ export function story() {
       daisies: DAISIES.map(([x, y]) => [mx + x * mw, meadow.offsetTop + y * mw]), lift: DEPTH.meadow * cam,
       near: { left: mx, right: mx + mw, top: near, bottom: near + blossoms.offsetHeight },
     };
-    // the caterpillar: its pieces, each within `reach` of its place on the body; and whether the evening garden hides
-    // the stage entirely
-    const g = { phase, cam, screens: at, body, reach: 0.14 * catW * p.zoom, garden, covered: gsap.getProperty(evening, 'opacity') === 1 };
+    // the caterpillar: its pieces, each within `reach` of its place on the body; where the title's letters end, on the
+    // screen; and whether the evening garden hides the stage entirely
+    const g = { phase, cam, screens: at, body, reach: 0.14 * catW * p.zoom, garden, title: titleText.getBoundingClientRect().bottom,
+      covered: gsap.getProperty(evening, 'opacity') === 1 };
     if (phase === 'twig') {
       const left = CHRYSALIS.left * boxW, top = CHRYSALIS.top * H + geometry.camHold - cam;
       g.perches = PERCHES.map(([x, y]) => shown(left + x * chrysW, top + y * chrysW));
