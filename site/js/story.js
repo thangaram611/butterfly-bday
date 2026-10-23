@@ -41,9 +41,13 @@ const SEGMENTS = [
   { at: 0.8650, left: -0.1384, top: -0.2549, width: 0.2734 },
 ];
 const LEAVES = [{ x: 0.348, y: 0.228 }, { x: 0.691, y: 0.643 }]; // the vine's two big leaves, as fractions of a tile
-// Where the guest's butterflies land on the twig to watch the change, in the order they arrive: its branch, its stub,
-// its two top leaves and its knot, as fractions of the twig drawing's width (the top edge there)
-const PERCHES = [[0.4, 0.178], [0.62, 0.1872], [0.31, 0.1343], [0.9, 0.0193], [0.09, 0.0254], [0.72, 0.174], [0.22, 0.1434], [0.5, 0.1719]];
+// Where the butterflies that came along land on the twig to watch the change, in the order they arrive: its branch,
+// its stub, its two top leaves and its knot, as fractions of the twig drawing's width (the top edge there)
+const PERCHES = [[0.4, 0.178], [0.62, 0.1872], [0.31, 0.1343], [0.9, 0.0193], [0.09, 0.0254], [0.72, 0.174], [0.22, 0.1434]];
+// The daisies the garden's butterflies rest on: the yellow middles the near flowers leave in view, as fractions of the
+// meadow drawing's width
+const DAISIES = [[0.191, 0.084], [0.256, 0.111], [0.389, 0.136], [0.438, 0.167], [0.532, 0.175], [0.572, 0.157], [0.628, 0.182],
+  [0.7, 0.241], [0.731, 0.158], [0.816, 0.135], [0.846, 0.211], [0.86, 0.112], [0.916, 0.147]];
 const TILES = 3;                                                   // vine images, one screen each
 
 export function story() {
@@ -214,7 +218,7 @@ export function story() {
     render();
   }
 
-  let herRise = 0, geometry, burstDone = still, shown = 0, snap, middle;
+  let herRise = 0, geometry, burstDone = still, shown = 0, snap, body = [];
 
   function show(n) {
     const d = still ? 0 : SNAP;
@@ -244,7 +248,7 @@ export function story() {
       const d = seg.at * long + (still ? 0 : 0.012 * long * Math.sin(cam / 26 - 0.9 * i));
       for (; s < d; y++) { const n = way(y + 1); s += Math.hypot(n - x, 1); x = n; }
       gsap.set(segs[i], { x, y: y - cam, rotation: (Math.atan2(2, way(y + 1) - way(y - 1)) * 180) / Math.PI, scale: p.zoom });
-      if (i === 3) middle = [x, y - cam];
+      body[i] = [x, y - cam];
     });
     Object.assign(silk.style, { left: `${W / 2}px`, top: `${vEnd - cam}px`, height: `${Math.max(0, tail - vEnd)}px` });
 
@@ -273,21 +277,32 @@ export function story() {
     build();
   }, { passive: true });
 
-  // Where the guest's butterflies are wanted (js/butterflies.js), in px on the stage: round the caterpillar on the
-  // vine; on the twig while it changes; with the new butterfly down to her; off the sides with the burst, for the
-  // details; then the close
+  // Where the butterflies are wanted (js/butterflies.js), in px on the stage. The garden, where they play: the open air
+  // between the title and the grass, and the daisies, in the meadow's own px (it has travelled `lift` up the screen);
+  // and the near flowers' box, on the screen, which they pass behind. The few that come along: round the caterpillar
+  // on the vine; on the twig while it changes; with the new butterfly down to her; off the sides with the burst, for
+  // the details; then the close
   function guide() {
-    const { boxL, boxW, chrysW, fly0, t1, tE, end } = geometry;
+    const { boxL, boxW, chrysW, fly0, t1, tE, end, catW } = geometry;
     const at = scrollY / H, cam = p.cam;
     const phase = at < t1 - 0.2 ? 'vine' : at < tE ? 'twig' : at < length - 0.3 ? 'her' : at < end - 0.3 ? 'away' : 'close';
     const s = gsap.getProperty(film, 'scale'), ox = boxW / 2, oy = 0.3 * H; // the film box scales about this point
     const shown = (x, y) => [boxL + ox + (x - ox) * s, oy + (y - oy) * s];
+    const { meadow, blossoms } = world, title = $('.title'), mx = meadow.offsetLeft, mw = meadow.offsetWidth, near = blossoms.offsetTop - DEPTH.blossoms * cam;
+    const garden = {
+      left: Math.max(16, mx + 16), right: Math.min(geometry.W - 16, mx + mw - 16),
+      top: title.offsetTop + title.offsetHeight + 24, bottom: meadow.offsetTop + 0.3 * mw,
+      daisies: DAISIES.map(([x, y]) => [mx + x * mw, meadow.offsetTop + y * mw]), lift: DEPTH.meadow * cam,
+      near: { left: mx, right: mx + mw, top: near, bottom: near + blossoms.offsetHeight },
+    };
+    // the caterpillar: its pieces, each within `reach` of its place on the body; and whether the evening garden hides
+    // the stage entirely
+    const g = { phase, cam, screens: at, body, reach: 0.14 * catW * p.zoom, garden, covered: gsap.getProperty(evening, 'opacity') === 1 };
     if (phase === 'twig') {
       const left = CHRYSALIS.left * boxW, top = CHRYSALIS.top * H + geometry.camHold - cam;
-      return { phase, cam, perches: PERCHES.map(([x, y]) => shown(left + x * chrysW, top + y * chrysW)) };
-    }
-    if (phase === 'her') return { phase, cam, at: shown(fly0.x + gsap.getProperty(flyer, 'x'), fly0.y + gsap.getProperty(flyer, 'y')) };
-    return { phase, cam, at: middle };
+      g.perches = PERCHES.map(([x, y]) => shown(left + x * chrysW, top + y * chrysW));
+    } else g.at = phase === 'her' ? shown(fly0.x + gsap.getProperty(flyer, 'x'), fly0.y + gsap.getProperty(flyer, 'y')) : body[3];
+    return g;
   }
 
   return { play: () => tl.time(Math.min(scrollY / H, tl.duration())), guide };

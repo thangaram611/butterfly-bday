@@ -46,16 +46,25 @@ So the page is one story on one pinned picture (`uniqueness.md` §2.4, continuou
 - **Navigation:** none (unchanged).
 - **The one place it stops:** when she has her wings. That's the end of the story, and you said a stop there is fine.
 
-### Signature move: butterflies come out of your finger
+### Signature move: the garden's butterflies
 
-Unchanged from the review, and now it can join the story: the butterflies released by your finger follow the caterpillar down the vine, gather at the twig while it changes, and settle around **Tell us you're coming** at the end.
+The garden is full of butterflies at play, and a few of them come along with the caterpillar: down the vine, to the twig while it changes, with the new butterfly down to her, and to **Tell us you're coming** at the end.
 
-Your choices (2026-10-22):
-- The first scroll releases one from under the finger, each tap another, **up to 8**; a tap after that makes the nearest one flutter.
+Your direction (2026-10-23): *"instead of tapping that spawns a single butterfly can we have a bunch of them at the starting garden playing around. and when we scroll some of them (the same present in the garden) come along the way with the caterpiller and complete the journey just like what we have done today. Just that we can remove tap to spawn butterfly but at anytime we can interact with butterfly (only if possible and easy). we need to make sure the butterflys are as natural as possible may be with some level of randomness and also when we scroll back to the top we need to properly think that through as well."*
+
+Your choices (2026-10-23):
+- **10 play** in the garden (14 on a wider screen), and the **5 nearest** the caterpillar (7) come along when the guest scrolls.
+- Each flies its own way: it wanders and bobs with its wingbeats, now and then glides, **rests on a daisy** a few seconds, or whirls round another; they pass behind the near flowers. When the page opens they rise out of the flower bed one after another.
+- A touch or the mouse **startles** the ones near it: they dart off and come back; perched ones lift off and land again.
+- **Scrolled back, the story rewinds** and they go with it, off the button, back to her, onto the twig, up the vine; at the top they rejoin the others, and whichever are nearest come along next time.
+
+The journey itself is as you chose it on 2026-10-22:
 - On the vine they flutter round the caterpillar, and a flick sweeps them back a little before they catch up.
 - At the twig they **land and watch** the change from the branch, the stub, the knot and the two top leaves, wings slowly opening and closing; they lift off when the new butterfly lets go and follow it down to her.
 - **Away during the details:** they fly off the sides with the burst, so nothing flutters over the words, and fly back in at the close.
-- At the close **both**: the guest's own land on the edges of **Tell us you're coming**, clear of its words, and the drifting ones stay.
+- At the close **both**: they land on the edges of **Tell us you're coming**, clear of its words, and the drifting ones stay.
+
+Superseded (2026-10-22): the first scroll released one from under the finger and each tap another, up to 8.
 
 **"It's the site where…"** *you follow a little paper caterpillar down a vine, past her first year, and watch it become Taneira with wings.*
 
@@ -104,7 +113,7 @@ As before: no scroll hint, no emoji icons, no identical cards, balanced headline
 
 ## How it gets checked
 
-- `npm run layout`: overlaps (art painting over words, unless the words sit on their own paper and the art passes behind), words off the side or off a pinned screen, a drawing left half-dissolved once the scroll rests or more than two showing at once, tap targets, sideways scroll, broken images, errors; 7 setups, 1001 points each. Proven on planted faults.
+- `npm run layout`: overlaps (art painting over words, unless the words sit on their own paper and the art passes behind), words off the side or off a pinned screen, a drawing left half-dissolved once the scroll rests or more than two showing at once, tap targets, sideways scroll, broken images, errors, butterflies that don't all come back to the garden; 7 setups, 12 s of the garden at play, then 1001 points down and back up. Proven on planted faults.
 - `npm run craft`: scroll-craft's harness at phone, laptop and reduced motion; dead scroll checked through the stage's drawn state, densely sampled. Its contrast pass only grades words the engine cues, so it doesn't cover this page's words; contrast is read by eye on the sheets.
 - `npm run tasks` and `npm run flicker`.
 - The feel check, then your phones.
@@ -129,3 +138,4 @@ Each step is its own branch, compared on your phone and merged only when you say
   - Build order: the signature moves before the year-one art.
   - Suggested by the review, not decided: cut desktop landscape art, offline support and the countdown before launch.
 - 2026-10-22, your direction after the skeleton ("This still feels like scenes stitched together not a single unified story"): one continuous story on one pinned picture, from the garden to her portrait, with the caterpillar as the one character; then the details and the close over the same garden at evening. Supersedes the five-act score above it.
+- 2026-10-23, your idea for the signature move: butterflies at play in the garden from the start, a few of which come along, instead of ones tapped out. Supersedes the 2026-10-22 release by tap.

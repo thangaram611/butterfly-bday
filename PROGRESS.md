@@ -1,12 +1,12 @@
 # Progress and next steps
 
 The working log for Taneira's 2nd-birthday invite. Read this first in a new session, then `BRIEF.md` (the scroll-craft brief the rebuild follows), then `PLAN.md`.
-Last updated 2026-10-22.
+Last updated 2026-10-23.
 
 ## Where things stand
 
 - `main` is the baseline (2026-10-22, pushed to GitHub): one continuous story on one pinned picture (`BRIEF.md` is the plan). The paper caterpillar goes down a vine past her first year (four baby pictures on its leaves), curls up into a chrysalis, comes out as a butterfly and becomes her wings; then the details and the close over the evening garden. The previous baseline, the "one film", is `767dd74`.
-- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is rebuilt as the one story. Still open from milestone 2: the iPhone check (next step 3).
+- **Milestone 1** (style test) is done and approved. **Milestone 2** (rough build) is rebuilt as the one story. Still open from milestone 2: the iPhone check (next step 4).
 - Placeholders still in: the laptop shows the phone composition as a centred column; her winged portrait is version A of two; the evening garden is the dawn layers under a dusk wash.
 - Party: Saturday 28 November 2026, 6–8 PM IST, Party Hall, Ramaniyam Magnum, Perungudi. Plan launch Nov 12–14.
 
@@ -27,7 +27,8 @@ Last updated 2026-10-22.
 | branch `feat/story-art` (`50afda0`) | The stand-ins replaced: the change as nine Codex drawings played frame by frame (the caterpillar grows on its thread to their size); a baby drawing sheet and four memory pictures from it; `tools/art.py frames` | Merged. "The baby pictures are on point… the change is perfect smooth no jumps" (2026-10-22) |
 | branch `fix/phone-notes` (`63dca74`) | Your three notes: the foliage repeated with a hard line once a screen (repaired by Codex into a seamless tile) and the vine ended above the twig; a white bar under the page on Android when the address bar hides (the stage now reaches the large viewport); drawings resting half-dissolved on a slow scroll (now each dissolves in on its own clock). Found on the way: the close's drifting butterflies could make the page a little wider than a phone, so it slid sideways (they're clipped now); the layout audit now judges a fresh page and fails on a drawing resting half-dissolved or more than two drawings showing at once | Merged. "The foliage seam is gone… the white bar is gone on my android phone… mid-change settles cleanly" (2026-10-22) |
 | branch `fix/phone-notes-2` (`51c0f60`) | Your notes, round 2: the caterpillar is cut into its paper pieces, each on the stem at its own point along the body, so it bends around the vine's curves, ripples gently as it goes, and hangs straight under its thread (it hung beside it: the old picture's middle was on the thread, not its body); the hatching no longer jumps in size (Codex drew the empty shell 17% bigger, and its open-winged butterfly differed from the one that flies; now the shell is laid over the one before it, and the flying butterfly hangs from it from the start) | Merged. "Everything perfect" (2026-10-22) |
-| branch `feat/signature` | The signature butterflies, as you chose them: the first scroll releases one from under the finger and each tap another, up to 8 (then the nearest flutters); they flutter round the caterpillar and a flick sweeps them back; they land on the twig to watch the change; follow the new butterfly down to her; fly off with the burst for the details; and land on the edges of "Tell us you're coming", with the drifting ones still there. The checks now tap out all eight first | Awaiting your phone check |
+| branch `feat/signature` | The signature butterflies, as you chose them: the first scroll releases one from under the finger and each tap another, up to 8 (then the nearest flutters); they flutter round the caterpillar and a flick sweeps them back; they land on the twig to watch the change; follow the new butterfly down to her; fly off with the burst for the details; and land on the edges of "Tell us you're coming", with the drifting ones still there. The checks now tap out all eight first | Superseded by `feat/garden` before your phone check (not merged) |
+| branch `feat/garden` | Your idea (2026-10-23): no more tapping out butterflies. Ten play in the dawn garden (fourteen on a laptop), each its own wandering, bobbing way, now and then gliding, resting on a daisy or whirling round another, passing behind the near flowers; they rise out of the flower bed when the page opens. When you scroll, the five nearest the caterpillar (seven on a laptop) come along and make the same journey as on `feat/signature`. Scrolled back, the story rewinds and they go with it, and at the top they rejoin the others. A touch, or the mouse, startles the ones near it. The layout check now watches the garden play (startling the highest butterfly up towards the title) and scrolls back up, failing if any butterfly doesn't make it home. That way back also turned up one thing that's on `main` too (next step 2) | Awaiting your phone check |
 
 ## Decisions made with you (don't reopen without asking)
 
@@ -44,13 +45,14 @@ Last updated 2026-10-22.
 
 Each is its own branch, approved before merge. Details in `BRIEF.md`.
 
-1. **Signature butterflies:** on `feat/signature`, awaiting your phone check.
-2. **Details and close polish.**
-3. **iPhone check.** Ask which iOS version.
-4. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
-5. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
-6. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
-7. **Milestone 6, launch** on Cloudflare Pages.
+1. **Signature butterflies:** on `feat/garden`, awaiting your phone check.
+2. **A faint wing on a fast scroll back** (found 2026-10-23 by the layout check's new way back; on `main` too; until it's fixed, the layout check fails on it on the three iPhone-sized setups): scrolling back quickly through the change, the new butterfly's wing lingers at about 10% for a moment over "Lately, something has been changing…". Cause: each drawing the scroll passes restarts the fade of those still leaving (`show()` in `js/story.js`). Proposed fix: fade the ones already leaving straight away, so only the last one shown overlaps the next. Awaiting your call.
+3. **Details and close polish.**
+4. **iPhone check.** Ask which iOS version.
+5. **Milestone 3, final art:** desktop landscape art; first-screen weight (538 KB against a 450 KB budget); `og.jpg`, icons and favicon.
+6. **Milestone 4, invitation features:** Google Calendar link; `links.html` for `?to=` links; the thank-you line after the WhatsApp tap; `event.json` and `tools/event-sync.mjs`; final portrait (A or B); copy polish.
+7. **Milestone 5:** home-screen and offline support; the real-phone checklist; Lighthouse ≥ 90.
+8. **Milestone 6, launch** on Cloudflare Pages.
 
 ## How to work here
 
@@ -63,14 +65,14 @@ Each is its own branch, approved before merge. Details in `BRIEF.md`.
   ```
   Both links are git-ignored. For art work, also link `art/raw` and `art/private` the same way (also ignored).
 - **Preview on your phone:**
-  - Serve `main` on port 8642 from the main checkout and the branch on port 8643 from its worktree, each with `/usr/bin/python3 -m http.server <port> --bind 0.0.0.0 --directory <path>/site`.
+  - Serve `main` on port 8642 from the main checkout and the branch on its own port (8643, 8644…) from its worktree, each with `/usr/bin/python3 -m http.server <port> --bind 0.0.0.0 --directory <path>/site`.
   - Use the system Python: the Mac's firewall blocks Homebrew's Python from accepting connections.
-  - Phone URL: `http://<this Mac's Wi-Fi IP>:<port>`. It was 192.168.68.57; check with `ipconfig getifaddr en0`.
+  - Phone URL: `http://<this Mac's Wi-Fi IP>:<port>`. It changes with the network (home 192.168.68.57, office 10.69.110.72); check with `ipconfig getifaddr en0`.
 - **Checks, all before showing anything** (serve the site first, then pass its URL):
 
   | Command | What it does | Must show |
   |---|---|---|
-  | `npm run layout` | Taps out the guest's eight butterflies, then scrolls the page through 1001 points × 7 setups, including Safari's engine and an SE-sized screen | All ok |
+  | `npm run layout` | Watches the garden's butterflies play for 12 s (startling the highest towards the title), then scrolls the page through 1001 points and back up, × 7 setups, including Safari's engine and an SE-sized screen | All ok |
   | `npm run craft -- --url <url> --out shots/craft-phone --width 390 --height 844` | scroll-craft's own harness (also `--width 1440 --height 900`, and `--reduced-motion`): dead scroll, words that never reach full strength, contrast on the real frame | No dead scroll; every line clears 4.5:1 |
   | `npm run flicker` | Headed Chrome under memory pressure; reports flashes, hits and still stretches | No flashes. Hits only at the story's known stops: her landing on the last frame of the story, and the evening coming in |
   | `npm run tasks` | CPU slowed 4× | No task over 50 ms |

@@ -2,11 +2,13 @@
 //   node tools/check.mjs shots   [url]  24 evenly spaced scroll positions at 3 sizes + reduced motion → shots/*.png
 //   node tools/check.mjs flicker [url]  slow scroll recorded with GPU memory cut to 48 MB; fails on blank-frame flashes
 //   node tools/check.mjs tasks   [url]  slow scroll at phone size with the CPU slowed 4×; fails on main-thread tasks over 50 ms
-//   node tools/check.mjs layout  [url]  scrolls through the whole page (1001 points) on 5 screens in Chrome and Safari's
-//                                       engine (WebKit), plus reduced motion; fails on anything covering readable text,
-//                                       text off the side or off a pinned screen, scenery gaps on a pinned screen, a
-//                                       drawing left half-dissolved once the scroll rests, broken images, sideways
-//                                       scrolling, small tap targets, console errors or failed requests
+//   node tools/check.mjs layout  [url]  watches the garden's butterflies play, then scrolls through the whole page (1001
+//                                       points) and back up, on 5 screens in Chrome and Safari's engine (WebKit), plus
+//                                       reduced motion; fails on anything covering readable text, text off the side or
+//                                       off a pinned screen, scenery gaps on a pinned screen, a drawing left
+//                                       half-dissolved once the scroll rests, butterflies that don't all come back to
+//                                       the garden, broken images, sideways scrolling, small tap targets, console errors
+//                                       or failed requests
 //   npm run craft -- --url [url] ...    scroll-craft's own harness (tools/scrollcraft/shoot.mjs, unedited): dead scroll,
 //                                       words that never reach full strength, contrast on the composited frame
 // Uses the installed Chrome (playwright-core, no browser download) and Homebrew ffmpeg.
@@ -27,9 +29,6 @@ mkdirSync(OUT, { recursive: true });
 // Wheel through the whole page in small steps, like a slow thumb
 async function slowScroll(page) {
   const height = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
-  const { width: w, height: h } = page.viewportSize();
-  for (let i = 0; i < 8; i++) await page.mouse.click(w * (0.15 + 0.1 * i), h * 0.85); // the guest's eight butterflies
-  await page.mouse.move(100, 100);
   for (let y = 0; y < height; y += 20) {
     await page.mouse.wheel(0, 20);
     await page.waitForTimeout(30);
@@ -213,10 +212,16 @@ async function audit(steps) {
   };
 
   for (const btn of document.querySelectorAll('.btn')) if (btn.getBoundingClientRect().height < 44) found.push({ rule: 'small tap target', what: name(btn), at: '-' });
-  // the guest's own butterflies: tap out all eight (js/butterflies.js), so every one's way down the page is checked
-  for (let i = 0; i < 8; i++) {
-    const x = W * (0.15 + 0.1 * i), y = H * 0.85, target = document.elementFromPoint(x, y);
-    for (const type of ['pointerdown', 'pointerup']) target.dispatchEvent(new PointerEvent(type, { clientX: x, clientY: y, bubbles: true }));
+  // the garden's butterflies at play (js/butterflies.js): watch them for 12 s, every half second startling the highest
+  // one up from just below it, so one that darts up into the title's words is caught
+  for (let t = 0; t < 12000; t += 100) {
+    const high = [...document.querySelectorAll('.world .friends .bf')].filter(shown).map(el => el.getBoundingClientRect()).filter(onScreen).sort((a, b) => a.top - b.top)[0];
+    if (t % 500 === 0 && high) {
+      const x = (high.left + high.right) / 2, y = high.bottom + 30;
+      document.elementFromPoint(x, y)?.dispatchEvent(new PointerEvent('pointerdown', { clientX: x, clientY: y, bubbles: true }));
+    }
+    await new Promise(r => setTimeout(r, 100));
+    measure('0.00 at play');
   }
   const max = document.documentElement.scrollHeight - H;
   const blurred = [];
@@ -237,6 +242,16 @@ async function audit(steps) {
     }
     for (const el of half()) found.push({ rule: 'half-dissolved drawing at rest', what: file(el), at });
   }
+  // back up the page: the story plays backwards, and the butterflies that came along go with it, then rejoin the
+  // others in the garden, all of them back in its layer, on the screen
+  for (let i = steps; i >= 0; i -= 4) {
+    scrollTo({ top: (i / steps) * max, behavior: 'instant' });
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    measure(`${((i / steps) * max / H).toFixed(2)} back`);
+  }
+  const all = document.querySelectorAll('.bf.friend').length, home = () => [...document.querySelectorAll('.world .friends .bf')].filter(el => shown(el) && onScreen(el.getBoundingClientRect())).length;
+  for (let t = 0; t < 10000 && home() < all; t += 250) await new Promise(r => setTimeout(r, 250)); // they fly home at their own pace
+  if (home() < all) found.push({ rule: 'not all back in the garden', what: `${home()} of ${all} butterflies after 10 s`, at: '0.00 back' });
   return found;
 }
 

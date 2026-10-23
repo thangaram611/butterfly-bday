@@ -1,4 +1,4 @@
-import { flock, signature } from './butterflies.js';
+import { flock, friends } from './butterflies.js';
 import { invite } from './invite.js';
 import { story } from './story.js';
 
@@ -29,6 +29,6 @@ addEventListener('load', schedule, { once: true });
 update();
 
 gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
-  const stops = [flock(), signature(guide)];
+  const stops = [flock(), friends(guide)];
   return () => stops.forEach(stop => stop());
 });
