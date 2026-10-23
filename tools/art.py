@@ -6,7 +6,7 @@
   tools/art.py segments  <raw.png> <name>   the caterpillar cut into its paper pieces, tail first, so the page can bend it
                                              along the vine: writes site/img/<name>/<n>.webp and prints where each one
                                              sits on the body, for js/story.js
-  tools/art.py butterfly <raw.png> <name>   centre the body line at exactly 50%; also writes <name>-sm (256 px, for the
+  tools/art.py butterfly <raw.png> <name>   centre the body line at exactly 50%; also writes <name>-sm (192 px, for the
                                              small flying ones)
   tools/art.py frames    <name> <raw.png…>  the change's stop-motion frames: lay each one's twig exactly over the chrysalis
                                              drawing's (the last, the empty shell, over the shell of the one before it),
@@ -39,12 +39,20 @@ def opaque(im):
     return np.asarray(im)[..., 3] > 8
 
 
+# The first screen's layers carry most of its weight (PLAN.md's budget), so they're exported at a lower quality, and
+# the cut-outs with coarser transparency, which their clean paper edges hide. Everything else: 82, and 90 for alpha.
+QUALITY = {"s1-sky": (72, 90), "s1-hills": (72, 40), "s1-wisteria": (75, 40), "s1-meadow": (75, 40), "s1-blossoms": (75, 40),
+           "vine": (75, 40)}
+
+
 def export(im, name, width=1024):
     if im.width > width:
         im = im.resize((width, round(im.height * width / im.width)), Image.LANCZOS)
+    q, alpha_q = QUALITY.get(name, (82, 90))
     with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
         im.save(tmp.name)
-        subprocess.run(["cwebp", "-quiet", "-q", "82", "-alpha_q", "90", tmp.name, "-o", f"site/img/{name}.webp"], check=True)
+        subprocess.run(["cwebp", "-quiet", "-m", "6", "-q", str(q), "-alpha_q", str(alpha_q), "-alpha_filter", "best", tmp.name,
+                        "-o", f"site/img/{name}.webp"], check=True)
     print(f"site/img/{name}.webp {im.width}x{im.height}")
 
 
@@ -111,7 +119,7 @@ def butterfly(im, name):
     half = max(mid - cols[0], cols[-1] + 1 - mid)
     art = im.crop((round(mid - half), rows[0], round(mid + half), rows[-1] + 1))
     export(art, name)
-    export(art, f"{name}-sm", 256)
+    export(art, f"{name}-sm", 192)  # flying at 64 px at most, three device pixels each
 
 
 def scaled(im, s, dx, dy, resample=Image.BICUBIC):

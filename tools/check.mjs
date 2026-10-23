@@ -1,7 +1,9 @@
 // Browser checks for the site (dev only). Serve it first: python3 -m http.server -d site 8000
-//   node tools/check.mjs all     [url]  everything that must pass before a change is shown (npm run check): layout and
-//                                       craft side by side, then tasks and flicker, each alone; about 3.5 minutes
+//   node tools/check.mjs all     [url]  everything that must pass before a change is shown (npm run check): layout, craft
+//                                       and weight side by side, then tasks and flicker, each alone; about 2.5 minutes
 //   node tools/check.mjs shots   [url]  24 evenly spaced scroll positions at 3 sizes + reduced motion → shots/*.png
+//   node tools/check.mjs weight  [url]  what a phone downloads before the page's load event, as it will travel (code
+//                                       gzipped, images as they are); fails over the first screen's 450 KB budget
 //   node tools/check.mjs flicker [url]  slow scroll recorded with GPU memory cut to 48 MB; fails on blank-frame flashes
 //   node tools/check.mjs tasks   [url]  slow scroll at phone size with the CPU slowed 4×; fails on main-thread tasks over 50 ms
 //   node tools/check.mjs layout  [url]  watches the garden's butterflies play, then scrolls through the whole page (1001
@@ -18,6 +20,7 @@
 // Uses the installed Chrome (playwright-core, no browser download) and Homebrew ffmpeg.
 import { chromium, webkit, devices } from 'playwright-core';
 import { execFile, execFileSync } from 'node:child_process';
+import { gzipSync } from 'node:zlib';
 import { mkdirSync, readdirSync, rmSync } from 'node:fs';
 
 const [mode, url = 'http://127.0.0.1:8000/'] = process.argv.slice(2);
@@ -113,6 +116,32 @@ async function flicker() {
     failed ||= flashes.length > 0;
   }
   return failed ? 1 : 0;
+}
+
+// The first screen's weight: everything a phone downloads before the page's load event, counted as it will travel
+// (code and text gzipped, as the host serves them; images and fonts as they are). Budget: PLAN.md.
+const BUDGET = 450;
+async function weight() {
+  const browser = await chromium.launch({ channel: 'chrome' });
+  const page = await browser.newPage(SIZES.iphone);
+  const bodies = new Map();
+  page.on('response', r => bodies.set(r.url(), r.body().catch(() => null)));
+  await page.goto(url, { waitUntil: 'load' });
+  const before = await page.evaluate(() => {
+    const load = performance.getEntriesByType('navigation')[0].loadEventStart;
+    return [location.href, ...performance.getEntriesByType('resource').filter(r => r.responseEnd <= load).map(r => r.name)];
+  });
+  const text = name => /\.(js|css|html|svg|json)$|\/$/.test(new URL(name).pathname);
+  const rows = [];
+  for (const name of before) {
+    const body = await bodies.get(name);
+    if (body) rows.push([name.replace(new URL(url).origin + '/', '') || 'index.html', Math.round((text(name) ? gzipSync(body, { level: 9 }) : body).length / 1024)]);
+  }
+  await close(browser);
+  rows.sort((a, b) => b[1] - a[1]);
+  const total = rows.reduce((n, [, kb]) => n + kb, 0);
+  console.log(`first screen: ${total} KB (budget ${BUDGET} KB), the heaviest: ${rows.slice(0, 8).map(([f, kb]) => `${f} ${kb}`).join(', ')}`);
+  return total > BUDGET ? 1 : 0;
 }
 
 async function tasks() {
@@ -316,8 +345,8 @@ async function craft() {
   return runs.reduce((n, r) => n + (r.found.length || (r.err ? 1 : 0)), 0);
 }
 
-// Everything that must pass before a change is shown: the layout audit and the harness side by side, then the two
-// checks that measure speed, each alone (anything running beside them would skew them)
+// Everything that must pass before a change is shown: the layout audit, the harness and the weight side by side, then
+// the two checks that measure speed, each alone (anything running beside them would skew them)
 async function all() {
   const start = Date.now(), since = t => `${Math.round((Date.now() - t) / 1000)} s`;
   const timed = async ([name, check]) => {
@@ -325,10 +354,10 @@ async function all() {
     console.log(`→ ${name}: ${problems ? 'FAILED' : 'passed'} (${since(t)})\n`);
     return problems ? [name] : [];
   };
-  const failed = (await Promise.all([['layout', layout], ['craft', craft]].map(timed))).flat();
+  const failed = (await Promise.all([['layout', layout], ['craft', craft], ['weight', weight]].map(timed))).flat();
   for (const check of [['tasks', tasks], ['flicker', flicker]]) failed.push(...(await timed(check)));
   console.log(failed.length ? `FAILED: ${failed.join(', ')} (${since(start)})` : `all checks passed (${since(start)})`);
   return failed.length;
 }
 
-process.exit((await { shots, flicker, tasks, layout, craft, all }[mode]()) ? 1 : 0);
+process.exit((await { shots, flicker, tasks, layout, craft, weight, all }[mode]()) ? 1 : 0);

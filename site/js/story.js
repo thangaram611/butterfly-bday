@@ -75,8 +75,12 @@ export function story() {
     return h;
   };
 
-  // the pictures further down the story, once the first screen has loaded: the memories first, then the frames
-  addEventListener('load', () => stage.querySelectorAll('img[data-src]').forEach(img => (img.src = img.dataset.src)), { once: true });
+  // the first screen loads alone; once it has, every picture further down the page, in its order (the memories, the
+  // twig and the frames, her, the evening, the card and the cake), and the vine's foliage (site.css)
+  addEventListener('load', () => {
+    document.querySelectorAll('img[data-src]').forEach(img => (img.src = img.dataset.src));
+    document.documentElement.classList.add('later');
+  }, { once: true });
 
   let tl, length, H;
   const p = { cam: 0, flap: 0, sway: 0, zoom: 1 };
@@ -288,6 +292,7 @@ export function story() {
   // on the vine; on the twig while it changes; with the new butterfly down to her; off the sides with the burst, for
   // the details; then the close
   function guide() {
+    play(); // the story as the scroll has it now: the butterflies may run before its own frame does
     const { boxL, boxW, chrysW, fly0, t1, tE, end, catW } = geometry;
     const at = scrollY / H, cam = p.cam;
     const phase = at < t1 - 0.2 ? 'vine' : at < tE ? 'twig' : at < length - 0.3 ? 'her' : at < end - 0.3 ? 'away' : 'close';
@@ -311,5 +316,6 @@ export function story() {
     return g;
   }
 
-  return { play: () => tl.time(Math.min(scrollY / H, tl.duration())), guide };
+  const play = () => tl.time(Math.min(scrollY / H, tl.duration()));
+  return { play, guide };
 }
